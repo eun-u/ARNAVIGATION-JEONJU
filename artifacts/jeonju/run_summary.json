@@ -1,0 +1,127 @@
+{
+    "schema_version":  1,
+    "status":  "implementation_verification_in_progress",
+    "objective_completed":  false,
+    "field_acceptance_verified":  false,
+    "updated_at":  "2026-09-18T15:23:42.198094+00:00",
+    "repository":  "C:\\Project\\ARNAVIGATION-JEONJU",
+    "base_commit":  "fa93b5fe35b09e967636d0b946dff3b34293b1e3",
+    "changes_committed":  false,
+    "implementation_report":  "docs/jeonju_demo_implementation_20260918.md",
+    "scope":  {
+                  "region_id":  "JEONJU_JBNU_SOUTH_P0",
+                  "dataset_revision":  "jeonju-p0-20260918-1ace3878",
+                  "scope_revision":  "jbnu-internal-eight-v1",
+                  "graph_sha256":  "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+                  "bundle_sha256":  "1ace3878b27854dfbe28445e3fa5e1ff0cce14169212cffa2e0059d122cbba1f"
+              },
+    "active_graph_content_unchanged_from_HEAD":  true,
+    "graph_file_sha256":  "2df42c81706c174ba4492bffcce0844705d2da1fd44568c86597702a9385a9db",
+    "model_manifest":  "android/feature/ai-perception/src/main/assets/model_manifest.json",
+    "input_manifest":  "data/processed/jeonju/p0_manifest.json",
+    "runner":  "scripts/run_jeonju_demo.ps1",
+    "validation":  {
+                       "backend":  {
+                                       "tests":  150,
+                                       "failures":  0,
+                                       "errors":  0,
+                                       "skipped":  2,
+                                       "passed":  148
+                                   },
+                       "android_unit_modules":  {
+                                                    "app":  {
+                                                                "tests":  12,
+                                                                "failures":  0,
+                                                                "errors":  0,
+                                                                "skipped":  0
+                                                            },
+                                                    "core/guidance-contract":  {
+                                                                                   "tests":  29,
+                                                                                   "failures":  0,
+                                                                                   "errors":  0,
+                                                                                   "skipped":  0
+                                                                               },
+                                                    "feature/guidance-fusion":  {
+                                                                                    "tests":  9,
+                                                                                    "failures":  0,
+                                                                                    "errors":  0,
+                                                                                    "skipped":  0
+                                                                                },
+                                                    "feature/ai-perception":  {
+                                                                                  "tests":  16,
+                                                                                  "failures":  0,
+                                                                                  "errors":  0,
+                                                                                  "skipped":  0
+                                                                              },
+                                                    "feature/ar-navigation":  {
+                                                                                  "tests":  13,
+                                                                                  "failures":  0,
+                                                                                  "errors":  0,
+                                                                                  "skipped":  0
+                                                                              }
+                                                },
+                       "android_unit_total":  79,
+                       "android_instrumentation":  {
+                                                       "tests":  7,
+                                                       "failures":  0,
+                                                       "errors":  0,
+                                                       "skipped":  0
+                                                   },
+                       "instrumentation_scope":  "synthetic adapter and archive rejection contracts on emulator-5554, not field capture",
+                       "lint":  {
+                                    "Error":  0,
+                                    "Fatal":  0,
+                                    "Warning":  25
+                                },
+                       "debug_and_benchmark_build":  "passed",
+                       "route_contract":  "130.7m baseline / 153.5m detour; zero stairs; engine-derived, fixed block is contract_test only"
+                   },
+    "selftests":  {
+                      "Debug":  {
+                                    "run_id":  "20260919-002119-706-selftest",
+                                    "apk":  "android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+                                    "apk_sha256":  "f8cb51471f3b06fef749b2c82a78840d59abfb29c506f3d6fb4736df1dece128",
+                                    "directory":  "artifacts\\jeonju\\runs\\20260919-002119-706-selftest",
+                                    "summary":  "artifacts\\jeonju\\runs\\20260919-002119-706-selftest\\run_summary.json",
+                                    "events":  "artifacts\\jeonju\\runs\\20260919-002119-706-selftest\\app\\events.jsonl",
+                                    "video":  "artifacts\\jeonju\\runs\\20260919-002119-706-selftest\\screenrecord.mp4",
+                                    "model_loading_verified":  true,
+                                    "tts_ready":  true,
+                                    "frames":  0,
+                                    "reroutes":  0,
+                                    "field_acceptance_verified":  false
+                                },
+                      "Benchmark":  {
+                                        "run_id":  "20260919-002156-446-selftest",
+                                        "apk":  "android\\app\\build\\outputs\\apk\\benchmark\\app-benchmark.apk",
+                                        "apk_sha256":  "f43c8dc896a7de4e828df38bb21bc9e92d847536b61a3b7647ae2f30e62fd34b",
+                                        "directory":  "artifacts\\jeonju\\runs\\20260919-002156-446-selftest",
+                                        "summary":  "artifacts\\jeonju\\runs\\20260919-002156-446-selftest\\run_summary.json",
+                                        "events":  "artifacts\\jeonju\\runs\\20260919-002156-446-selftest\\app\\events.jsonl",
+                                        "video":  "artifacts\\jeonju\\runs\\20260919-002156-446-selftest\\screenrecord.mp4",
+                                        "model_loading_verified":  true,
+                                        "tts_ready":  true,
+                                        "frames":  0,
+                                        "reroutes":  0,
+                                        "field_acceptance_verified":  false
+                                    }
+                  },
+    "guard_runs":  {
+                       "prepare":  "20260919-002047-835-prepare",
+                       "replay_missing_input":  "20260919-002059-047-replay",
+                       "live_emulator_rejected":  "20260919-002108-845-live"
+                   },
+    "known_runtime_note":  "An earlier SelfTest saw an emulator TTS service callback connection failure; restarting the emulator TTS service restored readiness. Both final APK runs have tts_ready=true. This does not prove field TTS/audio acceptance.",
+    "pending":  [
+                    "actual C01-C03 ARCore MP4/CPU frames/depth/semantics/per-frame Anchor calibration and independent evaluation",
+                    "C01 positive replay three runs and C02/C03 negative replay",
+                    "supported physical Android device with explicitly selected ADB serial",
+                    "three Live runs after one start and zero obstacle-specific actions",
+                    "25m independent alignment measurement",
+                    "10-minute integrated crash/ANR/resource/performance acceptance",
+                    "actual map/AR display and audio completion evidence for each reroute",
+                    "v2.2 source document; supplied attachments are v2.1, explicit eight-edge user requirements implemented"
+                ],
+    "next_live_command":  ".\\scripts\\run_jeonju_demo.ps1 -Mode Live -DeviceSerial \u003cphysical-serial\u003e -ClipId C01 -Variant Benchmark -DurationSeconds 900",
+    "current_followup":  "Fixing clipped-route direction, deferred position rejection, operation timeouts and stale map callbacks; final APK rebuild pending"
+}

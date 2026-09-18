@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="kr.co.navi.mobility.demo.JeonjuAdapterTest" tests="7" failures="0" errors="0" skipped="0" time="0.631" timestamp="2026-09-18T15:47:12" hostname="localhost">
+  <properties>
+    <property name="device" value="Pixel_6(AVD) - 17" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="duplicateAppendPoisonsWriterAndNeverPublishesACompleteManifest" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.017" />
+  <testcase name="yuvOffsetsPaddedStridesAndAllRotationsMatchPixels" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.004" />
+  <testcase name="readerRequiresFinalizedManifestAndARealDecodableMp4" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.004" />
+  <testcase name="recordingSidecarsRetainExactDepthConfidenceAndCalibration" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.004" />
+  <testcase name="unfinishedAndContractOnlyWritersCannotProduceFieldManifests" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.005" />
+  <testcase name="readerRejectsChangedAnchorMetadataAndTrackingEpochReuse" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.004" />
+  <testcase name="readerRejectsDuplicateFrameIdsAndUnsafeHashPathsBeforeMediaPlayback" classname="kr.co.navi.mobility.demo.JeonjuAdapterTest" time="0.032" />
+</testsuite>

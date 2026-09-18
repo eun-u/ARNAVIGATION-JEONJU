@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.ui.GraphCandidateViewModelTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.600Z" hostname="DESKTOP-LET1RVC" time="0.022">
+  <properties/>
+  <testcase name="impact ranking prioritizes disconnected routes then larger detours" classname="kr.co.navi.mobility.ui.GraphCandidateViewModelTest" time="0.003"/>
+  <testcase name="candidate preload retries a transient simulation failure once" classname="kr.co.navi.mobility.ui.GraphCandidateViewModelTest" time="0.016"/>
+  <testcase name="candidate filters separate simulations from evidence map layers" classname="kr.co.navi.mobility.ui.GraphCandidateViewModelTest" time="0.001"/>
+  <testcase name="candidate impacts preload from edge endpoints and selection reuses the result" classname="kr.co.navi.mobility.ui.GraphCandidateViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

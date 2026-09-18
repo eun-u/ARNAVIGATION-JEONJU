@@ -13,6 +13,7 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Surface
 import com.google.ar.core.ArCoreApk
+import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Coordinates2d
 import com.google.ar.core.Frame
@@ -28,6 +29,7 @@ import com.google.ar.core.exceptions.TextureNotSetException
 import com.google.ar.core.exceptions.UnavailableException
 import kr.co.navi.mobility.guidance.contract.GeoCoordinate
 import kr.co.navi.mobility.guidance.contract.TrackingQuality
+import kr.co.navi.mobility.guidance.contract.*
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -52,9 +54,10 @@ class ArCoreNavigationView(
     onStateChanged: (ArRuntimeState) -> Unit,
 ) : GLSurfaceView(context) {
     private val diagnostics = ArTrackingDiagnosticsStore.process
-    private val renderer = ArCoreRenderer(diagnostics, ::onFrameTelemetry)
+    private val renderer = ArCoreRenderer(diagnostics, ::onFrameTelemetry, ::onPocRenderSample)
     private val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
     private var stateListener = onStateChanged
+    @Volatile private var pocRenderListener: ((PocRenderSample)->Unit)?=null
     private var session: Session? = null
     private var availabilityCheckInFlight = false
     private var resumed = false
@@ -116,6 +119,58 @@ class ArCoreNavigationView(
         publish(lastState)
     }
 
+    fun setPerceptionListener(listener: ((SpatialFrameContext, PerceptionFrameLease) -> Unit)?) {
+        renderer.perceptionListener=listener
+    }
+
+    fun setPocRenderListener(listener: ((PocRenderSample)->Unit)?) {pocRenderListener=listener}
+
+    private fun onPocRenderSample(sample: PocRenderSample) {
+        val listener=pocRenderListener ?: return
+        post {if(pocRenderListener===listener)listener(sample)}
+    }
+
+    /** A saved transform cannot establish a new live AR world alignment. */
+    fun setPocCalibration(calibration: MapCalibration?) {
+        queueEvent {
+            if(calibration==null) renderer.clearPocAlignment()
+            // Non-null snapshots are owned by the live Anchors; never replace their current poses.
+        }
+    }
+
+    fun capturePocReference(
+        geo: GeoCoordinate,
+        accuracyMeters: Double,
+        label: String,
+        second: Boolean,
+        callback: (Result<MapCalibration?>)->Unit,
+    ) {
+        if(!resumed || disposed) {
+            post {callback(Result.failure(IllegalStateException("AR 카메라가 실행 중이어야 합니다.")))}
+            return
+        }
+        queueEvent {
+            val result=runCatching {renderer.capturePocReference(geo,accuracyMeters,label,second)}
+            post {callback(result)}
+        }
+    }
+
+    fun updatePocRoute(route: List<GeoCoordinate>,calibration: MapCalibration?,routeRevision: Int=0) {
+        require(routeRevision>=0)
+        queueEvent {renderer.setPocRoute(route,calibration,routeRevision)}
+    }
+
+    fun startPocRecording(target: File) {
+        check(datasetMode!=ArDatasetMode.RECORDING)
+        val current=checkNotNull(session){"AR 세션이 준비되지 않았습니다."}
+        target.parentFile?.mkdirs()
+        check(!target.exists()){ "기존 촬영은 덮어쓰지 않습니다." }
+        current.startRecording(RecordingConfig(current).setMp4DatasetUri(Uri.fromFile(target)).setAutoStopOnPause(true))
+        metricsRecorder.start(File(target.parentFile,"ar_telemetry.csv"))
+        activeDataset=target;latestDataset=target;datasetMode=ArDatasetMode.RECORDING
+        publishDatasetState()
+    }
+
     fun updateGuidance(
         route: List<GeoCoordinate>,
         user: GeoCoordinate?,
@@ -151,6 +206,7 @@ class ArCoreNavigationView(
         try {
             current.resume()
             renderer.session = current
+            renderer.resetRenderTiming()
             super.onResume()
             resumed = true
         } catch (error: CameraNotAvailableException) {
@@ -167,6 +223,8 @@ class ArCoreNavigationView(
         logDiagnosticEvent("session_pause", transition)
         if (datasetMode == ArDatasetMode.RECORDING) stopDatasetRecording()
         super.onPause()
+        // onPause waits until rendering stops; detach while no GL frame can read these Anchors.
+        renderer.clearPocAlignment()
         session?.pause()
         resumed = false
     }
@@ -177,6 +235,7 @@ class ArCoreNavigationView(
         val transition = diagnostics.beginExpectedTransition(reason, SystemClock.elapsedRealtime())
         logDiagnosticEvent("session_close", transition)
         pauseSession(reason)
+        renderer.clearPocAlignment()
         metricsRecorder.stop()
         renderer.session = null
         session?.close()
@@ -221,9 +280,17 @@ class ArCoreNavigationView(
     }
 
     fun stopDatasetRecording() {
-        if (datasetMode != ArDatasetMode.RECORDING) return
+        finishPocRecording()
+    }
+
+    /** Callers that publish an archive must distinguish a successful flush from a partial recording. */
+    fun finishPocRecording(): Result<Unit> {
+        if (datasetMode != ArDatasetMode.RECORDING) return Result.success(Unit)
         val recorded = activeDataset
-        val result = runCatching { session?.stopRecording() }
+        val result = runCatching {
+            checkNotNull(session).stopRecording()
+            check(recorded?.isFile == true && recorded.length() > 0L) { "빈 dataset" }
+        }
         metricsRecorder.stop()
         activeDataset = null
         if (result.isSuccess && recorded?.isFile == true && recorded.length() > 0L) {
@@ -237,6 +304,7 @@ class ArCoreNavigationView(
                     (result.exceptionOrNull()?.message ?: "빈 dataset"),
             )
         }
+        return result
     }
 
     fun playLatestDataset() {
@@ -267,6 +335,7 @@ class ArCoreNavigationView(
             current.resume()
             renderer.session = current
             renderer.invalidateCameraTexture()
+            renderer.resetRenderTiming()
             super.onResume()
             resumed = true
         }.onSuccess {
@@ -358,6 +427,10 @@ class ArCoreNavigationView(
 
     private fun createConfiguredSession(): Session {
         val created = Session(activity)
+        renderer.beginPocSession()
+        val cameraManager = activity.getSystemService(Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
+        renderer.cameraSensorOrientation = requireNotNull(cameraManager.getCameraCharacteristics(created.cameraConfig.cameraId)
+            .get(android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION)) { "Camera sensor orientation unavailable" }
         val config = created.config.apply {
             focusMode = Config.FocusMode.AUTO
             planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
@@ -368,6 +441,9 @@ class ArCoreNavigationView(
             Config.DepthMode.AUTOMATIC
         } else {
             Config.DepthMode.DISABLED
+        }
+        if (created.isSemanticModeSupported(Config.SemanticMode.ENABLED)) {
+            config.semanticMode=Config.SemanticMode.ENABLED
         }
         created.configure(config)
         session = created
@@ -611,6 +687,7 @@ private data class FrameTelemetry(
 private class ArCoreRenderer(
     private val diagnostics: ArTrackingDiagnostics,
     private val onTelemetry: (FrameTelemetry) -> Unit,
+    private val onRenderSample: (PocRenderSample)->Unit,
 ) : GLSurfaceView.Renderer {
     @Volatile
     var session: Session? = null
@@ -626,6 +703,105 @@ private class ArCoreRenderer(
     private var viewportHeight = 1
     private var lastTrackingState: Boolean? = null
     private var lastTelemetryAt = 0L
+    @Volatile var perceptionListener: ((SpatialFrameContext,PerceptionFrameLease)->Unit)?=null
+    @Volatile var pocCalibration: MapCalibration?=null
+    @Volatile var cameraSensorOrientation: Int=0
+    val trackingEpoch=java.util.concurrent.atomic.AtomicLong(0)
+    private val perceptionCapture=ArPerceptionCapture()
+    private var lastCaptureTimestamp=0L
+    private data class AnchoredReference(val anchor: Anchor,val reference: CalibrationReference,val epoch: Long)
+    private var referenceA: AnchoredReference?=null
+    private var referenceB: AnchoredReference?=null
+    private var lastCameraPose: Pose?=null
+    private var lastCameraTimestamp=0L
+    private var lastCameraReceivedAt=0L
+    private var lastCameraEpoch=-1L
+    private var currentPocRoute: List<GeoCoordinate> = emptyList()
+    private var currentPocRouteRevision=0
+    private var lastRenderStartedAt: Long?=null
+    private val renderTimingReset=java.util.concurrent.atomic.AtomicBoolean(true)
+
+    /** Called on the GL thread or while the GLSurfaceView render thread is paused. */
+    fun resetRenderTiming() {renderTimingReset.set(true)}
+
+    /** Called on GL, or after GLSurfaceView.onPause has stopped the GL thread. */
+    fun clearPocAlignment() {
+        referenceA?.anchor?.let{runCatching{it.detach()}}
+        referenceB?.anchor?.let{runCatching{it.detach()}}
+        referenceA=null;referenceB=null;pocCalibration=null
+        lastCameraPose=null;lastCameraEpoch=-1
+        currentPocRoute=emptyList()
+        currentPocRouteRevision=0
+        trackingEpoch.incrementAndGet()
+        ribbonRenderer.setPocRoute(emptyList(),null)
+    }
+
+    fun beginPocSession() {
+        clearPocAlignment()
+        lastTrackingState=null
+        lastCaptureTimestamp=0L
+        resetRenderTiming()
+    }
+
+    /** Both Anchor creation and reads of Anchor poses happen on the render thread. */
+    fun capturePocReference(geo: GeoCoordinate,accuracyMeters: Double,label: String,second: Boolean): MapCalibration? {
+        val activeSession=checkNotNull(session){"AR 세션이 준비되지 않았습니다."}
+        val pose=checkNotNull(lastCameraPose){"카메라 추적을 기다리세요."}
+        check(lastCameraEpoch==trackingEpoch.get() && SystemClock.elapsedRealtime()-lastCameraReceivedAt in 0..500) {"최근의 유효한 카메라 추적이 필요합니다."}
+        require(label.isNotBlank() && accuracyMeters in 0.01..0.5) {"기준점 이름과 0.01~0.5m 위치 오차를 입력하세요."}
+        require(geo.latitude in -89.0..89.0 && geo.longitude in -180.0..180.0) {"기준점 좌표가 유효하지 않습니다."}
+        if(!second) {
+            referenceA?.anchor?.detach();referenceB?.anchor?.detach()
+            referenceA=null;referenceB=null;pocCalibration=null;currentPocRoute=emptyList()
+            currentPocRouteRevision=0
+            ribbonRenderer.setPocRoute(emptyList(),null)
+            val anchor=activeSession.createAnchor(pose)
+            referenceA=AnchoredReference(anchor,CalibrationReference(geo,pose.worldPosition(),accuracyMeters,label),trackingEpoch.get())
+            return null
+        }
+        val first=checkNotNull(referenceA){"기준점 A를 먼저 기록하세요."}
+        check(first.epoch==trackingEpoch.get() && first.anchor.trackingState==TrackingState.TRACKING) {"기준점 A 추적이 끊겼습니다. 두 기준점을 다시 기록하세요."}
+        val anchor=activeSession.createAnchor(pose)
+        try {
+            val secondReference=CalibrationReference(geo,anchor.pose.worldPosition(),accuracyMeters,label)
+            val calibration=MapCalibration.fromReferences(first.reference.copy(world=first.anchor.pose.worldPosition()),secondReference,lastCameraTimestamp,"cal-${java.util.UUID.randomUUID()}")
+            referenceB?.anchor?.detach()
+            referenceB=AnchoredReference(anchor,secondReference,trackingEpoch.get())
+            pocCalibration=calibration
+            return calibration
+        } catch(error: Throwable) {anchor.detach();throw error}
+    }
+
+    private fun refreshPocAlignment(): MapCalibration? {
+        val first=referenceA ?: return null
+        val second=referenceB
+        if(first.epoch!=trackingEpoch.get() || first.anchor.trackingState!=TrackingState.TRACKING ||
+            (second!=null && (second.epoch!=trackingEpoch.get() || second.anchor.trackingState!=TrackingState.TRACKING))) {
+            clearPocAlignment();return null
+        }
+        val prior=pocCalibration ?: return null
+        if(second==null)return null
+        val updated=runCatching {prior.withTrackedReferences(first.anchor.pose.worldPosition(),second.anchor.pose.worldPosition())}.getOrElse {
+            clearPocAlignment();return null
+        }
+        pocCalibration=updated
+        // Geometry stays in map coordinates while its world transform follows this frame's Anchors.
+        ribbonRenderer.setPocRoute(currentPocRoute,updated)
+        return updated
+    }
+
+    fun setPocRoute(route: List<GeoCoordinate>,calibration: MapCalibration?,routeRevision: Int) {
+        val current=pocCalibration?.takeIf{it.revision==calibration?.revision}
+        if(current==null) {
+            // An old inference or network reply must not erase or revive a newer alignment.
+            if(calibration==null) {currentPocRoute=emptyList();currentPocRouteRevision=0;ribbonRenderer.setPocRoute(emptyList(),null)}
+            return
+        }
+        if(routeRevision>0 && currentPocRouteRevision>routeRevision)return
+        currentPocRoute=route
+        currentPocRouteRevision=if(route.size>=2)routeRevision else 0
+        ribbonRenderer.setPocRoute(route,current)
+    }
 
     fun setGuidance(path: ForwardGuidancePath?, headingDegrees: Float?) {
         ribbonRenderer.setGuidance(path, headingDegrees)
@@ -636,6 +812,7 @@ private class ArCoreRenderer(
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        resetRenderTiming()
         GLES20.glClearColor(0.03f, 0.08f, 0.18f, 1f)
         cameraRenderer.createOnGlThread()
         ribbonRenderer.createOnGlThread()
@@ -643,12 +820,22 @@ private class ArCoreRenderer(
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        resetRenderTiming()
         viewportWidth = width.coerceAtLeast(1)
         viewportHeight = height.coerceAtLeast(1)
         GLES20.glViewport(0, 0, viewportWidth, viewportHeight)
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        val frameStartedAt=System.nanoTime()
+        val previousRender=if(renderTimingReset.getAndSet(false))null else lastRenderStartedAt
+        val frameIntervalMillis=previousRender?.let{previous->
+            (frameStartedAt-previous).takeIf{it>=0}?.div(1_000_000.0)
+        }
+        lastRenderStartedAt=frameStartedAt
+        var renderTracking=false
+        var drawSubmitted=false
+        try {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         val activeSession = session ?: return
         if (textureSession !== activeSession) {
@@ -661,7 +848,6 @@ private class ArCoreRenderer(
             viewportWidth,
             viewportHeight,
         )
-        val frameStartedAt = System.nanoTime()
         val frame = try {
             activeSession.update()
         } catch (_: TextureNotSetException) {
@@ -675,6 +861,29 @@ private class ArCoreRenderer(
         cameraRenderer.draw(frame)
         val camera = frame.camera
         val tracking = camera.trackingState == TrackingState.TRACKING
+        renderTracking=tracking
+        val listener=perceptionListener
+        if(!tracking) {
+            if(lastTrackingState==true || referenceA!=null || pocCalibration!=null)clearPocAlignment()
+            lastCameraPose=null
+        } else {
+            refreshPocAlignment()
+            lastCameraPose=camera.pose
+            lastCameraTimestamp=frame.timestamp
+            lastCameraReceivedAt=SystemClock.elapsedRealtime()
+            lastCameraEpoch=trackingEpoch.get()
+        }
+        if(listener!=null && frame.timestamp-lastCaptureTimestamp>=200_000_000L) {
+            lastCaptureTimestamp=frame.timestamp
+            if(!tracking) pocCalibration=null
+            try {
+                val displayDegrees=when(displayRotation){Surface.ROTATION_90->90;Surface.ROTATION_180->180;Surface.ROTATION_270->270;else->0}
+                val rotation=(cameraSensorOrientation-displayDegrees+360)%360
+                perceptionCapture.capture(frame,rotation,pocCalibration,"Live",trackingEpoch.get(),listener)
+            } catch(_: NotYetAvailableException) {
+                // Camera/Depth may not have produced an image yet; no fabricated spatial sample.
+            } catch(e: Exception) {Log.e("NaViCapture","capture_failed",e)}
+        }
         val failureReason = if (tracking) null else camera.trackingFailureReason.name
         val diagnosticsSnapshot = diagnostics.onTrackingObservation(
             tracking = tracking,
@@ -682,7 +891,7 @@ private class ArCoreRenderer(
             elapsedRealtimeMillis = SystemClock.elapsedRealtime(),
         )
         val depthActive = if (tracking) frame.hasDepthImage() else false
-        if (tracking) {
+        drawSubmitted=if (tracking) {
             ribbonRenderer.draw(
                 cameraPose = camera.pose,
                 camera = camera,
@@ -690,7 +899,7 @@ private class ArCoreRenderer(
                 viewportWidth = viewportWidth,
                 viewportHeight = viewportHeight,
             )
-        }
+        } else false
 
         val now = SystemClock.elapsedRealtime()
         if (now - lastTelemetryAt >= TELEMETRY_INTERVAL_MILLIS || tracking != lastTrackingState) {
@@ -708,9 +917,21 @@ private class ArCoreRenderer(
             )
         }
         lastTrackingState = tracking
+        } finally {
+            onRenderSample(PocRenderSample(
+                timestampNanos=frameStartedAt,
+                routeRevision=currentPocRouteRevision,
+                frameIntervalMillis=frameIntervalMillis,
+                renderWorkMillis=(System.nanoTime()-frameStartedAt)/1_000_000.0,
+                drawSubmitted=drawSubmitted,
+                tracking=renderTracking,
+            ))
+        }
     }
 
     private fun publishUnavailableTelemetry(frameStartedAt: Long) {
+        if(lastCameraPose!=null || referenceA!=null || pocCalibration!=null)clearPocAlignment()
+        lastTrackingState=false
         val diagnosticsSnapshot = diagnostics.onTrackingObservation(
             tracking = false,
             failureReason = "CAMERA_NOT_AVAILABLE",
@@ -856,6 +1077,8 @@ private class RouteRibbonRenderer {
     private var mvpUniform = 0
     private var colorUniform = 0
     private var guidance: ForwardGuidancePath? = null
+    private var pocRoute: List<GeoCoordinate>?=null
+    private var pocCalibration: MapCalibration?=null
     private var headingDegrees: Float? = null
     private var guidanceRevision = 0
     private var anchoredRevision = -1
@@ -879,20 +1102,28 @@ private class RouteRibbonRenderer {
         guidanceRevision += 1
     }
 
+    fun setPocRoute(route: List<GeoCoordinate>,calibration: MapCalibration?) {
+        pocRoute=route;pocCalibration=calibration;guidanceRevision++
+    }
+
     fun draw(
         cameraPose: Pose,
         camera: com.google.ar.core.Camera,
         frame: Frame,
         viewportWidth: Int,
         viewportHeight: Int,
-    ) {
+    ): Boolean {
+        if(pocRoute!=null) {
+            val c=pocCalibration ?: return false
+            if(c.errorAt(Vec3(cameraPose.tx().toDouble(),cameraPose.ty().toDouble(),cameraPose.tz().toDouble()),frame.timestamp)>1.5) return false
+        }
         if (anchoredRevision != guidanceRevision) {
             vertices = buildWorldRibbon(cameraPose, frame, viewportWidth, viewportHeight)
             vertexCount = (vertices?.capacity() ?: 0) / 3
             anchoredRevision = guidanceRevision
         }
-        val activeVertices = vertices ?: return
-        if (vertexCount < 4) return
+        val activeVertices = vertices ?: return false
+        if (vertexCount < 4) return false
 
         camera.getProjectionMatrix(projection, 0, 0.1f, 100f)
         camera.getViewMatrix(view, 0)
@@ -910,6 +1141,7 @@ private class RouteRibbonRenderer {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount)
         GLES20.glDisableVertexAttribArray(positionAttribute)
         GLES20.glDisable(GLES20.GL_BLEND)
+        return true
     }
 
     private fun buildWorldRibbon(
@@ -918,11 +1150,27 @@ private class RouteRibbonRenderer {
         viewportWidth: Int,
         viewportHeight: Int,
     ): FloatBuffer? {
+        val cameraOrigin = cameraPose.translation
+        if(pocRoute!=null) {
+            val c=pocCalibration ?: return null
+            val ground=frame.hitTest(viewportWidth*0.5f,viewportHeight*0.75f).firstOrNull {
+                val plane=it.trackable as? com.google.ar.core.Plane
+                plane!=null && plane.trackingState==TrackingState.TRACKING && plane.type==com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING && plane.isPoseInPolygon(it.hitPose)
+            } ?: return null
+            val centres=pocRoute.orEmpty().map { c.world(it,ground.hitPose.ty().toDouble()+0.02) }
+            if(centres.size<2)return null
+            val values=ArrayList<Float>()
+            centres.forEachIndexed { i,p ->
+                val a=centres[(i-1).coerceAtLeast(0)];val b=centres[(i+1).coerceAtMost(centres.lastIndex)]
+                val dx=b.x-a.x;val dz=b.z-a.z;val len=hypot(dx,dz).coerceAtLeast(0.001)
+                val nx=-dz/len*RIBBON_HALF_WIDTH_METERS;val nz=dx/len*RIBBON_HALF_WIDTH_METERS
+                values.addAll(listOf((p.x+nx).toFloat(),p.y.toFloat(),(p.z+nz).toFloat(),(p.x-nx).toFloat(),p.y.toFloat(),(p.z-nz).toFloat()))
+            }
+            return floatBufferOf(*values.toFloatArray())
+        }
         val path = guidance ?: return null
         val heading = headingDegrees ?: return null
         if (path.points.size < 2) return null
-
-        val cameraOrigin = cameraPose.translation
         val cameraRight = cameraPose.xAxis.horizontalNormalized() ?: return null
         val cameraForward = cameraPose.zAxis
             .map { -it }
@@ -1003,6 +1251,8 @@ private fun FloatArray.horizontalNormalized(): FloatArray? {
     if (length < 0.001f) return null
     return floatArrayOf(this[0] / length, 0f, this[2] / length)
 }
+
+private fun Pose.worldPosition()=Vec3(tx().toDouble(),ty().toDouble(),tz().toDouble())
 
 private fun floatBufferOf(vararg values: Float): FloatBuffer =
     ByteBuffer.allocateDirect(values.size * Float.SIZE_BYTES)

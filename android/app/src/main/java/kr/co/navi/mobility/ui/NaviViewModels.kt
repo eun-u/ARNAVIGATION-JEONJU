@@ -506,13 +506,13 @@ class NavigationViewModel(
         headingTracker.stop()
     }
 
-    fun reportObstacle(type: String, note: String?) {
+    fun reportObstacle(type: String, note: String?, observedEdgeId: String? = null) {
         if (mutableReportState.value.submitting) return
         val state = sessionStore.state.value
         val sessionId = state.comparison?.sessionId
-        val edgeId = state.bootstrap?.blockEdgeId
+        val edgeId = observedEdgeId
         if (sessionId == null || edgeId == null) {
-            mutableReportState.value = ReportUiState(error = "활성 경로 세션을 찾을 수 없습니다.")
+            mutableReportState.value = ReportUiState(error = "관측 위치와 구간의 정합이 필요합니다. 전주 자동 시연에서 공간 관측을 준비하세요.")
             return
         }
         val coordinate = (locationTracker.state.value as? LocationState.Available)?.coordinate

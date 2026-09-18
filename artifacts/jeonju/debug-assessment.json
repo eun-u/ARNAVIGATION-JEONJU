@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "evidence_status": "input_pending",
+  "run_id": "20260919-002119-706-selftest",
+  "input_mode": "SelfTest",
+  "whole_project_acceptance": "not_issued",
+  "automatic_mapping_chain_verified": false,
+  "evaluation_matched": false,
+  "field_acceptance_verified": false,
+  "checks": {
+    "input_mode": {
+      "status": "pending",
+      "reason": "live_or_replay_required",
+      "mode": "SelfTest"
+    },
+    "event_log": {
+      "status": "passed",
+      "reason": "event_log_loaded"
+    },
+    "run_identity": {
+      "status": "passed",
+      "reason": "run_identity_consistent"
+    },
+    "runtime": {
+      "status": "passed",
+      "reason": "no_failure_event_recorded"
+    },
+    "inference_frames": {
+      "status": "pending",
+      "reason": "actual_inference_frames_unproven",
+      "count": 0
+    },
+    "frame_count": {
+      "status": "passed",
+      "reason": "frame_count_consistent"
+    },
+    "region_id": {
+      "status": "passed",
+      "reason": "region_id_matched",
+      "observed": [
+        "JEONJU_JBNU_SOUTH_P0"
+      ],
+      "expected": "JEONJU_JBNU_SOUTH_P0"
+    },
+    "dataset_revision": {
+      "status": "passed",
+      "reason": "dataset_revision_matched",
+      "observed": [
+        "jeonju-p0-20260918-1ace3878"
+      ],
+      "expected": "jeonju-p0-20260918-1ace3878"
+    },
+    "scope_revision": {
+      "status": "passed",
+      "reason": "scope_revision_matched",
+      "observed": [
+        "jbnu-internal-eight-v1"
+      ],
+      "expected": "jbnu-internal-eight-v1"
+    },
+    "graph_sha256": {
+      "status": "passed",
+      "reason": "graph_sha256_matched",
+      "observed": [
+        "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923"
+      ],
+      "expected": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923"
+    },
+    "model_hash": {
+      "status": "passed",
+      "reason": "model_hash_matched",
+      "expected": "0720bf247bd76e6594ea28fa9c6f7c5242be774818997dbbeffc4da460c723bb",
+      "observed": [
+        "0720bf247bd76e6594ea28fa9c6f7c5242be774818997dbbeffc4da460c723bb"
+      ]
+    },
+    "model_revision": {
+      "status": "passed",
+      "reason": "model_revision_matched"
+    },
+    "causal_chain": {
+      "status": "pending",
+      "reason": "no_automatic_mapping_chain",
+      "broken": [],
+      "count": 0
+    },
+    "reroute_count": {
+      "status": "passed",
+      "reason": "reroute_count_consistent"
+    },
+    "tts_completion": {
+      "status": "pending",
+      "reason": "matching_session_revision_tts_completion_not_verified",
+      "utterances": []
+    },
+    "render_completion": {
+      "status": "pending",
+      "reason": "render_not_verified_dispatch_is_not_rendering",
+      "rendered": []
+    },
+    "render_submission": {
+      "status": "pending",
+      "reason": "matching_session_revision_draw_submission_not_recorded",
+      "samples": 0,
+      "matching_submissions": 0
+    },
+    "frame_leases": {
+      "status": "passed",
+      "reason": "reported_open_frame_leases_zero",
+      "value": 0
+    },
+    "automatic_start": {
+      "status": "pending",
+      "reason": "one_start_zero_obstacle_actions_not_verified"
+    },
+    "evaluation": {
+      "status": "pending",
+      "reason": "explicit_evaluation_file_required_to_judge_mapping_correctness"
+    },
+    "inference_p95_ms": {
+      "status": "pending",
+      "reason": "inference_p95_ms_unmeasured",
+      "measured": null,
+      "target": 200
+    },
+    "backend_p95_ms": {
+      "status": "pending",
+      "reason": "backend_p95_ms_unmeasured",
+      "measured": null,
+      "target": 1000
+    },
+    "state_dispatch_p95_ms": {
+      "status": "pending",
+      "reason": "state_dispatch_p95_ms_unmeasured",
+      "measured": null,
+      "target": 500
+    },
+    "reaction_p95_ms": {
+      "status": "pending",
+      "reason": "reaction_p95_ms_unmeasured",
+      "measured": null,
+      "target": 5000
+    }
+  },
+  "metrics": {
+    "inference_frames": 0,
+    "applied_reroutes": 0,
+    "verified_chains": 0,
+    "inference_p95_ms": null,
+    "backend_p95_ms": null,
+    "state_dispatch_p95_ms": null,
+    "reaction_p95_ms": null,
+    "open_frame_leases": 0,
+    "render_sample_count": 0,
+    "matching_draw_submission_count": 0,
+    "render_frame_interval_p95_ms": null,
+    "render_work_p95_ms": null
+  },
+  "chains": [],
+  "reasons": [
+    "live_or_replay_required",
+    "actual_inference_frames_unproven",
+    "no_automatic_mapping_chain",
+    "matching_session_revision_tts_completion_not_verified",
+    "render_not_verified_dispatch_is_not_rendering",
+    "matching_session_revision_draw_submission_not_recorded",
+    "one_start_zero_obstacle_actions_not_verified",
+    "explicit_evaluation_file_required_to_judge_mapping_correctness",
+    "inference_p95_ms_unmeasured",
+    "backend_p95_ms_unmeasured",
+    "state_dispatch_p95_ms_unmeasured",
+    "reaction_p95_ms_unmeasured"
+  ],
+  "missing_acceptance_gates": [
+    "independent_field_alignment_measurements",
+    "positive_replay_three_runs",
+    "negative_C02_C03_runs",
+    "physical_device_live_three_runs",
+    "AR_alignment_25m",
+    "integrated_10minute_crash_ANR_resource_soak"
+  ],
+  "limits": [
+    "Event logs do not independently authenticate source video or field measurements.",
+    "Model smoke input and guidance dispatch are not automatic mapping or render completion.",
+    "Per-run evidence never establishes repeated-scene, real-device, alignment or soak acceptance."
+  ],
+  "sources": {
+    "host_summary": "C:\\Project\\ARNAVIGATION-JEONJU\\artifacts\\jeonju\\runs\\20260919-002119-706-selftest\\run_summary.json",
+    "app_summary": "C:\\Project\\ARNAVIGATION-JEONJU\\artifacts\\jeonju\\runs\\20260919-002119-706-selftest\\app\\run_summary.json",
+    "events": "C:\\Project\\ARNAVIGATION-JEONJU\\artifacts\\jeonju\\runs\\20260919-002119-706-selftest\\app\\events.jsonl"
+  }
+}

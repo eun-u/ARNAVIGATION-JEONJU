@@ -68,6 +68,33 @@ def parse_number(value: Any) -> float | None:
     return None
 
 
+def incline_percent(value: Any) -> float | None:
+    """Grade magnitude for an undirected graph; keep direction in the raw tags."""
+    result = []
+    for item in as_list(value):
+        text = str(item).strip().lower()
+        match = re.fullmatch(r"([+-]?\d+(?:\.\d+)?)\s*(%|°|deg)?", text)
+        if not match:
+            return None  # up/down or malformed tags are unknown, not zero.
+        number = float(match[1])
+        if match[2] in {"°", "deg"}:
+            if abs(number) >= 90:
+                return None
+            number = math.tan(math.radians(number)) * 100
+        result.append(abs(number))
+    return max(result) if result else None
+
+
+def width_meters(value: Any) -> float | None:
+    result = []
+    for item in as_list(value):
+        match = re.fullmatch(r"(\d+(?:\.\d+)?)\s*(m|cm|ft)?", str(item).strip().lower())
+        if not match:
+            return None
+        result.append(float(match[1]) * {None: 1, "m": 1, "cm": .01, "ft": .3048}[match[2]])
+    return min(result) if result else None
+
+
 def node_id(osm_node_id: Any) -> str:
     return f"OSM_N{osm_node_id}"
 
@@ -178,7 +205,7 @@ def build_edge_records(
         wheelchair_accessible: bool | None = None
         if is_steps or "no" in wheelchair_values:
             wheelchair_accessible = False
-        elif any(value in {"yes", "designated"} for value in wheelchair_values):
+        elif wheelchair_values and all(value in {"yes", "designated"} for value in wheelchair_values):
             wheelchair_accessible = True
 
         record = {
@@ -193,8 +220,8 @@ def build_edge_records(
             "length": round(float(attrs.get("length", 0.0)), 3),
             "geometry": coordinates,
             "stairs": is_steps,
-            "slope": parse_number(attrs.get("incline")),
-            "width": parse_number(attrs.get("width")),
+            "slope": incline_percent(attrs.get("incline")),
+            "width": width_meters(attrs.get("width")),
             "curb_height": None,
             "surface": first_text(attrs.get("surface")),
             "elevator_required": False,
@@ -217,6 +244,8 @@ def build_edge_records(
                     "smoothness",
                     "kerb",
                     "wheelchair",
+                    "access", "incline", "width", "surface", "footway", "crossing",
+                    "barrier", "entrance", "oneway:foot", "tactile_paving",
                 )
                 if attrs.get(key_name) is not None
             },

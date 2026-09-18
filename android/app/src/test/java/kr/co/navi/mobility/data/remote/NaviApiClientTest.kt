@@ -12,6 +12,22 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NaviApiClientTest {
+    @Test fun `field access code accompanies bootstrap and reroute but never URL`() = runTest {
+        val requests = mutableListOf<HttpRequest>()
+        val token = "field-test-code-" + "a".repeat(32)
+        val client = NaviApiClient("https://field.example.com", HttpTransport {
+            requests += it
+            HttpResponse(200, "{}")
+        }, accessToken = token)
+        client.getJeonjuBootstrap()
+        client.rerouteJeonju("session-test", kotlinx.serialization.json.JsonObject(emptyMap()))
+        assertEquals(2, requests.size)
+        requests.forEach {
+            assertEquals("Bearer $token", it.headers["Authorization"])
+            assertFalse(it.url.contains(token))
+        }
+    }
+
     @Test
     fun `graph enrichment endpoints expose pending candidates and read only simulation`() = runTest {
         val captured = mutableListOf<HttpRequest>()
@@ -244,5 +260,26 @@ class NaviApiClientTest {
         assertEquals(404, error.statusCode)
         assertEquals("session_not_found", error.errorCode)
         assertEquals("세션이 만료되었습니다.", error.message)
+    }
+
+    @Test
+    fun `PoC reason code survives rejected status and can be deferred`() = runTest {
+        val client=NaviApiClient("http://127.0.0.1:8000",HttpTransport {
+            HttpResponse(422,"""{"status":"rejected","reason_code":"position_ambiguous","message":"위치가 모호합니다."}""")
+        })
+        val error=runCatching {client.rerouteJeonju("session-id",kotlinx.serialization.json.JsonObject(emptyMap()))}.exceptionOrNull() as NaviApiException
+        assertEquals("position_ambiguous",error.errorCode)
+        assertEquals("위치가 모호합니다.",error.message)
+    }
+
+    @Test
+    fun `accuracy validation errors are recoverable without hiding unrelated schema failures`() = runTest {
+        suspend fun error(body: String)=runCatching {
+            NaviApiClient("http://127.0.0.1:8000",HttpTransport {HttpResponse(422,body)})
+                .rerouteJeonju("session-id",kotlinx.serialization.json.JsonObject(emptyMap()))
+        }.exceptionOrNull() as NaviApiException
+        assertEquals("position_accuracy_insufficient",error("""{"detail":[{"type":"less_than_equal","loc":["body","current_position","accuracy_m"],"input":4,"msg":"must be <=3"}]}""").errorCode)
+        assertEquals("request_validation_failed",error("""{"detail":[{"loc":["body","current_position","accuracy_m"]},{"loc":["body","reason"]}]}""").errorCode)
+        assertEquals("request_validation_failed",error("""{"detail":[{"loc":["body","avoidance_upserts",0,"frame_id"]}]}""").errorCode)
     }
 }

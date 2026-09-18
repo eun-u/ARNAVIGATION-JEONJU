@@ -17,6 +17,8 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -25,6 +27,7 @@ class NaviApiClient(
     baseUrl: String,
     private val transport: HttpTransport = UrlConnectionHttpTransport(),
     private val json: Json = defaultJson,
+    private val accessToken: String = "",
 ) {
     private val baseUrl = baseUrl.trim().trimEnd('/').also {
         require(it.startsWith("http://") || it.startsWith("https://")) {
@@ -33,6 +36,16 @@ class NaviApiClient(
     }
 
     suspend fun getGraph(): GraphResponseDto = get("/graph", GraphResponseDto.serializer())
+
+    suspend fun getJeonjuBootstrap(): JsonObject = get("/demo/jeonju", JsonObject.serializer())
+
+    suspend fun startJeonjuRoute(request: RouteRequestDto): kr.co.navi.mobility.data.model.RouteResultDto = post(
+        "/route", request, RouteRequestDto.serializer(), kr.co.navi.mobility.data.model.RouteResultDto.serializer(),
+    )
+
+    suspend fun rerouteJeonju(sessionId: String, payload: JsonObject): JsonObject = post(
+        "/route/sessions/${encode(sessionId)}/reroute", payload, JsonObject.serializer(), JsonObject.serializer(),
+    )
 
     suspend fun compareRoute(request: RouteRequestDto): RouteComparisonDto = post(
         path = "/route/compare",
@@ -86,7 +99,7 @@ class NaviApiClient(
             HttpRequest(
                 method = HttpMethod.GET,
                 url = "$baseUrl$path",
-                headers = mapOf("Accept" to "application/json"),
+                headers = mapOf("Accept" to "application/json") + authHeaders(),
             ),
             deserializer,
         )
@@ -103,11 +116,14 @@ class NaviApiClient(
             headers = mapOf(
                 "Accept" to "application/json",
                 "Content-Type" to "application/json; charset=utf-8",
-            ),
+            ) + authHeaders(),
             body = json.encodeToString(serializer, body),
         ),
         deserializer,
     )
+
+    private fun authHeaders(): Map<String, String> =
+        if (accessToken.isBlank()) emptyMap() else mapOf("Authorization" to "Bearer $accessToken")
 
     private suspend fun <T> request(
         request: HttpRequest,
@@ -133,14 +149,24 @@ class NaviApiClient(
     private fun parseError(body: String): Pair<String?, String?> = runCatching {
         val root = json.parseToJsonElement(body).jsonObject
         val status = root["status"]?.jsonPrimitive?.contentOrNull
+        val reason = root["reason_code"]?.jsonPrimitive?.contentOrNull
         val message = root["message"]?.jsonPrimitive?.contentOrNull
         val detail = root["detail"]
+        if(reason!=null)return@runCatching reason to message
         when (detail) {
             is JsonObject -> {
                 detail["code"]?.jsonPrimitive?.contentOrNull to
                     detail["message"]?.jsonPrimitive?.contentOrNull
             }
-            else -> status to (message ?: detail?.jsonPrimitive?.contentOrNull)
+            is JsonArray -> {
+                val locations=detail.mapNotNull{(it as? JsonObject)?.get("loc") as? JsonArray}
+                    .map{path->path.mapNotNull{(it as? JsonPrimitive)?.contentOrNull}}
+                val accuracyOnly=locations.isNotEmpty() && locations.size==detail.size &&
+                    locations.all{it.takeLast(2)==listOf("current_position","accuracy_m")}
+                (if(accuracyOnly)"position_accuracy_insufficient" else "request_validation_failed") to
+                    (message ?: if(accuracyOnly)"현재 위치 정확도를 다시 확인하세요." else "요청 값이 서버 계약과 다릅니다.")
+            }
+            else -> status to (message ?: (detail as? JsonPrimitive)?.contentOrNull)
         }
     }.getOrDefault(null to null)
 

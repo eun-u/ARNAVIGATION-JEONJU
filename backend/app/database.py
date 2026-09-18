@@ -29,6 +29,14 @@ class Database:
         with self._lock, self.connection:
             self.connection.executescript("""
                 CREATE TABLE IF NOT EXISTS app_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS poc_session_state (
+                    session_id TEXT PRIMARY KEY, route_revision INTEGER NOT NULL, avoidances_json TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS poc_events (
+                    session_id TEXT NOT NULL, event_id TEXT NOT NULL, request_json TEXT NOT NULL,
+                    response_json TEXT NOT NULL, created_at TEXT NOT NULL,
+                    PRIMARY KEY(session_id,event_id)
+                );
                 CREATE TABLE IF NOT EXISTS edge_state (
                     edge_id TEXT PRIMARY KEY, state_json TEXT NOT NULL, revision INTEGER NOT NULL, updated_at TEXT NOT NULL
                 );
@@ -187,3 +195,22 @@ class Database:
 
     def close(self) -> None:
         self.connection.close()
+
+    def poc_state(self, session_id: str) -> dict:
+        row = self.connection.execute("SELECT * FROM poc_session_state WHERE session_id=?",(session_id,)).fetchone()
+        return {"route_revision":row["route_revision"], "avoidances":json.loads(row["avoidances_json"])} if row else {"route_revision":1,"avoidances":{}}
+
+    def poc_event(self, session_id: str, event_id: str) -> dict | None:
+        row = self.connection.execute("SELECT * FROM poc_events WHERE session_id=? AND event_id=?",(session_id,event_id)).fetchone()
+        return dict(row) if row else None
+
+    def commit_poc_event(self, session_id, event_id, request_json, response, route_request, route, state, expires_at):
+        """Route, avoidance state and idempotency response are one SQLite transaction."""
+        now=utc_now().isoformat()
+        blocked=[e for e,a in state["avoidances"].items() if a["status"] != "removed"]
+        with self._lock, self.connection:
+            self.connection.execute("UPDATE route_sessions SET request_json=?, route_json=?, comparison_json=NULL, graph_revision=?, updated_at=?, expires_at=?, temporary_blocked_edges_json=? WHERE session_id=?",
+                (json.dumps(route_request),json.dumps(route) if route else None,self.graph_revision,now,expires_at.isoformat(),json.dumps(blocked),session_id))
+            self.connection.execute("INSERT INTO poc_session_state VALUES(?,?,?) ON CONFLICT(session_id) DO UPDATE SET route_revision=excluded.route_revision,avoidances_json=excluded.avoidances_json",
+                (session_id,state["route_revision"],json.dumps(state["avoidances"])))
+            self.connection.execute("INSERT INTO poc_events VALUES(?,?,?,?,?)",(session_id,event_id,request_json,json.dumps(response),now))

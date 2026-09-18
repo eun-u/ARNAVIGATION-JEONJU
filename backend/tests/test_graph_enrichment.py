@@ -8,13 +8,13 @@ from fastapi.testclient import TestClient
 from app.graph_enrichment import GraphEnrichmentBundleError
 from app.main import (
     DEFAULT_GRAPH_ENRICHMENT_PATH,
-    PROCESSED_GRAPH_PATH,
     PROJECT_ROOT,
     create_app,
 )
 
 
 SAMPLE_GRAPH_PATH = PROJECT_ROOT / "data" / "sample" / "navi_accessibility_graph.geojson"
+PROCESSED_GRAPH_PATH = PROJECT_ROOT / "data/processed/anyang_accessibility_graph.geojson"
 DEMO_PAYLOAD = {
     "origin": {"lat": 37.4019, "lon": 126.9205},
     "destination": {"lat": 37.4001, "lon": 126.9240},
@@ -161,6 +161,7 @@ def test_evidence_only_candidate_cannot_be_used_as_route_fact(tmp_path):
     assert response.json()["status"] == "candidate_not_simulatable"
 
 
+@pytest.mark.skipif(not DEFAULT_GRAPH_ENRICHMENT_PATH.is_file(), reason="Optional local Anyang spatial bundle is not distributed in this checkout")
 def test_real_candidate_bundle_reproduces_route_impact_without_mutation(tmp_path):
     graph_sha_before = _sha256(PROCESSED_GRAPH_PATH)
     app = create_app(
@@ -214,6 +215,7 @@ def test_real_candidate_bundle_reproduces_route_impact_without_mutation(tmp_path
     assert _sha256(PROCESSED_GRAPH_PATH) == graph_sha_before
 
 
+@pytest.mark.skipif(not DEFAULT_GRAPH_ENRICHMENT_PATH.is_file(), reason="Optional local Anyang spatial bundle is not distributed in this checkout")
 def test_dem_slope_candidate_is_diagnostic_and_simulatable_without_mutation(tmp_path):
     graph_sha_before = _sha256(PROCESSED_GRAPH_PATH)
     app = create_app(

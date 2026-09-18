@@ -9,6 +9,8 @@ from .graph_store import GraphStore
 from .routing import RouteEngine, RouteNotFoundError
 from .schemas import EdgeStatusResponse, EdgeStatusUpdate, ObservationCandidate, ObservationReviewRequest, ObservationReviewResponse, RouteComparison, RouteRequest, RouteResult, RouteSessionResponse
 from .schemas import ObservationCandidateCreate, SessionRerouteRequest, SessionRerouteResponse
+from .poc_sessions import reroute_poc
+from .poc_scope import PocContractError
 
 
 class RouteSessionNotFoundError(KeyError):
@@ -38,6 +40,8 @@ class RouteService:
         return result.model_copy(update={"session_id": session_id, "graph_revision": self.database.graph_revision, "expires_at": expires_at})
 
     def route(self, request: RouteRequest) -> RouteResult:
+        if self.engine.scope and request.session_id:
+            raise PocContractError("existing_session_requires_reroute")
         session_id, expires_at = self._session_identity(request.session_id)
         result = self._decorate_route(self.engine.find_accessible_route(request), session_id, expires_at)
         self.database.save_session(
@@ -72,6 +76,8 @@ class RouteService:
         )
 
     def compare(self, request: RouteRequest) -> RouteComparison:
+        if self.engine.scope and request.session_id:
+            raise PocContractError("existing_session_requires_reroute")
         session_id, expires_at = self._session_identity(request.session_id)
         comparison = self._comparison(request, session_id, expires_at)
         self.database.save_session(
@@ -104,6 +110,8 @@ class RouteService:
             record = self.database.get_session(session_id)
             if not record:
                 raise RouteSessionNotFoundError(session_id)
+            if self.engine.scope:
+                return reroute_poc(self, record, update)
             for edge_id in update.temporary_blocked_edge_ids:
                 self.store.get_edge(edge_id)
 

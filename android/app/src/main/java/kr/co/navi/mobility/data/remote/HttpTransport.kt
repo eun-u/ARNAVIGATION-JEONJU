@@ -39,6 +39,8 @@ class UrlConnectionHttpTransport(
             connection.connectTimeout = connectTimeoutMillis
             connection.readTimeout = readTimeoutMillis
             connection.useCaches = false
+            // A changed server address must be explicitly verified; never redirect credentials.
+            connection.instanceFollowRedirects = false
             connection.doInput = true
             request.headers.forEach(connection::setRequestProperty)
             request.body?.let { body ->

@@ -1,0 +1,357 @@
+{
+  "status": "passed",
+  "evidence_type": "data_and_route_contract_only",
+  "region_id": "JEONJU_JBNU_SOUTH_P0",
+  "dataset_revision": "jeonju-p0-20260918-1ace3878",
+  "scope_revision": "jbnu-internal-eight-v1",
+  "graph_sha256": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+  "checksum_verified": 42,
+  "base": {
+    "status": "ok",
+    "distance_m": 130.7,
+    "estimated_minutes": 3,
+    "route_type": "accessible",
+    "profile": "demo_jeonju",
+    "origin_node": "OSM_N12288349033",
+    "destination_node": "OSM_N12281807442",
+    "node_ids": [
+      "OSM_N12288349033",
+      "OSM_N4655264754",
+      "OSM_N4655264758",
+      "OSM_N9999717649",
+      "OSM_N12281807447",
+      "OSM_N12281807442"
+    ],
+    "edge_ids": [
+      "OSM_E_471373639_917a7d9bd3",
+      "OSM_E_471373642_95ec0c4e13",
+      "OSM_E_1175116968_1a5cbd9c27",
+      "OSM_E_1175116968_4d464d2d7d",
+      "OSM_E_1175116968_5e42bfe341"
+    ],
+    "geometry": [
+      [
+        127.1319861,
+        35.8463514
+      ],
+      [
+        127.1319946,
+        35.8462311
+      ],
+      [
+        127.1319955,
+        35.8460607
+      ],
+      [
+        127.1319832,
+        35.8458917
+      ],
+      [
+        127.1319938,
+        35.8457996
+      ],
+      [
+        127.1319214,
+        35.8457182
+      ],
+      [
+        127.1318111,
+        35.84573
+      ],
+      [
+        127.1312826,
+        35.845787
+      ]
+    ],
+    "excluded_edges": [],
+    "reasons": [],
+    "warnings": [
+      "턱·경사·폭 임계값은 PoC 실험 설정이며 법적 기준이나 현장 실측값이 아닙니다.",
+      "사용 Edge 5개는 실제 현장 검증을 완료하지 않았습니다.",
+      "예상 시간은 분당 60m의 가정 속도로 계산했습니다."
+    ],
+    "provenance": {
+      "sources": [
+        "osm_user_handoff"
+      ],
+      "accessibility_sources": [
+        "osm_tags"
+      ],
+      "contains_synthetic": false,
+      "verified_edges": 0,
+      "unverified_edges": 5
+    },
+    "session_id": null,
+    "graph_revision": null,
+    "expires_at": null,
+    "route_revision": 1,
+    "scope_revision": "jbnu-internal-eight-v1",
+    "dataset_revision": "jeonju-p0-20260918-1ace3878",
+    "graph_sha256": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+    "region_id": "JEONJU_JBNU_SOUTH_P0",
+    "calculated_origin": {
+      "lat": 35.8463514,
+      "lon": 127.1319861
+    },
+    "segments": [
+      {
+        "edge_id": "OSM_E_471373639_917a7d9bd3",
+        "physical_segment_id": "OSM_E_471373639_917a7d9bd3",
+        "geometry": [
+          [
+            127.1319861,
+            35.8463514
+          ],
+          [
+            127.1319946,
+            35.8462311
+          ],
+          [
+            127.1319955,
+            35.8460607
+          ],
+          [
+            127.1319832,
+            35.8458917
+          ]
+        ],
+        "length_m": 51.171,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_471373642_95ec0c4e13",
+        "physical_segment_id": "OSM_E_471373642_95ec0c4e13",
+        "geometry": [
+          [
+            127.1319832,
+            35.8458917
+          ],
+          [
+            127.1319938,
+            35.8457996
+          ]
+        ],
+        "length_m": 10.286,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_1175116968_1a5cbd9c27",
+        "physical_segment_id": "OSM_E_1175116968_1a5cbd9c27",
+        "geometry": [
+          [
+            127.1319938,
+            35.8457996
+          ],
+          [
+            127.1319214,
+            35.8457182
+          ]
+        ],
+        "length_m": 11.158,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_1175116968_4d464d2d7d",
+        "physical_segment_id": "OSM_E_1175116968_4d464d2d7d",
+        "geometry": [
+          [
+            127.1319214,
+            35.8457182
+          ],
+          [
+            127.1318111,
+            35.84573
+          ]
+        ],
+        "length_m": 10.028,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_1175116968_5e42bfe341",
+        "physical_segment_id": "OSM_E_1175116968_5e42bfe341",
+        "geometry": [
+          [
+            127.1318111,
+            35.84573
+          ],
+          [
+            127.1312826,
+            35.845787
+          ]
+        ],
+        "length_m": 48.056,
+        "partial_avoidance_escape": false
+      }
+    ]
+  },
+  "detour": {
+    "status": "ok",
+    "distance_m": 153.5,
+    "estimated_minutes": 3,
+    "route_type": "accessible",
+    "profile": "demo_jeonju",
+    "origin_node": "OSM_N12288349033",
+    "destination_node": "OSM_N12281807442",
+    "node_ids": [
+      "OSM_N12288349033",
+      "OSM_N4655264754",
+      "OSM_N4655264749",
+      "OSM_N4668356700",
+      "OSM_N12281807442"
+    ],
+    "edge_ids": [
+      "OSM_E_471373639_917a7d9bd3",
+      "OSM_E_471373639_d887f067b9",
+      "OSM_E_471373646_870e5dbb6c",
+      "OSM_E_1175116968_062ce277fc"
+    ],
+    "geometry": [
+      [
+        127.1319861,
+        35.8463514
+      ],
+      [
+        127.1319946,
+        35.8462311
+      ],
+      [
+        127.1319955,
+        35.8460607
+      ],
+      [
+        127.1319832,
+        35.8458917
+      ],
+      [
+        127.1311538,
+        35.845928
+      ],
+      [
+        127.1311342,
+        35.845803
+      ],
+      [
+        127.1312826,
+        35.845787
+      ]
+    ],
+    "excluded_edges": [
+      {
+        "edge_id": "OSM_E_471373642_95ec0c4e13",
+        "name": "OSM 보행 구간",
+        "reasons": [
+          "session_blocked"
+        ]
+      }
+    ],
+    "reasons": [
+      "session_blocked"
+    ],
+    "warnings": [
+      "턱·경사·폭 임계값은 PoC 실험 설정이며 법적 기준이나 현장 실측값이 아닙니다.",
+      "사용 Edge 4개는 실제 현장 검증을 완료하지 않았습니다.",
+      "예상 시간은 분당 60m의 가정 속도로 계산했습니다."
+    ],
+    "provenance": {
+      "sources": [
+        "osm_user_handoff"
+      ],
+      "accessibility_sources": [
+        "osm_tags"
+      ],
+      "contains_synthetic": false,
+      "verified_edges": 0,
+      "unverified_edges": 4
+    },
+    "session_id": null,
+    "graph_revision": null,
+    "expires_at": null,
+    "route_revision": 1,
+    "scope_revision": "jbnu-internal-eight-v1",
+    "dataset_revision": "jeonju-p0-20260918-1ace3878",
+    "graph_sha256": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+    "region_id": "JEONJU_JBNU_SOUTH_P0",
+    "calculated_origin": {
+      "lat": 35.8463514,
+      "lon": 127.1319861
+    },
+    "segments": [
+      {
+        "edge_id": "OSM_E_471373639_917a7d9bd3",
+        "physical_segment_id": "OSM_E_471373639_917a7d9bd3",
+        "geometry": [
+          [
+            127.1319861,
+            35.8463514
+          ],
+          [
+            127.1319946,
+            35.8462311
+          ],
+          [
+            127.1319955,
+            35.8460607
+          ],
+          [
+            127.1319832,
+            35.8458917
+          ]
+        ],
+        "length_m": 51.171,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_471373639_d887f067b9",
+        "physical_segment_id": "OSM_E_471373639_d887f067b9",
+        "geometry": [
+          [
+            127.1319832,
+            35.8458917
+          ],
+          [
+            127.1311538,
+            35.845928
+          ]
+        ],
+        "length_m": 74.866,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_471373646_870e5dbb6c",
+        "physical_segment_id": "OSM_E_471373646_870e5dbb6c",
+        "geometry": [
+          [
+            127.1311538,
+            35.845928
+          ],
+          [
+            127.1311342,
+            35.845803
+          ]
+        ],
+        "length_m": 14.011,
+        "partial_avoidance_escape": false
+      },
+      {
+        "edge_id": "OSM_E_1175116968_062ce277fc",
+        "physical_segment_id": "OSM_E_1175116968_062ce277fc",
+        "geometry": [
+          [
+            127.1311342,
+            35.845803
+          ],
+          [
+            127.1312826,
+            35.845787
+          ]
+        ],
+        "length_m": 13.494,
+        "partial_avoidance_escape": false
+      }
+    ]
+  },
+  "strict_unknown_rejected": true,
+  "no_route_within_poc": true,
+  "steps_on_routes": 0,
+  "field_crossing_check": "pending"
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.data.NaviSessionStoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.167Z" hostname="DESKTOP-LET1RVC" time="0.049">
+  <properties/>
+  <testcase name="session reroute replaces only active route and records evidence" classname="kr.co.navi.mobility.data.NaviSessionStoreTest" time="0.037"/>
+  <testcase name="bootstrap selects declared demo endpoints" classname="kr.co.navi.mobility.data.NaviSessionStoreTest" time="0.004"/>
+  <testcase name="session reroute immediately changes the forward bearing at the branch" classname="kr.co.navi.mobility.data.NaviSessionStoreTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

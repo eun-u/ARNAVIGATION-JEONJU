@@ -18,6 +18,19 @@ enum class ArDatasetMode {
     ERROR,
 }
 
+/**
+ * One actual GLSurfaceView render callback. The timestamp and interval use System.nanoTime,
+ * not the camera clock. drawSubmitted records a ribbon GL command, not visible pixels or field accuracy.
+ */
+data class PocRenderSample(
+    val timestampNanos: Long,
+    val routeRevision: Int,
+    val frameIntervalMillis: Double?,
+    val renderWorkMillis: Double,
+    val drawSubmitted: Boolean,
+    val tracking: Boolean,
+)
+
 data class ArRuntimeState(
     val mode: ArRuntimeMode = ArRuntimeMode.CHECKING,
     val trackingQuality: TrackingQuality = TrackingQuality.WAITING,

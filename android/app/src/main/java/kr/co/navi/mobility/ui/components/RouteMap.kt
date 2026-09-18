@@ -88,6 +88,7 @@ fun RouteMap(
     modifier: Modifier = Modifier,
 ) {
     val mapView = rememberMapViewWithLifecycle()
+    val updates = remember(mapView) { MapUpdateGuard() }
     var mapReady by remember { mutableStateOf(false) }
     var mapFailed by remember { mutableStateOf(false) }
     var startScreenPoint by remember { mutableStateOf<PointF?>(null) }
@@ -97,12 +98,20 @@ fun RouteMap(
     val accessibleJson = remember(accessible.geometry) { lineGeoJson(accessible.geometry) }
     val blockJson = remember(blockGeometry) { lineGeoJson(blockGeometry) }
 
-    LaunchedEffect(mapView, standardJson, accessibleJson, blockJson, rerouted) {
+    LaunchedEffect(mapView) {
+        kotlinx.coroutines.delay(10_000)
+        if (!mapReady) mapFailed = true
+    }
+
+    DisposableEffect(mapView, standardJson, accessibleJson, blockJson, rerouted, accessible.sessionId, accessible.routeRevision) {
+        val request = updates.begin()
         runCatching {
             mapView.getMapAsync { map ->
+                if (!request.isCurrent()) return@getMapAsync
                 val existingStyle = map.style
                 if (existingStyle == null || !existingStyle.isFullyLoaded) {
                     map.setStyle(Style.Builder().fromJson(BASE_STYLE_JSON)) { style ->
+                        if (!request.isCurrent()) return@setStyle
                         installOrUpdateRoutes(
                             style,
                             standardJson,
@@ -110,8 +119,8 @@ fun RouteMap(
                             blockJson,
                             rerouted,
                         )
-                        fitRoute(mapView, standard.geometry + accessible.geometry)
-                        positionEndpointBadges(mapView, map, accessible.geometry) { start, end ->
+                        fitRoute(mapView, standard.geometry + accessible.geometry, request::isCurrent)
+                        positionEndpointBadges(mapView, map, accessible.geometry, request::isCurrent) { start, end ->
                             startScreenPoint = start
                             endScreenPoint = end
                         }
@@ -125,8 +134,8 @@ fun RouteMap(
                         blockJson,
                         rerouted,
                     )
-                    fitRoute(mapView, standard.geometry + accessible.geometry)
-                    positionEndpointBadges(mapView, map, accessible.geometry) { start, end ->
+                    fitRoute(mapView, standard.geometry + accessible.geometry, request::isCurrent)
+                    positionEndpointBadges(mapView, map, accessible.geometry, request::isCurrent) { start, end ->
                         startScreenPoint = start
                         endScreenPoint = end
                     }
@@ -134,6 +143,7 @@ fun RouteMap(
                 }
             }
         }.onFailure { mapFailed = true }
+        onDispose { request.dispose() }
     }
 
     Box(modifier.background(NaviCanvas)) {
@@ -160,6 +170,8 @@ fun RouteMap(
         }
         MapLegend(
             rerouted = rerouted,
+            demo = accessible.profile == "demo_jeonju",
+            showBlock = blockGeometry.isNotEmpty(),
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(12.dp),
@@ -364,6 +376,8 @@ private fun EndpointBadge(
 @Composable
 private fun MapLegend(
     rerouted: Boolean,
+    demo: Boolean = false,
+    showBlock: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -376,9 +390,9 @@ private fun MapLegend(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            LegendItem("일반 최단", Color(0xFF64748B))
-            LegendItem(if (rerouted) "재탐색 경로" else "접근 가능", if (rerouted) NaviViolet else NaviBlue)
-            if (rerouted) LegendItem("제보 차단", Color(0xFFC8202F))
+            if (!demo) LegendItem("일반 최단", Color(0xFF64748B))
+            LegendItem(if (demo) "시연 경로 · 접근성 미확인" else if (rerouted) "재탐색 경로" else "접근 가능", if (rerouted) NaviViolet else NaviBlue)
+            if (rerouted && showBlock) LegendItem("임시 회피", Color(0xFFC8202F))
         }
     }
 }
@@ -571,12 +585,13 @@ private fun addOrUpdateSource(style: Style, id: String, geoJson: String) {
     if (source == null) style.addSource(GeoJsonSource(id, geoJson)) else source.setGeoJson(geoJson)
 }
 
-private fun fitRoute(mapView: MapView, geometry: List<List<Double>>) {
+private fun fitRoute(mapView: MapView, geometry: List<List<Double>>, isCurrent: () -> Boolean) {
     val points = geometry.mapNotNull { point ->
         if (point.size >= 2) LatLng(point[1], point[0]) else null
     }
     if (points.size < 2) return
     mapView.getMapAsync { map ->
+        if (!isCurrent()) return@getMapAsync
         val bounds = LatLngBounds.Builder().includes(points).build()
         val padding = (72 * mapView.resources.displayMetrics.density).toInt()
         runCatching { map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding)) }
@@ -621,12 +636,14 @@ private fun positionEndpointBadges(
     mapView: MapView,
     map: MapLibreMap,
     geometry: List<List<Double>>,
+    isCurrent: () -> Boolean,
     onPositioned: (PointF, PointF) -> Unit,
 ) {
     val start = geometry.firstOrNull()?.takeIf { it.size >= 2 } ?: return
     val end = geometry.lastOrNull()?.takeIf { it.size >= 2 } ?: return
     map.uiSettings.setAllGesturesEnabled(false)
     mapView.post {
+        if (!isCurrent()) return@post
         onPositioned(
             map.projection.toScreenLocation(LatLng(start[1], start[0])),
             map.projection.toScreenLocation(LatLng(end[1], end[0])),

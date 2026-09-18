@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.demo.ReferenceCaptureTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.568Z" hostname="DESKTOP-LET1RVC" time="0.023">
+  <properties/>
+  <testcase name="malformed and nonfinite coordinates never become registered positions" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.002"/>
+  <testcase name="measured values are preserved without inventing accuracy" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.001"/>
+  <testcase name="missing renderer callback expires and a late result cannot revive it" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.009"/>
+  <testcase name="leaving the screen cancels the pending capture and ignores its late callback" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.005"/>
+  <testcase name="empty form reports a specific missing field instead of a numeric exception" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.0"/>
+  <testcase name="renderer error is retained for the visible registration feedback" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.002"/>
+  <testcase name="A registration can succeed before a two point calibration exists" classname="kr.co.navi.mobility.demo.ReferenceCaptureTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

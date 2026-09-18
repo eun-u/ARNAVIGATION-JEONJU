@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.ui.components.MapUpdateGuardTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.624Z" hostname="DESKTOP-LET1RVC" time="0.002">
+  <properties/>
+  <testcase name="delayedOldStyleCannotOverwriteNewRoute" classname="kr.co.navi.mobility.ui.components.MapUpdateGuardTest" time="0.001"/>
+  <testcase name="queuedCameraAndBadgesCannotRestorePreviousEndpoints" classname="kr.co.navi.mobility.ui.components.MapUpdateGuardTest" time="0.001"/>
+  <testcase name="leavingMapInvalidatesCallbacksWithoutAnotherRoute" classname="kr.co.navi.mobility.ui.components.MapUpdateGuardTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

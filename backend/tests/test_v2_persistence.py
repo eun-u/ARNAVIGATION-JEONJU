@@ -5,7 +5,10 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from app.main import PROCESSED_GRAPH_PATH, create_app
+from app.main import PROJECT_ROOT, create_app
+
+# These are the legacy Anyang review/persistence fixtures, not Jeonju field evidence.
+PROCESSED_GRAPH_PATH = PROJECT_ROOT / "data/processed/anyang_accessibility_graph.geojson"
 
 
 def demo_payload(client: TestClient) -> tuple[dict, dict]:

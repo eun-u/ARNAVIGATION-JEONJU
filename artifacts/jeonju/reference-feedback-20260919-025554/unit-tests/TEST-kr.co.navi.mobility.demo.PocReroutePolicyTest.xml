@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.demo.PocReroutePolicyTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.530Z" hostname="DESKTOP-LET1RVC" time="0.035">
+  <properties/>
+  <testcase name="only explicit spatial rejections may retain current guidance" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.003"/>
+  <testcase name="cancelling a parent job stays cancellation inside the operation" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.013"/>
+  <testcase name="deferred track can retry after cooldown without per frame or new track request floods" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.001"/>
+  <testcase name="user cancellation remains cancellation without cancelling the caller" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.003"/>
+  <testcase name="outer deadline cancellation is preserved in the cancelled enclosing scope" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.006"/>
+  <testcase name="missing nonfinite inaccurate or stale current positions defer" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.005"/>
+  <testcase name="own deadline becomes a failure without cancelling the enclosing operation" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.003"/>
+  <testcase name="shared scope endpoint is a single location" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.001"/>
+  <testcase name="off route parallel competitors are checked and recovery needs a unique scope position" classname="kr.co.navi.mobility.demo.PocReroutePolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

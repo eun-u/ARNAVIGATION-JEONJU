@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.data.remote.NaviApiClientTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.218Z" hostname="DESKTOP-LET1RVC" time="0.266">
+  <properties/>
+  <testcase name="structured backend error is exposed" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.219"/>
+  <testcase name="field access code accompanies bootstrap and reroute but never URL" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.009"/>
+  <testcase name="session id is URL encoded for reroute" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.003"/>
+  <testcase name="accuracy validation errors are recoverable without hiding unrelated schema failures" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.005"/>
+  <testcase name="manual observation remains pending and unverified" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.007"/>
+  <testcase name="PoC reason code survives rejected status and can be deferred" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.003"/>
+  <testcase name="graph enrichment endpoints expose pending candidates and read only simulation" classname="kr.co.navi.mobility.data.remote.NaviApiClientTest" time="0.02"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

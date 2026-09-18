@@ -9,6 +9,8 @@ import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.navi.mobility.ai.PerceptionEngine
+import kr.co.navi.mobility.ai.FramePixels
+import kr.co.navi.mobility.ai.cone.ConeShapeDetector
 import kr.co.navi.mobility.guidance.contract.DetectedRegion
 import kr.co.navi.mobility.guidance.contract.NormalizedRegion
 import kr.co.navi.mobility.guidance.contract.PerceptionFrameLease
@@ -17,7 +19,7 @@ import kr.co.navi.mobility.guidance.contract.PixelFormat
 
 data class MediaPipeObjectDetectorConfig(
     val modelAssetPath: String = DEFAULT_MODEL_ASSET_PATH,
-    val modelVersion: String = "efficientdet-lite0-int8",
+    val modelVersion: String = DEFAULT_PIPELINE_REVISION,
     val scoreThreshold: Float = 0.35f,
     val maxResults: Int = 10,
     val categoryAllowlist: List<String> = emptyList(),
@@ -31,10 +33,11 @@ data class MediaPipeObjectDetectorConfig(
 
     companion object {
         const val DEFAULT_MODEL_ASSET_PATH = "efficientdet_lite0_int8.tflite"
+        const val DEFAULT_PIPELINE_REVISION = "efficientdet-lite0-int8/1+cone-hsv-shape/1"
     }
 }
 
-/** CPU/IMAGE-mode baseline used by deterministic M2 replay, not the future live AR pipeline. */
+/** CPU/IMAGE inference used by both live bounded-frame processing and measured replay. */
 class MediaPipeObjectDetectorEngine(
     context: android.content.Context,
     private val config: MediaPipeObjectDetectorConfig = MediaPipeObjectDetectorConfig(),
@@ -42,8 +45,16 @@ class MediaPipeObjectDetectorEngine(
     private val lock = Any()
     private var closed = false
     private val detector: ObjectDetector
+    private val coneDetector = ConeShapeDetector()
 
     init {
+        val hash=context.assets.open(config.modelAssetPath).use { stream ->
+            val digest=java.security.MessageDigest.getInstance("SHA-256")
+            val bytes=ByteArray(65536)
+            while(true){val n=stream.read(bytes);if(n<0)break;digest.update(bytes,0,n)}
+            digest.digest().joinToString(""){"%02x".format(it)}
+        }
+        require(hash=="0720bf247bd76e6594ea28fa9c6f7c5242be774818997dbbeffc4da460c723bb") { "model_hash_mismatch" }
         val baseOptions = BaseOptions.builder()
             .setModelAssetPath(config.modelAssetPath)
             .build()
@@ -63,17 +74,14 @@ class MediaPipeObjectDetectorEngine(
 
     override suspend fun analyze(frame: PerceptionFrameLease): PerceptionResult =
         withContext(Dispatchers.Default) {
-            require(frame.pixelFormat == PixelFormat.RGBA_8888) {
-                "M2 MediaPipe baseline accepts RGBA_8888 frames only"
-            }
-            val uprightBitmap = frame.toUprightBitmap()
+            val uprightBitmap = FramePixels.bitmap(frame)
             try {
                 val startedAt = System.nanoTime()
                 val result = synchronized(lock) {
                     check(!closed) { "MediaPipe object detector is closed" }
-                    BitmapImageBuilder(uprightBitmap).build().let(detector::detect)
+                    val input=BitmapImageBuilder(uprightBitmap).build()
+                    try {detector.detect(input)} finally {input.close()}
                 }
-                val inferenceMillis = (System.nanoTime() - startedAt) / NANOS_PER_MILLISECOND
                 val width = uprightBitmap.width.toFloat()
                 val height = uprightBitmap.height.toFloat()
                 val detections = result.detections().mapNotNull { detection ->
@@ -93,11 +101,15 @@ class MediaPipeObjectDetectorEngine(
                         ),
                     )
                 }
+                val pixels=IntArray(uprightBitmap.width*uprightBitmap.height)
+                uprightBitmap.getPixels(pixels,0,uprightBitmap.width,0,0,uprightBitmap.width,uprightBitmap.height)
+                val cones=coneDetector.detect(pixels,uprightBitmap.width,uprightBitmap.height)
+                val inferenceMillis = (System.nanoTime() - startedAt) / NANOS_PER_MILLISECOND
                 PerceptionResult(
                     stamp = frame.stamp,
                     modelVersion = config.modelVersion,
                     inferenceMillis = inferenceMillis,
-                    detections = detections,
+                    detections = detections + cones,
                 )
             } finally {
                 uprightBitmap.recycle()

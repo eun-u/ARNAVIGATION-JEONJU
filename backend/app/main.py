@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -19,6 +20,7 @@ from .graph_enrichment import (
 )
 from .graph_store import EdgeNotFoundError, GraphStore
 from .profiles import ProfileRegistry
+from .poc_scope import PocContractError
 from .routing import RouteEngine, RouteNotFoundError
 from .schemas import (
     EdgeStatusResponse,
@@ -45,8 +47,8 @@ from .services import ObservationCandidateNotFoundError, RouteService, RouteSess
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PROCESSED_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "jeonju_accessibility_graph.geojson"
 SAMPLE_GRAPH_PATH = PROJECT_ROOT / "data" / "sample" / "navi_accessibility_graph.geojson"
-DEFAULT_GRAPH_PATH = PROCESSED_GRAPH_PATH if PROCESSED_GRAPH_PATH.exists() else SAMPLE_GRAPH_PATH
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "runtime" / "navi.db"
+DEFAULT_GRAPH_PATH = PROCESSED_GRAPH_PATH
+DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "runtime" / "jeonju_p0_20260918_5b006cb4.db"
 DEFAULT_CANDIDATES_PATH = PROJECT_ROOT / "data" / "processed" / "review_candidates.json"
 DEFAULT_GRAPH_ENRICHMENT_PATH = (
     PROJECT_ROOT
@@ -78,8 +80,21 @@ def create_app(
     else:
         selected_graph_enrichment = None
 
+    if not selected_graph.is_file():
+        raise RuntimeError(f"dataset_missing: {selected_graph}")
     store = GraphStore(selected_graph)
+    if store.metadata.get("candidate_only"):
+        raise RuntimeError("candidate_graph_not_activated: review lineage and create a scope revision first")
     database = Database(selected_db)
+    if store.metadata.get("osm_snapshot", "").startswith("data/raw/jeonju/"):
+        from .poc_scope import graph_digest
+        graph_hash = graph_digest(selected_graph)
+        binding = database.connection.execute("SELECT value FROM app_meta WHERE key='graph_sha256'").fetchone()
+        if binding and binding[0] != graph_hash:
+            database.close()
+            raise RuntimeError("database_graph_revision_mismatch: use a dedicated Jeonju database")
+        with database.connection:
+            database.connection.execute("INSERT OR IGNORE INTO app_meta VALUES('graph_sha256',?)",(graph_hash,))
     for overlay in database.edge_overlays():
         try:
             store.apply_edge_overlay(overlay["edge_id"], overlay["values"])
@@ -115,7 +130,26 @@ def create_app(
 
     @app.exception_handler(RouteNotFoundError)
     async def route_not_found_handler(_request: Request, exc: RouteNotFoundError) -> JSONResponse:
-        return JSONResponse(status_code=404, content={"status": exc.status, "message": exc.message})
+        return JSONResponse(status_code=404, content={"status": exc.status, "message": exc.message, "reason_code": exc.reason_code})
+
+    @app.exception_handler(PocContractError)
+    async def poc_error(_request: Request, exc: PocContractError) -> JSONResponse:
+        body={"status":"rejected", "reason_code":exc.reason_code, "message":str(exc)}
+        if exc.current_route_revision is not None:body['current_route_revision']=exc.current_route_revision
+        if exc.current_graph_revision is not None:body['current_graph_revision']=exc.current_graph_revision
+        return JSONResponse(status_code=exc.status_code, content=body)
+
+    @app.get("/demo/jeonju")
+    def jeonju_bootstrap() -> dict:
+        if not engine.scope:
+            raise PocContractError("wrong_region")
+        s = engine.scope
+        def coordinate(node):
+            a = store.get_node(node)
+            return {"lat":a["lat"], "lon":a["lon"]}
+        return {**s.data,"graph_revision":database.graph_revision,"profile":"demo_jeonju",
+                "origin":coordinate(s.data["origin_node"]),"destination":coordinate(s.data["destination_node"]),
+                "segments":[{"edge_id":e,"physical_segment_id":e,"geometry":store.get_edge(e)["geometry"]} for e in sorted(s.allowed)]}
 
     @app.exception_handler(EdgeNotFoundError)
     async def edge_not_found_handler(_request: Request, exc: EdgeNotFoundError) -> JSONResponse:
@@ -162,7 +196,15 @@ def create_app(
     @app.get("/health")
     def health() -> dict:
         enrichment_summary = graph_enrichment_catalog.summary()
-        return {"status": "ok", "service": "NaVi", "database": {"schema_version": database.SCHEMA_VERSION, "graph_revision": database.graph_revision}, "observations": {"pending": len(database.list_candidates("pending"))}, "graph": {"nodes": store.node_count, "edges": store.edge_count, "source": store.metadata.get("source"), "accessibility_attributes": store.metadata.get("accessibility_attributes")}, "graph_enrichment": {"available": enrichment_summary.available, "candidate_count": enrichment_summary.candidate_count, "route_affecting_candidate_count": enrichment_summary.route_affecting_candidate_count}}
+        manifest_path = PROJECT_ROOT / "data/processed/jeonju/p0_manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.is_file() else {}
+        return {"status": "ok", "service": "NaVi", **(engine.scope.revisions() if engine.scope else {}),
+            "profiles":[p.name for p in profiles.all()], "scope_edge_count":len(engine.scope.allowed) if engine.scope else None,
+            "missing_inputs":manifest.get("missing_inputs",["p0_manifest.json"]), "field_crossing_check":"pending",
+            "database": {"schema_version": database.SCHEMA_VERSION, "graph_revision": database.graph_revision,"edge_overlay_count":len(database.edge_overlays())},
+            "observations": {"pending": len(database.list_candidates("pending"))},
+            "graph": {"nodes": store.node_count, "edges": store.edge_count, "source": store.metadata.get("source"), "accessibility_attributes": store.metadata.get("accessibility_attributes")},
+            "graph_enrichment": {"available": enrichment_summary.available, "candidate_count": enrichment_summary.candidate_count, "route_affecting_candidate_count": enrichment_summary.route_affecting_candidate_count}}
 
     @app.get("/profiles")
     def list_profiles() -> list[dict]:

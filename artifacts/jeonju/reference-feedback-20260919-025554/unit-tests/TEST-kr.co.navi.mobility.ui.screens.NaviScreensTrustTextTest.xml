@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.ui.screens.NaviScreensTrustTextTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.628Z" hostname="DESKTOP-LET1RVC" time="0.01">
+  <properties/>
+  <testcase name="local osm graph displays unknown unverified boundary without synthetic claim" classname="kr.co.navi.mobility.ui.screens.NaviScreensTrustTextTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

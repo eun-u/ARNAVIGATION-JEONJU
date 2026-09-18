@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "model": "EfficientDet-Lite0 int8",
+  "model_revision": "efficientdet-lite0-int8/1",
+  "pipeline_revision": "efficientdet-lite0-int8/1+cone-hsv-shape/1",
+  "additional_detectors": [
+    {
+      "revision": "cone-hsv-shape/1",
+      "label": "traffic_cone",
+      "implementation": "Kotlin orange hue, bounded pale stripe and widening shape rules",
+      "score_type": "rule_quality_not_calibrated_probability",
+      "weights": null,
+      "field_accuracy_verified": false
+    }
+  ],
+  "sha256": "0720bf247bd76e6594ea28fa9c6f7c5242be774818997dbbeffc4da460c723bb",
+  "bytes": 4602795,
+  "source": "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/int8/1/efficientdet_lite0.tflite",
+  "license_source": "https://ai.google.dev/edge/mediapipe/solutions/vision/object_detector",
+  "labels_file": "efficientdet_lite0_labels.txt",
+  "labels_sha256": "f8803ef7900160c629d570848dfda4175e21667bf7b71f73f8ece4938c9f2bf2",
+  "input": {
+    "shape": [
+      1,
+      320,
+      320,
+      3
+    ],
+    "type": "uint8",
+    "color": "RGB"
+  },
+  "output": "TFLite DetectionPostProcess boxes/classes/scores/count, MediaPipe normalized to input bounds",
+  "delegate": "CPU",
+  "running_mode": "IMAGE",
+  "scene_semantics": "ARCore 1.56.0 runtime feature; requires supported physical device"
+}

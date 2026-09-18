@@ -21,7 +21,7 @@ class Coordinate(BaseModel):
 
 
 class AccessibilityProfile(BaseModel):
-    name: Literal["default", "wheelchair"]
+    name: Literal["default", "wheelchair", "demo_jeonju"]
     description: str
     max_slope: float | None = None
     min_width: float | None = None
@@ -29,13 +29,14 @@ class AccessibilityProfile(BaseModel):
     allow_stairs: bool = True
     allow_unknown: bool = True
     allow_synthetic: bool = False
+    requires_wheelchair_access: bool = False
     allowed_unverified_sources: list[str] = Field(default_factory=list)
 
 
 class RouteRequest(BaseModel):
     origin: Coordinate
     destination: Coordinate
-    profile: Literal["default", "wheelchair"] = "wheelchair"
+    profile: Literal["default", "wheelchair", "demo_jeonju"] = "wheelchair"
     session_id: str | None = Field(default=None, min_length=8, max_length=80)
 
 
@@ -58,7 +59,7 @@ class RouteResult(BaseModel):
     distance_m: float
     estimated_minutes: int
     route_type: Literal["standard", "accessible"]
-    profile: Literal["default", "wheelchair"]
+    profile: Literal["default", "wheelchair", "demo_jeonju"]
     origin_node: str
     destination_node: str
     node_ids: list[str]
@@ -71,6 +72,13 @@ class RouteResult(BaseModel):
     session_id: str | None = None
     graph_revision: int | None = None
     expires_at: datetime | None = None
+    route_revision: int = 1
+    scope_revision: str | None = None
+    dataset_revision: str | None = None
+    graph_sha256: str | None = None
+    region_id: str | None = None
+    calculated_origin: Coordinate | None = None
+    segments: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class RouteComparison(BaseModel):
@@ -86,9 +94,58 @@ class RouteComparison(BaseModel):
     expires_at: datetime | None = None
 
 
+class CurrentPosition(Coordinate):
+    accuracy_m: float = Field(gt=0, le=3)
+    timestamp: datetime
+    calibration_revision: str = Field(min_length=1)
+
+
+class AvoidanceUpdate(BaseModel):
+    edge_id: str = Field(min_length=1, max_length=160)
+    observation_id: str = Field(min_length=1, max_length=160)
+    frame_id: str = Field(min_length=1, max_length=160)
+    observed_at: datetime
+    ttl_seconds: int = Field(default=60, ge=5, le=300)
+    source: Literal["live_ai", "replay_ai", "contract_test"]
+    evidence: dict[str, Any] = Field(default_factory=dict)
+
+
+class AvoidanceClearance(BaseModel):
+    """A new, sustained free-corridor observation; an opaque ID alone is not clearance."""
+    edge_id: str = Field(min_length=1, max_length=160)
+    observation_id: str = Field(min_length=1, max_length=160)
+    frame_id: str = Field(min_length=1, max_length=160)
+    observed_at: datetime
+    source: Literal["live_ai", "replay_ai", "contract_test"]
+    evidence: dict[str, Any] = Field(default_factory=dict)
+
+
 class SessionRerouteRequest(BaseModel):
-    temporary_blocked_edge_ids: list[str] = Field(min_length=1, max_length=20)
+    temporary_blocked_edge_ids: list[str] = Field(default_factory=list, max_length=20)
     reason: str = Field(min_length=3, max_length=120)
+    event_id: str | None = Field(default=None, min_length=8, max_length=160)
+    region_id: str | None = None
+    dataset_revision: str | None = None
+    scope_revision: str | None = None
+    graph_sha256: str | None = None
+    graph_revision: int | None = None
+    expected_route_revision: int | None = None
+    current_position: CurrentPosition | None = None
+    progress_edge_id: str | None = None
+    avoidance_upserts: list[AvoidanceUpdate] = Field(default_factory=list, max_length=20)
+    avoidance_removes: list[str] = Field(default_factory=list, max_length=20)
+    clearance_observation_id: str | None = None
+    avoidance_clearances: list[AvoidanceClearance] = Field(default_factory=list, max_length=20)
+
+    @model_validator(mode="after")
+    def validate_avoidance_operations(self):
+        upserts = [item.edge_id for item in self.avoidance_upserts]
+        clearances = [item.edge_id for item in self.avoidance_clearances]
+        if len(set(upserts)) != len(upserts) or len(set(clearances)) != len(clearances):
+            raise ValueError("one observation per edge is allowed in each event")
+        if set(upserts) & (set(clearances) | set(self.avoidance_removes)):
+            raise ValueError("an event cannot block and clear the same edge")
+        return self
 
     @field_validator("temporary_blocked_edge_ids")
     @classmethod
@@ -110,6 +167,10 @@ class SessionRerouteResponse(BaseModel):
     recalculated_route: RouteResult | None = None
     comparison: RouteComparison | None = None
     warnings: list[str] = Field(default_factory=list)
+    event_id: str | None = None
+    route_revision: int = 1
+    reason_code: str | None = None
+    avoidances: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class EdgeStatusUpdate(BaseModel):
@@ -289,7 +350,7 @@ class GraphEnrichmentCandidateList(BaseModel):
 class GraphEnrichmentSimulationRequest(BaseModel):
     origin: Coordinate
     destination: Coordinate
-    profile: Literal["default", "wheelchair"] = "wheelchair"
+    profile: Literal["default", "wheelchair", "demo_jeonju"] = "wheelchair"
     candidate_ids: list[str] = Field(min_length=1, max_length=20)
 
     @field_validator("candidate_ids")

@@ -26,6 +26,13 @@ def edge_constraint_reasons(
     """Return explicit hard-constraint reason codes for one edge."""
 
     reasons: list[str] = []
+    if (edge.get("source") == "synthetic" or edge.get("accessibility_source") == "synthetic") and not profile.allow_synthetic:
+        reasons.append("synthetic_not_allowed")
+    tags = edge.get("raw_accessibility_tags") or {}
+    def values(value):
+        return value if isinstance(value, list) else [value]
+    if any(str(value).lower() in {"no", "private"} for key in ("foot", "access") for value in values(tags.get(key))):
+        reasons.append("access_denied")
 
     if bool(edge.get("blocked")):
         reasons.append("blocked")
@@ -49,7 +56,7 @@ def edge_constraint_reasons(
 
     slope = edge.get("slope")
     if profile.max_slope is not None and slope is not None:
-        if float(slope) > profile.max_slope:
+        if abs(float(slope)) > profile.max_slope:
             reasons.append("steep_slope")
 
     width = edge.get("width")
@@ -74,7 +81,7 @@ def edge_constraint_reasons(
         "elevator_unavailable",
     }
     if (
-        profile.name == "wheelchair"
+        (profile.requires_wheelchair_access or profile.name == "wheelchair")
         and edge.get("wheelchair_accessible") is False
         and not specific_wheelchair_reasons.intersection(reasons)
     ):

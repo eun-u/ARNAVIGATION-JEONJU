@@ -52,6 +52,7 @@ data class SpatialFrameContext(
     val accuracy: PoseAccuracy?,
     val trackingQuality: TrackingQuality,
     val depthAvailable: Boolean,
+    val capture: SpatialCapture? = null,
 )
 
 enum class PixelFormat {
@@ -133,6 +134,8 @@ data class HazardObservation(
     val perceptionConfidence: Float,
     val modelVersion: String,
     val evidence: ObservationEvidence,
+    val calibrationRevision: String? = null,
+    val corridorOccupied: Boolean = false,
 ) {
     init {
         require(observationId.isNotBlank())

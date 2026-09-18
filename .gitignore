@@ -17,6 +17,11 @@ android/local.properties
 android/**/build/
 android/.idea/
 android/feature/ai-perception/src/debug/assets/*.tflite
+android/feature/ai-perception/src/main/assets/*.tflite
+data/raw/jeonju/p0/
+data/replay/
+data/incoming/
+artifacts/jeonju/runs/
 artifacts/m2-device-free/
 artifacts/m2-device-free-fixture/
 artifacts/m1-vis/
@@ -34,3 +39,6 @@ data/processed/evaluation/
 /data/*.zip
 /data/전국횡단보도표준데이터.csv
 *.iml
+# Temporary field access codes, provisioned APKs and tunnel runtime state are local only.
+android/app/src/main/assets/field_connection.local.json
+artifacts/jeonju/field-server/

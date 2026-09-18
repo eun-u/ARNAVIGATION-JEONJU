@@ -1,195 +1,130 @@
-# NaVi 전주·전북대학교 접근성 경로 안내 PoC
+# NaVi 전주·전북대학교 내부 보행로 PoC
 
-NaVi는 스마트폰 카메라와 접근성 경로 엔진을 결합해 휠체어·개인 이동 사용자의 길을 안내하는 모바일 우선 PoC입니다. 일반 최단경로와 접근 가능한 경로를 구분하고, 이동 중 장애물 후보가 생기면 현재 세션의 경로를 다시 계산합니다.
+NaVi는 Android 카메라·공간 센서와 경로 엔진을 연결하는 전북대 내부 보행로 시연 앱입니다. 준비 후 시작을 한 번 누르면 실제 프레임 객체 탐지 → 공간·지속성 판단 → 영향 구간 매핑 → 현재 세션 회피 → 현재 위치 재탐색 → 지도·AR·음성 갱신으로 이어지는 코드를 연결했습니다.
 
-이 저장소는 전주·전북대학교 실증용 전환본입니다. 제공된 전북대 주변 OSM을 `data/processed/jeonju_accessibility_graph.geojson`으로 빌드해 백엔드 기본 Graph로 연결했습니다. OSM Graph는 실제 공간 출처지만 보도 실측망이 아니며 모든 접근성 상태는 현장 검증 전입니다. 기존 안양 자료는 파이프라인 참고용 legacy 데이터일 뿐 전주 경로 사실로 사용하지 않습니다.
+**전체 자동 시연 수용 기준은 아직 미완료입니다.** 실제 C01~C03 영상·Depth·정합 기록과 지정 실기기가 없어 실제 장면 반복·현장 3회·25m 정합·10분 통합 실행을 입증하지 못했습니다. 모델 로딩과 합성 계약 시험은 실제 공간 판단 성공으로 계산하지 않습니다. 최신 구현·실행 증거·미검증 항목·촬영 재개 절차는 [전주 자동 시연 구현·인도 기록](docs/jeonju_demo_implementation_20260918.md)을 기준으로 합니다.
 
-전국횡단보도표준데이터 50,000행과 [컬럼·출처 명세](data/reference/national_crosswalk/README.md)를 반입했습니다. 제공 파일에는 전주시 행이 없어 횡단보도 속성을 Graph에 병합하지 않았으며 `verified=false`, `graph_update_allowed=false`를 유지합니다.
+현재 상태는 **`implementation_ready_input_pending`**입니다. 최종 debug·benchmark 빌드와 각 APK의 모델 로딩을 확인했습니다. backend 148개 통과·2개 선택 자료 skip, Android 단위 95개·에뮬레이터 계측 7개 통과, lint 오류 0·경고 25입니다. APK 해시·최종 실행 경로는 [종합 run summary](artifacts/jeonju/run_summary.json)에 고정했습니다.
 
-## 현재 개발 상태 — 2026-09-18
+## 현재 범위
 
-- AR·AI·융합·공통 계약을 독립 Gradle 모듈로 분리했습니다. AR 모드의 카메라는 `:feature:ar-navigation`이 소유하고 AI에는 timestamp가 있는 frame lease만 전달합니다.
-- M1 AR은 SM-S911N에서 ARCore pose/tracking, Depth, 3D route ribbon, 2D fallback, Recording/Playback과 20분 안정성 시험까지 완료했습니다. 실제 보도 위 리본 정합은 전북대 내부 25m 구간의 현장 3회 전까지 미검증입니다.
-- 전북대 로컬 E2E-WC Graph의 합성 Android 시험에서 `A 130.7m → session-local 차단 → B 153.5m → 저정확도 거부 → 3회·2초 자동 도착` 폐루프를 통과했습니다. 원본 Graph와 Edge는 변경되지 않았고 관측 후보는 `pending`, `verified=false`입니다.
-- ARCore 또는 후면 카메라를 사용할 수 없는 환경에서는 설치 화면을 자동 실행하지 않고 2D 안내로 강등합니다.
-- M1-VIS-1 정적 frame A/B harness가 완료됐습니다. 기하 리본 A는 계속 실제 안내를 담당하고 sidewalk mask 기반 B는 shadow JSON·SVG만 생성합니다. 다음 작업은 기존 녹화 frame sequence를 같은 계약으로 재생하는 M1-VIS-2입니다.
-- Android 최종 디자인 화면은 전북대 전주캠퍼스 기준 문구로 전환했습니다. 표시되는 합성 예시를 실제 전북대 실증 결과로 해석하면 안 됩니다.
+- 런타임 Graph는 제공 OSM의 1,056 node / 1,517 edge이며, 서버가 허용한 **전북대 내부 footway 8개** 안에서만 기본 경로·재탐색·현재 위치 매칭을 수행합니다.
+- `demo_jeonju`는 **접근성 미확인 속성 허용** 시연 프로필입니다. 폭·경사·턱의 `unknown`을 보존하고 기존 엄격한 `wheelchair`를 완화하지 않습니다.
+- 고정 초기 출발점에서 실제 RouteEngine으로 계산한 기본 경로는 **130.7m**, 분기 구간 회피 우회는 **153.5m**, 두 경로의 계단은 **0개**입니다. 이동 후 우회는 현재 진행점에서 계산하므로 초기 거리와 달라집니다.
+- 과거 163.3m 우회에는 계단 간선 2개가 포함되어 있었습니다. 접근 가능한 우회 성공 사례로 사용하지 않습니다. 25m M1 구간은 별도의 AR 정합 시험입니다.
+- 세션 회피는 원본 Graph·다른 세션·사람 검수 상태를 변경하지 않습니다. TTL 만료는 관측이 오래됐다는 뜻이며 길이 열렸다는 확인으로 취급하지 않습니다.
+- 두 실제 기준점의 ARCore Anchor로 매 프레임 정합을 갱신합니다. 검증된 진행점으로 남은 거리를 계산하고, 위치 오차·연속 관측을 통과해야 도착으로 처리합니다. 정합·진행점이 모호하면 해당 판단을 보류합니다.
+- `RouteResponseGate`가 활성 상태·generation·세션·route/Graph revision을 확인한 응답만 지도·AR·음성에 적용합니다. 종료 뒤 늦은 응답과 이전 경로의 중복 응답은 폐기합니다.
+- 자동 회피는 잘린 현재 경로의 출발점 뒤에 있는 객체를 제외합니다. 최신 위치가 모호하거나 범위를 벗어나면 기존 2D 경로를 유지하고 AR을 숨긴 채 새 유효 관측을 기다립니다. 자체 작업 timeout은 명시적인 실패로 처리하고, MapLibre의 오래된 비동기 callback도 폐기합니다.
+- 차도 횡단 없는 동선의 실제 확인은 촬영 전까지 `pending`입니다. 공식 횡단보도·신호·진입부 검수·도시 전역 수집·모델 학습은 이번 내부 P0의 선행 조건이 아닙니다. OCR은 선택 기능입니다.
 
-상세 완료 근거, 남은 위험과 한 개로 고정한 다음 시작점은 [프로젝트 마스터 계획](docs/project_master_plan.md)을 기준으로 합니다.
+전달된 명세 본문은 v2.1이며 요청에 언급된 v2.2 원문은 없습니다. 사용자가 직접 명시한 내부 8구간과 거리 기준을 우선 적용한 근거를 [scope 설정](backend/app/config/jeonju_scope.json)에 기록했습니다.
 
-## 검증 시나리오
+## 실행
 
-| 상태 | 거리 | 설명 |
-|---|---:|---|
-| 일반 최단경로 | 130.7m | 제공 OSM Graph의 거리 기준 경로 |
-| 접근 가능 경로 | 130.7m | 현재 검증된 추가 접근성 제약 없음 |
-| 데모 Edge 세션 차단 후 | 163.3m | 원본 Graph를 바꾸지 않는 임시 재탐색 |
+Windows PowerShell, Python 3.11 이상, Android Studio JBR, Android SDK 36/platform-tools를 사용합니다. 저장소 루트에서 runner 하나가 데이터·모델·APK·기기·전주 서버를 검사하고 설치, `adb reverse`, 시연 화면 진입, 결과 수집을 수행합니다. 실행 중 PC 백엔드 연결이 필요합니다.
 
-데모 Edge와 출발·도착 노드는 빌드 과정에서 연결성과 우회 가능성을 확인해 선정되며, `data/processed/jeonju_accessibility_graph.geojson`의 `metadata.demo`에 기록됩니다.
+기존 Python 환경의 누락·비호환 의존성은 설치 후 재검사합니다. 실행할 APK는 run 디렉터리의 고정 사본으로 복사한 뒤 assets·해시를 검사하고 그 사본을 설치합니다.
 
-## 구현 범위
+```powershell
+# 현장 입력 없이 준비 검사
+.\scripts\run_jeonju_demo.ps1 -Mode Prepare -Variant Benchmark
 
-- OSMnx로 고정 시점 보행망 수집 및 GeoJSON Accessibility Graph 빌드
-- NetworkX MultiGraph + Dijkstra 일반/접근성 경로 계산
-- 계단, 차단, 엘리베이터, 경사, 폭, 턱 Hard Constraint
-- Kotlin + Jetpack Compose 기반 Android 전용 시민 앱
-- MapLibre 지도에서 일반·접근 가능·재탐색 경로 비교
-- Android 후보 지도에서 계단 5건과 DEM 진단 12건의 요청 한정 전·후 경로 시뮬레이션
-- ARCore 3D route ribbon과 CameraX 기반 Prismatic Wayfinding 2D fallback
-- 시작 → 경로 계획 → 비교 → 판단 근거 → 지도/카메라 안내 → 현장 제보 → 재탐색 흐름
-- 현장 제보 → 현재 세션 임시 차단 → 즉시 재탐색
-- 시민 제보는 `pending`, `verified=false`로 저장하고 공용 Graph에는 미반영
-- SQLite Edge 현재 상태와 변경 이력 영속화
-- 브라우저 탭별 24시간 route session 및 영향 세션 재계산
-- ONWAY AI 후보 5건의 `pending → human review → approved/rejected` 워크플로
-- 승인된 관찰만 검증 상태로 Graph에 반영
+# 에뮬레이터에서 APK 모델 로딩·서버 경로 확인만 수행
+.\scripts\run_jeonju_demo.ps1 -Mode SelfTest -DeviceSerial emulator-5554 -Variant Debug -DurationSeconds 90
+.\scripts\run_jeonju_demo.ps1 -Mode SelfTest -DeviceSerial emulator-5554 -Variant Benchmark -DurationSeconds 90
 
-AI 후보는 Graph를 직접 수정하지 않습니다. 점자블록 부재 후보는 승인하더라도 현재 휠체어 Hard Constraint에 임의로 연결하지 않습니다.
+# 실제 단말 serial로 바꾸고 현장 촬영 준비
+.\scripts\run_jeonju_demo.ps1 -Mode Live -DeviceSerial '<adb-device-serial>' -ClipId C01 -Variant Benchmark -DurationSeconds 900
 
-## 백엔드 실행
+# 실제 촬영 파일이 준비된 뒤 재생
+.\scripts\run_jeonju_demo.ps1 -Mode Replay -BundleZip '.\data\incoming\NaVi_Jeonju_P0_FINAL_20260918(1).zip' -ClipId C01 -DeviceSerial emulator-5554 -Variant Benchmark
+```
 
-Python 3.11 이상과 PowerShell 기준입니다.
+기본 ZIP은 `data/NaVi_Jeonju_P0_FINAL_20260918.zip`이며 파일명이 다르면 `-BundleZip`에 실제 경로를 지정합니다. `Replay` 입력은 `data/replay/jeonju_p0/<ClipId>/`입니다. 없는 실제 clip을 합성 영상이나 시간 예약 차단으로 대체하지 않습니다.
+
+현장에서는 기기 권한과 한국어 음성, 실제 위치가 알려진 5m 이상 떨어진 두 기준점을 준비하고 앱에서 A/B 정합을 기록합니다. 동선 확인 후 「시연 시작」을 한 번 누르고 C01 정지 장애물, C02 진행 공간 밖 객체, C03 잠깐 지나가는 사람을 각각 30~90초 촬영합니다. 「종료하고 기록 내보내기」가 MP4·정확한 CPU 프레임·Depth·mask·정합을 함께 저장합니다. 세부 기준점 조건과 저장 형식은 [현장 재개 절차](docs/jeonju_demo_implementation_20260918.md#현장에서-필요한-최소-준비촬영)를 확인하세요.
+
+Replay 입력은 schema 2의 프레임별 Anchor 정합과 `completion_state=finalized`, 실제 MP4 검사로 얻은 `recording_duration_ms`를 요구합니다. 녹화 실패·중단 또는 pending manifest를 완료 clip으로 재생하지 않습니다. 녹화가 성공해도 실제 C01~C03 수용 시험 합격을 자동 선언하지 않습니다.
+
+## 산출물과 검증 범위
+
+| 산출물 | 경로 |
+|---|---|
+| Debug APK | `android/app/build/outputs/apk/debug/app-debug.apk` |
+| Benchmark APK | `android/app/build/outputs/apk/benchmark/app-benchmark.apk` |
+| 데이터 manifest | `data/processed/jeonju/p0_manifest.json` |
+| 모델 manifest | `android/feature/ai-perception/src/main/assets/model_manifest.json` |
+| 실행 결과 | `artifacts/jeonju/runs/<run_id>/run_summary.json` |
+| 앱 이벤트 | 같은 run의 `app/events.jsonl` |
+| 실행 화면 녹화 | 같은 run의 `screenrecord.mp4` |
+| 기기 표본 | 같은 run의 `start-*.txt`, `<HHmmss>-*.txt`, `end-*.txt` (`cpu`, `meminfo`, `thermalservice`, `battery`)와 `*-metrics.json` |
+| 독립 근거 평가 | `scripts/assess_jeonju_run.py`의 `--output`으로 지정한 `assessment.json` |
+| 실제 촬영 export | 같은 run의 `exports/<ClipId>/`(현장 촬영 후 생성) |
+| backend 검사 | `artifacts/jeonju/backend-all.xml` |
+
+최신 debug·benchmark SelfTest에서는 `emulator-5554`에 설치한 각각의 APK가 모델을 실제 로딩하고 서버 기본 경로를 확인했습니다. TTS 준비는 Debug true / Benchmark false로 기록되어 음성 준비 상태를 구분합니다. 실제 처리 프레임은 0개이고 `field_acceptance_verified=false`입니다. 설치한 [Debug APK 사본](artifacts/jeonju/runs/20260919-004727-063-selftest/app-debug.apk)과 [Benchmark APK 사본](artifacts/jeonju/runs/20260919-004804-777-selftest/app-benchmark.apk), 정확한 SHA·검사·실패 복구 기록은 [인도 기록](docs/jeonju_demo_implementation_20260918.md#실행한-검사와-최종-갱신란)에 남겼습니다. `guidance_snapshot_dispatched`는 공통 revision 전달 기록이며 실제 렌더·발화 완료의 증거는 아닙니다.
+
+계측 시작의 `0 tests / Process crashed` 두 차례는 원인 미확정 실패로 보존했습니다. 수동 설치·force-stop 뒤 직접 계측과 Gradle 계측에서 각각 7개를 소스 변경 없이 통과했습니다. 이 복구를 현장 통합 안정성 시험으로 해석하지 않습니다.
+
+`guidance_render_submitted`는 실제 GL draw 제출과 revision을 기록하고 frame interval/작업 시간을 계측합니다. 화면 픽셀·보도 정합 완료와 구분하며 TTS도 session:revision별 시작/종료 callback을 별도로 남깁니다. runner의 약 30초 간격 memory/thermal/battery 수집은 10분 통합 수용 시험을 위한 계측이고 그 시험 자체의 완료 증거는 아닙니다.
+
+```powershell
+# 수집된 run과 별도로 검토한 평가 정답을 읽어 증거 평가
+.\.venv\Scripts\python.exe scripts\assess_jeonju_run.py 'artifacts\jeonju\runs\<run_id>' --evaluation 'evaluation\C01.json' --output 'artifacts\jeonju\runs\<run_id>\assessment.json'
+```
+
+평가 파일은 `clip_id`, `expected_reroutes`, `expected_edge_ids`, `expected_labels`를 명시하고 인식·매핑 입력으로 사용하지 않습니다. 정답이 없으면 `--evaluation`을 생략하여 구조·연쇄·누락만 검사합니다. `verified_partial`이나 종료 코드 0은 전체 합격이 아니며 결과는 `whole_project_acceptance=not_issued`를 유지합니다. [평가 계약과 남은 수용 시험](docs/jeonju_demo_implementation_20260918.md#독립-실행-근거-평가)을 확인하세요.
+
+## 데이터 반입·후보 생성
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev,geo]"
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
+.\.venv\Scripts\python.exe scripts\import_jeonju_p0.py --archive '.\data\NaVi_Jeonju_P0_FINAL_20260918.zip'
+.\.venv\Scripts\python.exe scripts\validate_jeonju_p0.py --output artifacts\jeonju\validation.json
+.\scripts\fetch_ai_baseline_model.ps1
 ```
 
-- 현장 후보 검수: `http://127.0.0.1:8000/review`
-- API 문서: `http://127.0.0.1:8000/docs`
+반입기는 ZIP CRC·42개 체크섬·CRS/좌표·OSM ID·revision을 확인하고 원본을 `data/raw/jeonju/p0/20260918/`에 보존합니다. 동봉 보행망 GeoJSON은 way 후보이며 런타임 Graph로 직접 대입하지 않습니다. `source=osm_user_handoff`와 접근성 미확인을 유지합니다. OSM 데이터는 OpenStreetMap contributors의 ODbL 조건을 따릅니다.
 
-SQLite는 기본적으로 `data/runtime/navi.db`에 생성되며 Git에 포함되지 않습니다.
+`scripts/build_jeonju_graph.py`는 필요한 태그·통행 조건·장벽/속성 변경점과 단위를 보존하는 **검토용 후보**를 `data/processed/jeonju/candidate_graph.geojson`에 만듭니다. 활성 P0 Graph를 덮어쓰는 경로는 거부합니다. 후보의 새 ID·길이는 고정 scope와 동등하지 않으므로 자동 활성화하지 않습니다. 이전 `prepare_jeonju_data.py`는 새 P0 ZIP 반입 명령이 아닙니다.
 
-## Android 앱 실행
+전국 횡단보도 CSV 50,000행 중 전주시 행은 0개이며 Graph에 병합하지 않았습니다. 로드뷰 metadata는 실제 이미지 분석 결과가 아니고 현장 실측 템플릿은 비어 있습니다. 실제 전주 DEM·수치지형도·정사영상이 없다는 이유로 내부 P0 구현을 막지 않습니다. 안양용 공간평가 및 후보 검토 자료는 legacy 진단이며 전주 경로 사실로 사용하지 않습니다.
 
-요구 환경은 Android Studio, JDK 17 이상, Android SDK 36입니다. 에뮬레이터에서는 앱의 기본 서버 주소 `http://10.0.2.2:8000`이 위 백엔드를 가리킵니다.
+## 백엔드·모듈
+
+독립 서버가 필요하면 다음과 같이 실행합니다. 기본 DB는 전주 전용 `data/runtime/jeonju_p0_20260918.db`이며 runner는 run별 전용 DB를 만듭니다. 전주 Graph가 없거나 revision이 다르면 실패하며 sample Graph로 대체하지 않습니다.
 
 ```powershell
-Copy-Item android\local.properties.example android\local.properties
-# local.properties의 sdk.dir를 설치된 Android SDK 경로로 수정
+$env:NAVI_GRAPH_PATH = 'data/processed/jeonju_accessibility_graph.geojson'
+$env:NAVI_DB_PATH = 'data/runtime/jeonju_p0_20260918.db'
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000
+```
 
+- AR 카메라·CPU 센서 입력: `:feature:ar-navigation`
+- 모델 추론·프레임 수명: `:feature:ai-perception`
+- 공간·지속성 판단과 경로 영향 매핑: `:feature:guidance-fusion`
+- 공통 좌표·stamp·정합·관측·RouteSnapshot: `:core:guidance-contract`
+- 자동 Live/Replay 및 녹화: `android/app/.../demo/`
+- API: `GET /health`, `GET /demo/jeonju`, `POST /route`, `POST /route/compare`, `GET /route/sessions/{session_id}`, `POST /route/sessions/{session_id}/reroute`
+
+현재 시연은 `demo_jeonju`와 실제 관측을 사용하는 자동 흐름입니다. 기존 수동 제보·공용 Graph 검수·안양 후보 시뮬레이션 화면과 API는 별도 legacy 기능이며 자동 시연 수용 증거에 합산하지 않습니다. 자동 회피는 사람 검수 승인을 기다리지 않지만 공용 Graph에 영구 반영할 사실은 별도 검수 대상입니다.
+
+## 테스트와 참고 문서
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --junitxml=artifacts\jeonju\backend-all.xml
 cd android
-$env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
-.\gradlew.bat :app:assembleDebug
-.\gradlew.bat :app:installDebug
+$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+.\gradlew.bat :app:assembleDebug :app:assembleBenchmark :app:testDebugUnitTest :core:guidance-contract:test :feature:guidance-fusion:test :feature:ai-perception:testDebugUnitTest :feature:ar-navigation:testDebugUnitTest --console=plain
 ```
 
-생성 APK는 `android/app/build/outputs/apk/debug/app-debug.apk`입니다. 실기기에서 백엔드에 연결하려면 `android/local.properties`의 `NAVI_BACKEND_URL`을 개발 PC의 LAN 주소로 바꾸고, 백엔드를 `--host 0.0.0.0`으로 실행해야 합니다. 운영용 HTTP 허용은 열어두지 않았으므로 실제 배포는 HTTPS 구성이 필요합니다.
+- [전주 자동 시연 구현·인도 기록](docs/jeonju_demo_implementation_20260918.md): 요구사항별 증거, 실입력 형식, 실패 처리, 남은 수용 시험
+- [프로젝트 마스터 계획](docs/project_master_plan.md): 현재 목표와 이전 M1/M2/합성 시험의 범위
+- [Android 아키텍처](docs/android_architecture.md), [AR·AI 모듈화](docs/ar_ai_modularization_plan.md), [데이터 신뢰도](docs/data_trust_model.md)
+- [25m 현장 정합 계획](docs/m1_local_field_route_jbnu.md), [기존 E2E-WC 계약 시험](docs/e2e_wc_jbnu_route.md)
+- [이전 M1 AR 성능](docs/m1_ar_performance_baseline_20260918.md), [M1-VIS shadow 비교](docs/ar_ai_parallel_alignment_spike.md): 이번 AI·Depth·Scene Semantics 통합 성능으로 재사용하지 않음
+- [legacy 공간평가](docs/spatial_data_evaluation_report.md), [legacy Graph 후보](docs/graph_enrichment_candidate_report.md): 안양용 진단이며 전주 실측·Graph 업데이트 근거가 아님
 
-Android Studio에서는 `android/` 폴더를 프로젝트로 열어 `app` 구성을 실행합니다.
-
-경로 비교 화면의 `후보 지도와 경로 영향 보기`에서 공간평가 후보를 확인할 수 있습니다. Android 화면은 `영향 시험 / 보행공간 / 횡단시설 / 연석` 지도 레이어를 분리합니다. 영향 시험에는 계단 후보 5건과 90m DEM 경사 민감도 후보 12건이 포함되며, DEM 후보는 실제 보도 경사나 승인 가능한 Graph 값이 아닙니다. 근거 후보 상세에는 25cm 정사영상의 도엽·pixel QA 참조가 표시됩니다. 모든 계산과 조회는 `graph_mutated=false`, `database_mutated=false`이며 후보 승인이나 공용 Graph 변경을 수행하지 않습니다.
-
-## 데이터 재생성
-
-저장소에는 사용자 제공 ZIP에서 안전하게 선별한 OSM 스냅샷과 빌드 결과가 포함됩니다.
-
-```powershell
-.\.venv\Scripts\python.exe scripts\prepare_jeonju_data.py
-.\.venv\Scripts\python.exe scripts\build_jeonju_graph.py
-```
-
-첫 명령은 ZIP에서 OSM과 지형지물 표준코드만 추출하고 다운로드 실행 파일은 제외합니다. 두 번째 명령은 전북대 OSM Graph를 생성합니다. OSM 데이터는 OpenStreetMap contributors의 ODbL 조건을 따릅니다.
-
-## 전주 공간데이터 상태
-
-- 적용됨: 전북대 주변 OSM `map.osm`, OSM `export.geojson`, 지형지물 표준코드 XLS
-- 보류됨: 전국 횡단보도 CSV는 전주시 행 0건이라 Graph 미병합
-- 미제공: 실제 DEM, 수치지형도, 상세 수치지형도, 정사영상
-- 제외됨: ZIP의 `INNORIX-Agent.exe`는 다운로드 클라이언트이며 공간데이터가 아니므로 추출·실행하지 않음
-
-안양용 `validate_spatial_sources.py`와 `run_spatial_evaluation.py`는 legacy 분석 코드다. 전주 NGII 원본이 확보되기 전에는 전주 데이터 평가 명령으로 사용하지 않는다.
-- `docs/spatial_data_evaluation_report.md`: 실제 평가 수치와 다음 검수 gate
-- `docs/graph_enrichment_candidate_report.md`: 경로 영향 후보와 제외 사유
-
-종료 코드는 `0=검증 실패 없음(pass 또는 제한이 명시된 warning)`, `1=필수 데이터 검증 실패`, `2=CLI 또는 내부 실행 오류`입니다. 전체 평가는 원본 TIFF나 기존 Graph를 수정하지 않습니다. 모든 파생 산출물은 `derived=true`, `verified=false`, `graph_update_allowed=false`이며 Human Review 전에는 공유 Graph에 반영할 수 없습니다. 상세 기준은 [대표회랑 공간데이터 평가 계획](docs/spatial_data_evaluation_plan.md)을 참고하세요.
-
-`data/processed/evaluation/`은 재배포 제한이 있는 NGII 자료의 파생 geometry를 포함할 수 있어 로컬 전용이며 Git에 저장하지 않습니다. 저장소에는 재현 스크립트와 집계 보고서만 포함합니다.
-
-## 테스트
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest
-```
-
-Android 단위 테스트·빌드·UI 테스트 APK 컴파일:
-
-```powershell
-cd android
-$env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
-.\gradlew.bat :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest
-```
-
-연결된 에뮬레이터/기기에서 계측 UI 테스트를 실행하려면 `.\gradlew.bat :app:connectedDebugAndroidTest`를 사용합니다. 수동 실증 순서는 [Android 현장 검증 절차](docs/android_field_test.md)에 기록했습니다.
-
-## 클라이언트 구조
-
-- [Android 아키텍처와 화면 흐름](docs/android_architecture.md)
-- [AR·AI 모듈화 및 개발 계획](docs/ar_ai_modularization_plan.md)
-- [AR 기준선·AI 보정 병렬 정합 스파이크](docs/ar_ai_parallel_alignment_spike.md)
-- [Android 현장 검증 절차](docs/android_field_test.md)
-- [M1 전북대 내부 로컬 AR 정합 시험](docs/m1_local_field_route_jbnu.md)
-- [M1 전북대 내부 PoC 경로 선정 기록](docs/m1_jbnu_route_selection.md)
-- [E2E-WC 전북대 휠체어 가정 재탐색 경로](docs/e2e_wc_jbnu_route.md)
-- [Prismatic Wayfinding 디자인 시스템](docs/frontend_design_system.md)
-- [디자인 토큰 명세](docs/design_tokens.md) — Figma Variable ↔ CSS ↔ Compose
-- [최종 와이어프레임 36장](docs/wireframes/final/README.md)
-- [Screen State Matrix](docs/screen_state_matrix.md)
-- [Routing Constraint Model](docs/routing_constraint_model.md)
-- [Data Trust Model](docs/data_trust_model.md)
-- [Interaction Spec — Motion · Haptic · Voice](docs/interaction_spec.md)
-- [접근성 검증 계획](docs/accessibility_validation.md)
-- 기존 웹 IA·유즈케이스 문서는 초기 탐색 기록으로 `docs/frontend_ia.md`, `docs/use_cases.md`, `docs/page_structure.md`에 보존
-
-Android 앱은 Graph 메타데이터의 `synthetic`, `verified=false` 고지를 그대로 표시합니다. 현장 제보는 현재 세션 재탐색에는 즉시 사용하지만, 승인 전까지 공용 Graph를 수정하지 않습니다.
-
-## 주요 API
-
-- `GET /health`
-- `POST /route`
-- `POST /route/compare`
-- `GET /route/sessions/{session_id}`
-- `POST /route/sessions/{session_id}/reroute`
-- `GET /edges/{edge_id}`
-- `GET /edges/{edge_id}/history`
-- `PATCH /edges/{edge_id}/status`
-- `GET /observations/candidates`
-- `POST /observations/candidates`
-- `POST /observations/candidates/{candidate_id}/review`
-- `GET /graph-enrichment/summary`
-- `GET /graph-enrichment/candidates?route_affecting=true|false`
-- `GET /graph-enrichment/candidates/{candidate_id}`
-- `POST /graph-enrichment/simulate`
-
-직접 Edge를 변경할 때 `verified=true`를 사용하려면 확인자 `actor`가 필수입니다. PoC 화면의 수동 차단 실험은 `verified=false`로 저장됩니다.
-
-공간평가 후보 API는 `candidate_bundle.json`을 읽기 전용으로 노출합니다. `POST /graph-enrichment/simulate`는 서버에 저장되고 `simulation_allowed=true`인 `candidate_id`만 받아 해당 요청의 Graph 사본에 제안 속성을 임시 적용합니다. 공용 Graph, SQLite, route session, graph revision은 변경하지 않습니다. 현재 시뮬레이션 가능한 후보는 `stairs=true` 제안 5개와 90m DEM 경사 민감도 진단 12개입니다. DEM 후보는 `approval_eligible=false`이고, 근거만 있는 230개 후보는 시뮬레이션이나 경로 사실로 사용할 수 없습니다.
-
-Android의 `공간데이터 후보` 화면은 시뮬레이션 가능 후보 17개를 자동 계산하고 `경로 단절 → 추가 우회거리 → 경로 구성 변경 → 변화 없음` 순으로 정렬합니다. `보행공간 / 횡단시설 / 연석` 필터는 근거 전용 객체를 별도 지도 레이어로 조회합니다. 선택 후보에서는 현재값과 제안값, 수치지형도 provenance, 정사영상 도엽·pixel 참조를 확인할 수 있습니다. 이 순위와 참조는 민감도·시각 QA 정보일 뿐, 후보의 진실성이나 승인 상태를 뜻하지 않습니다.
-
-## 환경 변수
-
-```text
-NAVI_GRAPH_PATH=data/processed/jeonju_accessibility_graph.geojson
-NAVI_DB_PATH=data/runtime/navi.db
-NAVI_GRAPH_ENRICHMENT_PATH=data/processed/evaluation/graph_enrichment/candidate_bundle.json
-VITE_KAKAO_MAP_KEY=<Kakao Maps JavaScript key, optional>
-KAKAO_REST_API_KEY=<Kakao REST API key, optional>
-```
-
-Kakao 키는 로컬 `.env`에만 두며 저장소에 커밋하지 않습니다. 두 키는 각각 브라우저 JavaScript SDK와 서버 REST 요청용이고 Android 네이티브 지도 키가 아닙니다. 현재 Android 지도는 MapLibre/OSM을 사용합니다.
-
-## 데이터 신뢰도와 한계
-
-- OSM 스냅샷: 실제 공간 출처, 현장 접근성은 미검증
-- 전국 횡단보도: 제공 파일에 전주시 행이 없어 현재 미병합
-- 세션 차단 데모: 원본 Graph를 변경하지 않는 실험값
-- 실제 턱 높이, 경사, 폭, 엘리베이터 상태를 주장하지 않음
-- 기본 카메라 화면은 영상을 서버로 업로드하지 않음. ARCore dataset 기록은 사용자가 기술 스파이크 화면에서 명시적으로 시작한 로컬 MP4·telemetry에 한함
-- ARCore 3D 리본은 구현됐지만 실제 보도 정합 정확도는 현장 3회 전까지 미검증이며, 추적·위치 조건이 부족하면 2D 안내로 강등
-- 실제 장애물 자동 감지와 안전 재탐색은 아직 실시간 안내에 연결하지 않음. AI 결과는 shadow/pending 상태와 사람 검수를 거쳐야 함
-- 현재 기본 Graph 범위 밖 위치는 Android 앱에서 경로 출발지로 사용하지 않으며, 다른 지역의 실제 경로 검증에는 해당 지역 Graph 빌드가 필요
-- 전주 OSM Graph와 접근성 속성은 현장 실측 완료 데이터가 아니므로 실제 안전을 보장하지 않음
-
-전체 구조와 데이터 계약은 [architecture.md](docs/architecture.md), [data_schema.md](docs/data_schema.md), 실험 절차는 [experiment.md](docs/experiment.md)를 참고하세요.
+기본 Android 지도는 MapLibre/OSM을 사용합니다. Kakao JavaScript/REST 키는 선택적인 별도 웹·서버 기능용이며 Android 네이티브 지도 키가 아닙니다. 비밀키는 로컬 `.env`에만 보관합니다.

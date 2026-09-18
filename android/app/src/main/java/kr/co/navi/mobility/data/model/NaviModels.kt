@@ -58,6 +58,20 @@ data class RouteResultDto(
     @SerialName("session_id") val sessionId: String? = null,
     @SerialName("graph_revision") val graphRevision: Int? = null,
     @SerialName("expires_at") val expiresAt: String? = null,
+    @SerialName("route_revision") val routeRevision: Int = 1,
+    @SerialName("scope_revision") val scopeRevision: String? = null,
+    @SerialName("dataset_revision") val datasetRevision: String? = null,
+    @SerialName("graph_sha256") val graphSha256: String? = null,
+    @SerialName("region_id") val regionId: String? = null,
+    @SerialName("calculated_origin") val calculatedOrigin: CoordinateDto? = null,
+    val segments: List<RouteSegmentDto> = emptyList(),
+)
+
+@Serializable
+data class RouteSegmentDto(
+    @SerialName("edge_id") val edgeId: String,
+    @SerialName("physical_segment_id") val physicalSegmentId: String,
+    val geometry: List<List<Double>>,
 )
 
 @Serializable

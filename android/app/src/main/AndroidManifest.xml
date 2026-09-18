@@ -9,6 +9,7 @@
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.compass" android:required="false" />
+    <queries><intent><action android:name="android.intent.action.TTS_SERVICE" /></intent></queries>
 
     <application
         android:allowBackup="false"

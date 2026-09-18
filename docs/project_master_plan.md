@@ -1,9 +1,36 @@
 # NaVi 프로젝트 마스터 계획과 현재 상태
 
-마지막 갱신: 2026-09-18 19:18 KST
-현재 활성 작업: M1-VIS-2 — 녹화 frame sequence에서 A/B와 stale fallback을 반복 검증하는 replay 준비
+마지막 갱신: 2026-09-19 KST
+현재 활성 작업: 전북대 내부 8구간 자동 시연 — 구현·가능한 검사 완료, 실제 C01~03 기록과 실기기 수용 시험 대기
 
 이 문서는 NaVi 개발의 **단일 작업 기준**이다. 날짜가 붙은 체크포인트, 초기 제안서, 개별 모듈 문서와 상태가 충돌하면 이 문서의 `현재 상태`, `결정 사항`, `바로 다음 작업`을 우선한다. 세부 설계와 원시 결과는 링크된 문서에 남기되, 작업을 마칠 때마다 이 문서에 완료 근거와 다음 시작점을 반영한다.
+
+## 현재 상태 — 전주 자동 시연
+
+**전체 목표는 미완료다.** 사용자 요청은 준비 후 시작 1회로 실제 카메라/녹화 프레임 추론 → 공간·지속성 판단 → 영향 구간 매핑 → 세션 임시 회피 → 현재 진행점 재탐색 → 지도·AR·음성 갱신을 수행하고 실제 Replay·실기기 수용 기준을 입증하는 것이다. 모델 로딩·합성 계약 시험·과거 AR-only 결과로 이 목표를 축소하지 않는다.
+
+현재 상태는 **`implementation_ready_input_pending`**이다. 전주 전용 반입/검증, 고정 scope, 프로필, 세션 API, 실제 YUV/Depth/Semantics 입력, 공간 융합, Live/Replay 공통 흐름, 녹화/export 및 실행 runner를 연결했다. 실제 두 ARCore Anchor의 프레임별 정합, schema 2의 완료 clip만 허용하는 계약, `RouteResponseGate`, 현재 진행점의 남은 거리·도착 gate, GL 제출/TTS callback 계측, 독립 run 평가와 memory/thermal/battery 수집을 추가했다. 최종 두 APK 빌드·모델 로딩, Android 단위 95개·계측 7개 통과, lint 오류 0·경고 25를 확인했다. 실제 장면 통합과 현장 수용 기준은 아래와 같이 미완료다. 종합 증거는 `artifacts/jeonju/run_summary.json`에 기록했다.
+
+| 현재 작업 | 상태 | 근거·다음 검증 |
+|---|---|---|
+| ZIP·OSM 계보·범위·모델 고정 | 구현·검사 확인 | 43파일/42체크섬, 8 footway, 공식 EfficientDet v1 SHA; 최종 manifest 재생성 확인 |
+| 실제 엔진·현재 위치·세션 계약 | 검사 완료 | backend 148 passed / 2 skipped, 130.7m→153.5m 및 계단 0; `artifacts/jeonju/backend-all.xml` |
+| 실제 인식·공간 융합·자동 실행 | 구현·독립 검사 완료 | `SpatialGuidanceFusion`, `JeonjuCoordinator`, `ClipArchive`; 실제 C01~03 미검증 |
+| 녹화·Anchor·응답·진행점 계약 | 구현·계약 검사 완료 | 프레임별 정합·기준점 identity 고정, finalized MP4 길이, stale 응답 gate, 남은 거리·도착; 실제 export 대기 |
+| 실행 근거 평가·계측 | 구현·가능한 검사 완료 | `assess_jeonju_run.py`, 실제 GL 제출·TTS callback, memory/thermal/battery 표본; 전체 합격 자동 발행 안 함 |
+| debug·benchmark 모델 로딩 | 최종 APK 확인 | emulator-5554의 20260919-004727-063 / 004804-777 SelfTest, frames 0; TTS는 Debug true / Benchmark false로 구분 |
+| C01 3회 Replay·C02/C03 억제 | 입력 대기 | 실제 ARCore 기록·정합·Depth/mask·별도 평가 정답 필요 |
+| 지정 실기기 현장 3회·25m·10분 통합 | 미실행 | 실제 단말·현장 기준점·촬영 필요; 과거 M1 결과 재사용 금지 |
+
+2026-09-19 기준점 등록 후속 수정: 입력 오류와 A/B 등록 결과를 버튼 아래에 표시하고, callback 대기 5초 제한·취소와 시작 불가 사유를 추가했다. app 단위 40개 통과, lint 오류 0/경고 30, Benchmark APK 빌드를 확인했다. 휴대폰 미연결로 설치·현장 재현은 대기 중이며 이전 APK의 실행 결과를 이번 APK에 승계하지 않는다. 변경과 고정 APK 근거는 [기준점 등록 피드백 수정](jeonju_reference_feedback_20260919.md)에 기록했다.
+
+상세 요구사항별 증거, 현재/과거 APK 구분, 정확한 파일 형식·저장 위치·실행 명령은 [전주 자동 시연 구현·인도 기록](jeonju_demo_implementation_20260918.md)을 기준으로 한다. 아래 M1·E2E-WC·M1-VIS·공간평가 완료 기록은 **당시 코드·기기·합성 또는 AR 단독 범위의 이력**이며 이번 전체 자동 시연의 완료 증거가 아니다.
+
+추가 코드 검토에서는 잘린 현재 경로의 출발점 뒤 객체 오매핑, 최신 위치 거부가 앱 전체 종료로 이어지던 처리, 자체 timeout과 상위 coroutine 취소의 혼동, MapLibre의 이전 style/fit/badge callback을 보강했다. 위치·관측이 부족하면 기존 2D 경로를 유지하고 AR·진행 판단을 보류한 뒤 새 유효 입력으로 재시도한다. runner는 기존 Python 환경도 의존성을 검사·복구하고, run별 APK 고정 사본을 검사·설치하여 실행 해시와 바이트의 대응을 보존한다. 이 추가 변경의 최종 검사 결과는 현재 검증표와 종합 run summary에서 확인한다.
+
+최종 단위 검사는 app 26 / core 29 / fusion 11 / AI 16 / AR 13으로 총 95개를 통과했다. 계측은 시작 단계의 `0 tests / Process crashed` 두 차례를 실패 기록으로 보존한 뒤 수동 설치·force-stop과 직접 계측 7개, 이어 Gradle 계측 7개를 소스 변경 없이 통과했다. 시작 실패의 원인은 미확정이며 실제 통합 안정성 성공으로 확대하지 않는다. 최신 두 SelfTest의 시작·종료 CPU/메모리/발열/배터리 수집은 확인했지만 Benchmark의 TTS 준비 false는 별도 재확인 항목이다.
+
+현재 Graph는 1,056 node / 1,517 edge를 유지한다. `demo_jeonju`만 미확인 접근성 속성을 명시적으로 허용하며 기존 strict `wheelchair`를 완화하지 않는다. 과거 163.3m 우회는 계단 간선 2개가 포함된 감사 결과다. 활성 8구간 기준은 실제 엔진의 130.7m/153.5m이며, 새 빌더의 1,389 node / 1,850 edge 결과는 후보 파일로만 보존한다. 현장 차도 횡단 확인은 `pending`이고 공식 횡단보도·진입부 자료 수집은 이번 내부 P0의 선행 조건이 아니다.
 
 ## 작업 종료 시 갱신 규칙
 
@@ -21,10 +48,14 @@
 - `:feature:ar-navigation`이 ARCore 카메라 세션을 단독 소유하고 timestamp가 있는 frame/pose/depth를 공급한다.
 - `:feature:ai-perception`은 탐지·분할·추적 결과만 만들며 AR 렌더링, Edge 선택, Graph 변경을 하지 않는다.
 - `:feature:guidance-fusion`은 동일 timestamp 결과를 결합하지만 공용 Graph를 수정하지 않는다.
-- 현재 기하 기반 AR과 AI 보정 AR은 대체하지 않고 병렬 실행한다. 현재 AR은 항상 기준선·fallback이고 AI 보정은 먼저 shadow 출력만 만든다.
-- AR 렌더링은 연속 실행하고 AI는 별도 bounded worker에서 최대 5~10Hz로 최신 frame만 처리한다. stale·저신뢰 mask는 사용하지 않는다.
+- M1-VIS의 mask 보정 리본 B는 shadow 실험으로 유지한다. 현재 자동 시연의 visible ribbon은 실제 정합된 경로 geometry를 사용하며 정합이 무효하면 숨기고 유효한 2D·음성으로 전환한다.
+- AR 렌더링은 연속 실행하고 AI는 별도 bounded worker에서 처리 1개·최신 대기 1개로 제한한다. 현재 capture 상한은 5Hz이며 3~5Hz 처리 목표 달성 여부는 실측한다. stale·저신뢰 공간 자료는 조치에 사용하지 않는다.
 - 결정론적 Rule/Cost Engine이 통과 가능성을 판정하고 RouteEngine이 경로를 계산한다.
-- LLM은 계산된 후보의 설명·비교·제한된 프로필 변환만 담당한다.
+- LLM·클라우드 영상 추론은 이번 자동 시연의 필수 실행 의존성이 아니다.
+- clip manifest는 schema 2와 `frame_calibration_policy=per_frame_ARCore_anchor_poses`, `completion_state=finalized`, 실제 확인한 `recording_duration_ms`를 사용한다. 실패·중단 기록을 완성된 Replay 입력으로 쓰지 않는다.
+- 프레임별 Anchor world 좌표는 바뀔 수 있지만 기준점 지도 좌표·오차·이름·정합 revision/생성 시각은 유지한다. 같은 정합으로 tracking epoch를 건너뛰지 않는다.
+- 현재 위치·오차·연속 관측에서 남은 거리와 도착을 계산한다. 종료 버튼이나 Replay 경과 시간만으로 도착 성공을 만들지 않는다.
+- `guidance_render_submitted`는 GL 명령 제출이며 `render_verified`나 현장 정합 성공이 아니다. TTS callback과 화면 완료, 데이터 출처의 독립 확인도 각각 구분한다.
 - 자동 관측은 `pending`, `verified=false`, session-local 또는 shadow mode를 유지한다.
 - 안양 현장 방문은 현재 계획에 없다. 안양 자료는 공모전 데모·공간자료 분석·synthetic 시나리오에만 사용한다.
 - 위치 기반 AR 검증은 사용자 생활권의 작은 임시 OSM 보행망에서 수행한다. 거리 영상은 A/B 시각화와 정적 보도 분할 시험에 사용하지만 실제 AR tracking·GPS 정확도의 Ground Truth가 아니다.
@@ -36,12 +67,12 @@
 | M0 계약·모듈 골격 | 완료 | `guidance-contract`, `ar-navigation`, `ai-perception`, `guidance-fusion` 분리 및 빌드·계약 테스트 | 경계 변경 시 회귀 테스트 |
 | M1 AR 기술 스파이크 | 진행 중 | 기존 AR 실험과 M1-VIS-1 정적 A/B·fallback·JSON/SVG harness 완료 | M1-VIS-2 녹화 replay 후 SM-S911N shadow |
 | E2E-WC 휠체어 가정 재탐색 실증 | 보류 | 단독 에뮬레이터에서 A 130.7m → session-local 차단 → B 153.5m → 저정확도 거부 → 3회·2초 자동 도착 폐루프 통과 | A·B 사람 사전 점검 뒤에만 현장 1회 실행 |
-| M2 AI device-free | 별도 채팅 소유 | 이 채팅에서는 AI importer/tracker/segmentation/evaluation 파일을 수정하지 않음 | 별도 채팅 결과를 계약으로 인계 |
+| M2 AI 입력·모델 | 구현·가능한 검사 완료 | 공식 모델 공통 assets, ARCore CPU YUV, 최신 프레임 파이프라인, Replay fresh inference, 최종 두 APK 모델 로딩 | 실제 C01~03 추론 검증 |
 | 공간데이터·Graph 후보 | 자동화 완료·사람 검수 대기 | 247개 후보/196개 Edge, 요청 한정 시뮬레이션 17개, 근거 전용 230개, 정사영상 참조 247/247 | 계단 후보 검수·정사영상 RMSE 확보 전 Graph 승격 금지 |
-| M3 공간 융합·Map Matching | 계획 확정·미착수 | 공통 계약과 기존 backend 경로 엔진, A/B 병렬·stale fallback 계획 존재 | M1-VIS frame 계약과 M2 perception 출력 준비 |
-| M4 세션 룰·재탐색 | 기반 존재 | backend에 deterministic constraint, Dijkstra, session temporary block 존재 | M3 observation을 shadow mode로 연결 |
+| M3 공간 융합·Map Matching | 구현 연결·현장 미검증 | measured Depth/mask·두 기준점·정지/점유/지속 판단·독립 Edge mapper | 실제 정합·C01 양성/C02~03 음성 확인 |
+| M4 세션 룰·재탐색 | 서버 계약 검사 확인 | 8구간 scope, 현재 간선 진행점, 원자적 회피·TTL·멱등/revision·격리 | 실제 AI 관측으로 전체 경로 갱신 반복 검증 |
 | M5 LLM 설명·제안 | 미착수 | 역할과 금지 경계만 확정 | M4 결정론적 결과 안정화 |
-| M6 검증 | 계획 수정 | 안양 방문 계획 폐기 | 생활권 로컬 OSM 시험과 별도 사람 검수 증거 사용 |
+| M6 자동 시연 수용 | 입력 대기 | 독립 서버/Android 검사와 최종 SelfTest, 전체 목표 미완료 | 실제 Replay 3회·지정 실기기 3회·25m·10분 통합 |
 
 ## M1 실험 현황
 
@@ -210,26 +241,23 @@
 
 ## 바로 다음 작업
 
-### M1-VIS-2: 녹화 replay A/B 비교
+### 실제 단말에서 C01~03 촬영을 확보하고 수용 시험 재개
 
-1. 기존 ARCore MP4·telemetry에서 평가 frame sequence를 만들되 M2 importer·모델 파일은 수정하지 않는다.
-2. frame별 A centerline과 외부 mask 결과를 M1-VIS-1 입력 계약으로 변환하고 동일 frame stamp만 결합한다.
-3. frame별 정합 metric에 반복 구간의 jitter, fallback 횟수·복구 시간을 추가하고 processing time을 제외한 반복 결과가 동일한지 확인한다.
-4. 결과는 계속 `shadow`, `verified=false`, `field_verified=false`이며 앱 안내·재탐색·Graph에 연결하지 않는다.
+독립 구현 검사와 최종 APK 검증은 완료했다. `artifacts/jeonju/run_summary.json`의 APK SHA를 기준으로 실제 단말을 명시 연결하고 `run_jeonju_demo.ps1 -Mode Live`로 권한·두 기준점·동선을 준비한다. C01~03 짧은 촬영 export와 별도 평가 정답을 확보한 뒤 같은 runner로 실제 Replay 3회와 지정 실기기 3회, 별도 25m 및 10분 통합 수용 시험을 수행한다. 전체 목표는 그 전까지 미완료다.
 
-`M1-ALIGN` 25m 현장 3회와 E2E-WC 현장 1회는 폐기하지 않는다. M1-VIS-2 replay와 SM-S911N shadow 뒤 전북대 A·B 사람 사전 점검이 가능할 때 각각 별도 성공 조건으로 실행한다.
+M1-VIS-2 shadow A/B 비교는 보존된 후속 연구 항목이다. 이번 내부 P0의 시작 조건으로 A/B 진입부 검수·공식 횡단보도 수집·도시 전역 수집을 추가하지 않는다. 원본 Graph의 실제 접근성 인증은 여전히 별도 사람 검수 대상이다.
 
 ## 작업 경계
 
-현재 M1 작업에서는 다음 M2 소유 경로를 수정하지 않는다.
-
-- `android/feature/ai-perception/**`
-- `data/ai-evaluation/**`
-- AI recording importer, tracker, segmentation evaluator 및 관련 보고서
-- `docs/ai_offline_evaluation_plan.md`
+과거 M1 전용 채팅에서 정했던 M2 파일 비수정 경계는 아래 이력의 당시 작업 분담이다. 현재 사용자는 저장소 전체 자동 시연 연결을 지시했으므로 AI 입력·공통 계약·융합·앱·서버를 함께 수정한다. 기존 사용자 변경은 보존하고 병렬 작업은 파일 소유를 나누어 충돌을 피한다. 안양 공간평가·공용 Graph 승격·신규 모델 학습은 현재 변경 범위에 포함하지 않는다.
 
 ## 근거 문서와 결과
 
+- 현재 전주 자동 시연: `docs/jeonju_demo_implementation_20260918.md`
+- 현재 backend 검사: `artifacts/jeonju/backend-all.xml`
+- 현재 runner 실행별 증거: `artifacts/jeonju/runs/<run_id>/run_summary.json`
+- 실행 근거 평가: `scripts/assess_jeonju_run.py <run-directory> --evaluation evaluation/<clip_id>.json --output <assessment.json>`; 평가 정답은 실제 장면 검토 후 별도로 고정하며 앱 입력으로 사용하지 않음
+- renderer/기기 계측: 앱 summary의 frame interval·GL 작업 시간 p95 및 run별 `meminfo`, `thermalservice`, `battery` 표본
 - M1 구현·실험 기록: `docs/m1_ar_spike.md`
 - M1 성능 기준선: `docs/m1_ar_performance_baseline_20260918.md`
 - M1 전북대 내부 경로 선정: `docs/m1_jbnu_route_selection.md`
@@ -247,7 +275,12 @@
 
 ## 남은 문제
 
-- non-debuggable benchmark도 CPU 평균 약 70.8%로 높고, ARCore motion-stereo/Depth 관련 스레드가 주 부하라는 정황만 확인했다. Depth on/off 인과 비교는 아직 하지 않았다.
+- 실제 C01~C03 clip·Depth/mask·정합·평가 정답과 지정 실기기 연결이 없다. 실제 자동 매핑·반복 Replay·현장 3회·25m 정합·10분 통합 수용 기준은 미검증이다.
+- 최종 APK·기록 형식의 계약 검사는 통과했으나 실제 ARCore MP4 export와 센서 동시 동작은 현장 검증이 남아 있다. SelfTest와 합성 계측 검사를 이 근거로 승격하지 않는다.
+- 준비 후 시작 1회·장애물별 개입 0회는 현재 코드 흐름이며 실제 시연 영상과 이벤트로 입증해야 한다. snapshot 전달 로그만으로 렌더·발화 완료를 주장하지 않는다.
+- `assess_jeonju_run.py`의 `verified_partial`은 검사별 미검증 항목을 포함할 수 있고 전체 완료 상태가 아니다. 실제 C01~C03·현장·25m·10분 수용 기준이 남으면 `whole_project_acceptance=not_issued`를 유지한다.
+- runner의 CPU/memory/thermal/battery는 시작·종료/약 30초 표본이다. CPU는 해당 앱 PID의 1초 간격 top 표본이며 연속 계측·정확한 발열 추이·crash/ANR/누수 0건의 전체 증거를 대신하지 않는다. 화면 녹화도 최대 180초 구간이다.
+- 과거 AR 단독 non-debuggable benchmark의 CPU 평균 약 70.8%는 이번 자동 시연 성능이 아니다. 당시 ARCore motion-stereo/Depth 관련 스레드가 주 부하라는 정황만 확인했고 Depth on/off 인과 비교는 하지 않았다.
 - ARCore 네이티브 로그의 반복적인 depth rectifier 및 camera/IMU desync 경고가 사용자 가시 오류나 성능 저하로 이어지는지는 미확정이다.
 - 실제 보도 정합과 접근성 정확도는 생활권 로컬 시험 및 사람 검수 전까지 미검증이다.
 - 전북대 내부 25m 경로는 데스크톱 형상 선별과 로컬 산출물 생성까지 완료됐다. 현장 3회 측정 전에는 안전·접근성 또는 AR 리본 정합 성공으로 간주하지 않는다.

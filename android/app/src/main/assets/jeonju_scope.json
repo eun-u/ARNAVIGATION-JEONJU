@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "region_id": "JEONJU_JBNU_SOUTH_P0",
+  "scope_revision": "jbnu-internal-eight-v1",
+  "dataset_revision": "jeonju-p0-20260918-1ace3878",
+  "bundle_content_sha256": "397cb7bacaea9cfcda13e03c9991d1919abe753f37c456640c3cfe49e1256ea8",
+  "graph_sha256": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+  "graph_sha256_encoding": "utf8_lf",
+  "allowed_edge_ids": [
+    "OSM_E_1175116968_062ce277fc",
+    "OSM_E_1175116968_1a5cbd9c27",
+    "OSM_E_1175116968_4d464d2d7d",
+    "OSM_E_1175116968_5e42bfe341",
+    "OSM_E_471373639_917a7d9bd3",
+    "OSM_E_471373639_d887f067b9",
+    "OSM_E_471373642_95ec0c4e13",
+    "OSM_E_471373646_870e5dbb6c"
+  ],
+  "origin_node": "OSM_N12288349033",
+  "destination_node": "OSM_N12281807442",
+  "field_crossing_check": "pending",
+  "scope_basis": "User request + v2.1 baseline/detour union; v2.2 section 3.1 file not supplied",
+  "max_snap_distance_m": 3.0,
+  "map_error_m": 0.5,
+  "max_position_accuracy_m": 3.0
+}

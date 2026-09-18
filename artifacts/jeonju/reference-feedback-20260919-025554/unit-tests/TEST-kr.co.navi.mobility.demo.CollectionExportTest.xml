@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.co.navi.mobility.demo.CollectionExportTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-18T17:54:50.490Z" hostname="DESKTOP-LET1RVC" time="0.037">
+  <properties/>
+  <testcase name="export preserves nested sensor bytes and interrupted run metadata" classname="kr.co.navi.mobility.demo.CollectionExportTest" time="0.037"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

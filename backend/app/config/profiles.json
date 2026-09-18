@@ -17,8 +17,21 @@
     "min_width": 0.9,
     "max_curb_height": 0.03,
     "allow_stairs": false,
+    "requires_wheelchair_access": true,
     "allow_unknown": false,
     "allow_synthetic": true,
     "allowed_unverified_sources": ["osm"]
+  },
+  "demo_jeonju": {
+    "name": "demo_jeonju",
+    "description": "전북대 자동 시연 · 접근성 미확인 속성 허용",
+    "max_slope": 8.0,
+    "min_width": 0.9,
+    "max_curb_height": 0.03,
+    "allow_stairs": false,
+    "allow_unknown": true,
+    "requires_wheelchair_access": true,
+    "allow_synthetic": false,
+    "allowed_unverified_sources": []
   }
 }
