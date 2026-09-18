@@ -2,9 +2,9 @@
 
 NaVi는 스마트폰 카메라와 접근성 경로 엔진을 결합해 휠체어·개인 이동 사용자의 길을 안내하는 모바일 우선 PoC입니다. 일반 최단경로와 접근 가능한 경로를 구분하고, 이동 중 장애물 후보가 생기면 현재 세션의 경로를 다시 계산합니다.
 
-이 저장소는 전주·전북대학교 실증용 전환본입니다. 웹 fallback과 Android 화면 문구는 전북대 전주캠퍼스 기준으로 전환했지만, 실제 전주 백엔드 Graph와 접근성 원자료는 아직 제공 전입니다. 기존 안양 자료는 파이프라인 참고용 legacy 데이터일 뿐 전주 경로 사실로 사용하지 않습니다.
+이 저장소는 전주·전북대학교 실증용 전환본입니다. 제공된 전북대 주변 OSM을 `data/processed/jeonju_accessibility_graph.geojson`으로 빌드해 백엔드 기본 Graph로 연결했습니다. OSM Graph는 실제 공간 출처지만 보도 실측망이 아니며 모든 접근성 상태는 현장 검증 전입니다. 기존 안양 자료는 파이프라인 참고용 legacy 데이터일 뿐 전주 경로 사실로 사용하지 않습니다.
 
-전국횡단보도표준데이터는 현재 [컬럼 계약과 공식 페이지 스냅샷](data/reference/national_crosswalk/README.md)만 포함합니다. 실제 행 데이터가 제공되기 전까지 `verified=false`, `graph_update_allowed=false`를 유지합니다.
+전국횡단보도표준데이터 50,000행과 [컬럼·출처 명세](data/reference/national_crosswalk/README.md)를 반입했습니다. 제공 파일에는 전주시 행이 없어 횡단보도 속성을 Graph에 병합하지 않았으며 `verified=false`, `graph_update_allowed=false`를 유지합니다.
 
 ## 현재 개발 상태 — 2026-09-18
 
@@ -21,11 +21,11 @@ NaVi는 스마트폰 카메라와 접근성 경로 엔진을 결합해 휠체어
 
 | 상태 | 거리 | 설명 |
 |---|---:|---|
-| 일반 최단경로 | 1,081.9m | 거리만 기준으로 계산 |
-| 접근 가능 경로 | 1,302.5m | synthetic 계단 Edge 제외 |
-| 데모 Edge 공사 차단 후 | 1,736.3m | 차단 Edge 제외 후 자동 재탐색 |
+| 일반 최단경로 | 130.7m | 제공 OSM Graph의 거리 기준 경로 |
+| 접근 가능 경로 | 130.7m | 현재 검증된 추가 접근성 제약 없음 |
+| 데모 Edge 세션 차단 후 | 163.3m | 원본 Graph를 바꾸지 않는 임시 재탐색 |
 
-데모 Edge와 출발·도착 노드는 빌드 과정에서 연결성과 우회 가능성을 확인해 자동 선정되며, `data/processed/anyang_accessibility_graph.geojson`의 `metadata.demo`에 기록됩니다.
+데모 Edge와 출발·도착 노드는 빌드 과정에서 연결성과 우회 가능성을 확인해 선정되며, `data/processed/jeonju_accessibility_graph.geojson`의 `metadata.demo`에 기록됩니다.
 
 ## 구현 범위
 
@@ -83,33 +83,23 @@ Android Studio에서는 `android/` 폴더를 프로젝트로 열어 `app` 구성
 
 ## 데이터 재생성
 
-저장소에는 재현 가능한 OSM 스냅샷과 빌드 결과가 포함됩니다. 네트워크를 다시 내려받을 때만 첫 명령이 필요합니다.
+저장소에는 사용자 제공 ZIP에서 안전하게 선별한 OSM 스냅샷과 빌드 결과가 포함됩니다.
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\fetch_osm.py
-.\.venv\Scripts\python.exe scripts\build_graph.py
+.\.venv\Scripts\python.exe scripts\prepare_jeonju_data.py
+.\.venv\Scripts\python.exe scripts\build_jeonju_graph.py
 ```
 
-`fetch_osm.py`의 기본 범위와 시점은 메타데이터에 기록됩니다. OSM 데이터는 OpenStreetMap contributors의 ODbL 조건을 따릅니다.
+첫 명령은 ZIP에서 OSM과 지형지물 표준코드만 추출하고 다운로드 실행 파일은 제외합니다. 두 번째 명령은 전북대 OSM Graph를 생성합니다. OSM 데이터는 OpenStreetMap contributors의 ODbL 조건을 따릅니다.
 
-## 공간데이터 평가
+## 전주 공간데이터 상태
 
-로컬에 배치한 수치지형도·DEM·정사영상·정밀도로지도와 안양시 횡단보도 CSV를 현재 Graph 기준으로 일괄 검증합니다. 이 명령은 `data/raw/`와 기존 `anyang_accessibility_graph.geojson`을 읽기만 하며 Graph에 속성을 병합하지 않습니다.
+- 적용됨: 전북대 주변 OSM `map.osm`, OSM `export.geojson`, 지형지물 표준코드 XLS
+- 보류됨: 전국 횡단보도 CSV는 전주시 행 0건이라 Graph 미병합
+- 미제공: 실제 DEM, 수치지형도, 상세 수치지형도, 정사영상
+- 제외됨: ZIP의 `INNORIX-Agent.exe`는 다운로드 클라이언트이며 공간데이터가 아니므로 추출·실행하지 않음
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e ".[dev,geo]"
-.\.venv\Scripts\python.exe scripts\validate_spatial_sources.py
-.\.venv\Scripts\python.exe scripts\run_spatial_evaluation.py
-```
-
-산출물:
-
-- `data/processed/evaluation/corridor_mask.geojson`: EPSG:5179에서 계산한 30m 회랑·100m 문맥 buffer를 EPSG:4326으로 저장
-- `data/processed/evaluation/metrics.json`: 원본 무결성, CRS, Graph coverage, 경고와 hold 사유
-- `data/processed/evaluation/evaluation_summary.json`: 수치지형도·DEM·정사영상·정밀도로지도 교차평가와 채택 판정
-- `data/processed/evaluation/review_queue.geojson`, `review_queue.csv`: 역할별 최대 30개의 결정론적 Human Review 표본
-- `data/processed/evaluation/graph_enrichment/`: 기존 Routing 필드를 바꾸지 않은 후보 247개(계단 5, DEM 진단 12, 근거 전용 230)와 candidate Graph 사본
-- `data/processed/evaluation/orthophoto/qa_evidence_manifest.json`: 후보별 정사영상 도엽·pixel 시각 QA 참조. 독립 기준점 RMSE 미측정으로 geometry 보정은 금지
+안양용 `validate_spatial_sources.py`와 `run_spatial_evaluation.py`는 legacy 분석 코드다. 전주 NGII 원본이 확보되기 전에는 전주 데이터 평가 명령으로 사용하지 않는다.
 - `docs/spatial_data_evaluation_report.md`: 실제 평가 수치와 다음 검수 gate
 - `docs/graph_enrichment_candidate_report.md`: 경로 영향 후보와 제외 사유
 
@@ -181,7 +171,7 @@ Android의 `공간데이터 후보` 화면은 시뮬레이션 가능 후보 17�
 ## 환경 변수
 
 ```text
-NAVI_GRAPH_PATH=data/processed/anyang_accessibility_graph.geojson
+NAVI_GRAPH_PATH=data/processed/jeonju_accessibility_graph.geojson
 NAVI_DB_PATH=data/runtime/navi.db
 NAVI_GRAPH_ENRICHMENT_PATH=data/processed/evaluation/graph_enrichment/candidate_bundle.json
 VITE_KAKAO_MAP_KEY=<Kakao Maps JavaScript key, optional>
@@ -193,14 +183,13 @@ Kakao 키는 로컬 `.env`에만 두며 저장소에 커밋하지 않습니다. 
 ## 데이터 신뢰도와 한계
 
 - OSM 스냅샷: 실제 공간 출처, 현장 접근성은 미검증
-- ONWAY 횡단보도 매핑: 공공데이터 기반 추정 위치, `verified=false`
-- AI precheck 5건: 검수 대기 후보, 사실로 취급하지 않음
-- synthetic 데모 속성: 경로 차이를 재현하기 위한 실험값
+- 전국 횡단보도: 제공 파일에 전주시 행이 없어 현재 미병합
+- 세션 차단 데모: 원본 Graph를 변경하지 않는 실험값
 - 실제 턱 높이, 경사, 폭, 엘리베이터 상태를 주장하지 않음
 - 기본 카메라 화면은 영상을 서버로 업로드하지 않음. ARCore dataset 기록은 사용자가 기술 스파이크 화면에서 명시적으로 시작한 로컬 MP4·telemetry에 한함
 - ARCore 3D 리본은 구현됐지만 실제 보도 정합 정확도는 현장 3회 전까지 미검증이며, 추적·위치 조건이 부족하면 2D 안내로 강등
 - 실제 장애물 자동 감지와 안전 재탐색은 아직 실시간 안내에 연결하지 않음. AI 결과는 shadow/pending 상태와 사람 검수를 거쳐야 함
 - 현재 기본 Graph 범위 밖 위치는 Android 앱에서 경로 출발지로 사용하지 않으며, 다른 지역의 실제 경로 검증에는 해당 지역 Graph 빌드가 필요
-- 안양 Graph와 접근성 속성은 현장 실측 완료 데이터가 아니므로 실제 안전을 보장하지 않음
+- 전주 OSM Graph와 접근성 속성은 현장 실측 완료 데이터가 아니므로 실제 안전을 보장하지 않음
 
 전체 구조와 데이터 계약은 [architecture.md](docs/architecture.md), [data_schema.md](docs/data_schema.md), 실험 절차는 [experiment.md](docs/experiment.md)를 참고하세요.

@@ -30,4 +30,7 @@ data/ai-evaluation/runs/
 data/ai-evaluation/raw/
 # Spatial evaluation artifacts can embed geometry derived from redistribution-restricted NGII data.
 data/processed/evaluation/
+# User handoff containers stay local. Reproducible, selected contents are stored under data/raw/.
+/data/*.zip
+/data/전국횡단보도표준데이터.csv
 *.iml

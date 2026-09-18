@@ -1,0 +1,83 @@
+{
+  "dataset_id": "jeonju_user_handoff_20260918",
+  "source_archive": {
+    "path": "data/데이터셋리스트 (1).zip",
+    "bytes": 39053554,
+    "sha256": "d785f6a0918232b87c72a37102b2bac9012c98581cc23047af094e8afe395d95"
+  },
+  "extracted": [
+    {
+      "archive_member": "데이터셋리스트/보행망/export.geojson",
+      "path": "data/raw/jeonju/osm/2026/export.geojson",
+      "bytes": 367989,
+      "sha256": "cb0a35aefaabb993b74ea09f3e4a013fc031a1d1cfadd90826827d003f9adb25"
+    },
+    {
+      "archive_member": "데이터셋리스트/보행망/map.osm",
+      "path": "data/raw/jeonju/osm/2026/map.osm",
+      "bytes": 1257761,
+      "sha256": "16d593e3d1aa702dc02ac9a931b844165d76a079e65fc4af17c7c9340d6af007"
+    },
+    {
+      "archive_member": "데이터셋리스트/지형지물코드/[별표1] 수치지형도 지형지물 표준코드.xls",
+      "path": "data/raw/jeonju/reference/수치지형도_지형지물_표준코드.xls",
+      "bytes": 881152,
+      "sha256": "ec463623174199606a0fd39eb0b7ec5f2f50efb231500a4415664e2511240765"
+    }
+  ],
+  "excluded_archive_content": [
+    {
+      "pattern": "*/INNORIX-Agent.exe",
+      "reason": "download client executable, not spatial data"
+    }
+  ],
+  "crosswalks": {
+    "source_path": "data/raw/national/crosswalks/2026/전국횡단보도표준데이터_50000건.csv",
+    "source_sha256": "b110b7b04404ee01486e2f99aadae5717ce8420f4627e40ee73ba75e528521e2",
+    "source_encoding": "CP949",
+    "source_row_count": 50000,
+    "column_count": 28,
+    "columns": [
+      "시도명",
+      "시군구명",
+      "도로명",
+      "소재지도로명주소",
+      "소재지지번주소",
+      "횡단보도관리번호",
+      "횡단보도종류",
+      "자전거횡단도겸용여부",
+      "고원식적용여부",
+      "위도",
+      "경도",
+      "차로수",
+      "횡단보도폭",
+      "횡단보도연장",
+      "보행자신호등유무",
+      "보행자작동신호기유무",
+      "음향신호기설치여부",
+      "녹색신호시간",
+      "적색신호시간",
+      "교통섬유무",
+      "보도턱낮춤여부",
+      "점자블록유무",
+      "집중조명시설유무",
+      "관리기관명",
+      "관리기관전화번호",
+      "데이터기준일자",
+      "제공기관코드",
+      "제공기관명"
+    ],
+    "filter": "시군구명 startswith 전주시 OR 주소/제공기관명 contains 전주시",
+    "jeonju_row_count": 0,
+    "output_path": "data/processed/jeonju_crosswalks.csv",
+    "output_encoding": "UTF-8 with BOM",
+    "verified": false,
+    "graph_update_allowed": false,
+    "status": "no_jeonju_rows_in_provided_50000_row_export"
+  },
+  "provenance_policy": {
+    "verified": false,
+    "graph_update_allowed": false,
+    "note": "원본 OSM과 공공데이터는 후보 입력이며 현장 검증 전 접근성 사실로 승격하지 않는다."
+  }
+}

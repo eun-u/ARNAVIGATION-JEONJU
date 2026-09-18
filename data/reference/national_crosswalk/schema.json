@@ -2,8 +2,12 @@
   "dataset_id": "national_crosswalk_standard_15028201",
   "title": "전국횡단보도표준데이터",
   "source_url": "https://www.data.go.kr/data/15028201/standard.do",
-  "scope": "schema_only",
-  "row_data_included": false,
+  "scope": "provided_50000_row_export_inspected",
+  "row_data_included": true,
+  "row_data_path": "data/raw/national/crosswalks/2026/전국횡단보도표준데이터_50000건.csv",
+  "source_encoding": "CP949",
+  "source_row_count": 50000,
+  "jeonju_row_count": 0,
   "portal_update_cycle": "반기",
   "portal_modified_date": "2025-07-10",
   "verified_on": "2026-09-18",
@@ -33,11 +37,13 @@
     "집중조명시설유무",
     "관리기관명",
     "관리기관전화번호",
-    "데이터기준일자"
+    "데이터기준일자",
+    "제공기관코드",
+    "제공기관명"
   ],
   "routing_policy": {
     "verified": false,
     "graph_update_allowed": false,
-    "notes": "컬럼 계약 확인용이다. 실제 행 데이터는 추후 별도 제공하며, 공란을 false로 해석하지 않는다."
+    "notes": "제공된 5만 행에는 전주시 행이 없다. 공란을 false로 해석하지 않으며 전주 Graph에는 병합하지 않는다."
   }
 }

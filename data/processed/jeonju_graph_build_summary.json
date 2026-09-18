@@ -1,0 +1,64 @@
+{
+  "input": "data/raw/jeonju/osm/2026/map.osm",
+  "output": "data/processed/jeonju_accessibility_graph.geojson",
+  "nodes": 1056,
+  "edges": 1517,
+  "connected_components": 5,
+  "highway_counts": {
+    "footway": 759,
+    "living_street": 69,
+    "path": 6,
+    "pedestrian": 2,
+    "residential": 33,
+    "service": 569,
+    "steps": 46,
+    "tertiary": 35,
+    "tertiary_link": 10,
+    "track": 25,
+    "unclassified": 3
+  },
+  "crosswalk_status": "no_jeonju_rows_in_provided_50000_row_export",
+  "jeonju_crosswalk_rows": 0,
+  "verified": false,
+  "graph_update_allowed": false,
+  "demo": {
+    "origin_node": "OSM_N12288349033",
+    "destination_node": "OSM_N12281807442",
+    "block_edge": "OSM_E_471373639_917a7d9bd3",
+    "synthetic_constraint_edges": [],
+    "expected": {
+      "standard": {
+        "distance_m": 130.7,
+        "edge_ids": [
+          "OSM_E_471373639_917a7d9bd3",
+          "OSM_E_471373642_95ec0c4e13",
+          "OSM_E_1175116968_1a5cbd9c27",
+          "OSM_E_1175116968_4d464d2d7d",
+          "OSM_E_1175116968_5e42bfe341"
+        ]
+      },
+      "accessible_before": {
+        "distance_m": 130.7,
+        "edge_ids": [
+          "OSM_E_471373639_917a7d9bd3",
+          "OSM_E_471373642_95ec0c4e13",
+          "OSM_E_1175116968_1a5cbd9c27",
+          "OSM_E_1175116968_4d464d2d7d",
+          "OSM_E_1175116968_5e42bfe341"
+        ]
+      },
+      "accessible_after": {
+        "distance_m": 163.3,
+        "edge_ids": [
+          "OSM_E_471373639_f8371ea8a5",
+          "OSM_E_115952714_873db66851",
+          "OSM_E_115952714-471394501_4104ee9186",
+          "OSM_E_471373633-471394501_98bedec91d",
+          "OSM_E_471373646_28bd3f1dd3",
+          "OSM_E_471373646_870e5dbb6c",
+          "OSM_E_1175116968_062ce277fc"
+        ]
+      }
+    }
+  }
+}

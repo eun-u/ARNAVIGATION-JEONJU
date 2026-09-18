@@ -43,7 +43,7 @@ from .services import ObservationCandidateNotFoundError, RouteService, RouteSess
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-PROCESSED_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "anyang_accessibility_graph.geojson"
+PROCESSED_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "jeonju_accessibility_graph.geojson"
 SAMPLE_GRAPH_PATH = PROJECT_ROOT / "data" / "sample" / "navi_accessibility_graph.geojson"
 DEFAULT_GRAPH_PATH = PROCESSED_GRAPH_PATH if PROCESSED_GRAPH_PATH.exists() else SAMPLE_GRAPH_PATH
 DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "runtime" / "navi.db"
