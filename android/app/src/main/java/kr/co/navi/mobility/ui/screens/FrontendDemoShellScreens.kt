@@ -129,7 +129,7 @@ fun FrontendHomeScreen(
                         Column(Modifier.weight(1f)) {
                             Text("안내가 진행 중이에요", style = MaterialTheme.typography.titleMedium, color = Color.White)
                             Text(
-                                "목적지 B · 남은 ${session.activeRoute?.let { "${it.distanceM.toInt()}m" } ?: "640m"}",
+                                "전북대 캠퍼스 도착점 · 남은 ${session.activeRoute?.let { "${it.distanceM.toInt()}m" } ?: "130m"}",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.85f),
                             )
@@ -180,9 +180,9 @@ fun FrontendHomeScreen(
                 }
                 Spacer(Modifier.height(12.dp))
                 DemoSectionLabel("최근 경로", "모두 보기")
-                RecentRouteRow("안양역 → 목적지 B", "1,303m · 22분 · 어제", true, onSearch)
+                RecentRouteRow("전북대학교 정문 → 중앙도서관", "합성 데모 · 검증 전", true, onSearch)
                 DemoDivider()
-                RecentRouteRow("중앙시장 → 안양시청", "870m · 15분 · 3일 전", false, onSearch)
+                RecentRouteRow("전북대학교 박물관 → 중앙도서관", "합성 데모 · 검증 전", false, onSearch)
                 Spacer(Modifier.weight(1f))
                 Row(
                     Modifier
@@ -196,7 +196,7 @@ fun FrontendHomeScreen(
                     Text("⚠", color = NaviCaution)
                     Text(
                         buildAnnotatedString {
-                            append("현재 데이터는 안양 대표 회랑 기준이며 일부는 미검증입니다. ")
+                            append("현재 전북대 실증 데이터는 연결 대기 중이며 화면 예시는 미검증입니다. ")
                             withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("신뢰도 보기") }
                         },
                         modifier = Modifier.weight(1f),
@@ -269,13 +269,13 @@ fun FrontendSavedScreen(
                     ReviewCountCard("1", "반려", NaviInkMuted, Color(0xFFEDEFF3), Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(14.dp))
-                ReportHistoryRow("만안로 지하보도 앞 공사", "오늘 14:02 · 사진 1장 · 내 이동에만 반영 중", "검수 대기", NaviCaution, NaviCautionSoft, onOpenReport)
+                ReportHistoryRow("전북대 정문 보행로 공사 후보", "합성 예시 · 실제 데이터 아님", "검수 대기", NaviCaution, NaviCautionSoft, onOpenReport)
                 DemoDivider()
-                ReportHistoryRow("중앙시장 북측 턱 높음", "3일 전 · 메모만", "검수 대기", NaviCaution, NaviCautionSoft, onOpenReport)
+                ReportHistoryRow("중앙도서관 북측 턱 후보", "합성 예시 · 실제 데이터 아님", "검수 대기", NaviCaution, NaviCautionSoft, onOpenReport)
                 DemoDivider()
-                ReportHistoryRow("시민대로 경사로 신설", "2주 전 · 검수자 확인 완료 · 공용 경로에 반영", "반영됨", NaviPass, NaviPassSoft, onOpenReport)
+                ReportHistoryRow("백제대로 경사로 후보", "합성 예시 · 공용 경로 미반영", "검수 대기", NaviCaution, NaviCautionSoft, onOpenReport)
                 DemoDivider()
-                ReportHistoryRow("안양역 3번 출구 엘리베이터", "1개월 전 · 사유: 위치가 그래프 범위 밖", "반려", NaviInkMuted, Color(0xFFEDEFF3), onOpenReport)
+                ReportHistoryRow("전북대학교 정문 경사로 후보", "합성 예시 · 위치 검증 전", "검수 대기", NaviCaution, NaviCautionSoft, onOpenReport)
                 Spacer(Modifier.height(18.dp))
                 Text("제보가 승인되면 알림으로 알려드려요.", modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.bodySmall, color = NaviInkMuted)
             }
@@ -395,7 +395,7 @@ fun FrontendSettingsScreen(
                     Column {
                         SettingValueRow("데이터 모드", "실데이터", "서버 연결 실패 시 데모로 전환")
                         DemoDivider(Modifier.padding(vertical = 5.dp))
-                        SettingValueRow("오프라인 지도 내려받기", "›", "안양 대표 회랑 · 18MB")
+                        SettingValueRow("오프라인 지도 내려받기", "›", "전북대 전주캠퍼스 · 데이터 준비 중")
                     }
                 }
                 Spacer(Modifier.height(12.dp))

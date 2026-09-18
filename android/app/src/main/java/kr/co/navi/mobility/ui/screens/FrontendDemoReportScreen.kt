@@ -129,7 +129,7 @@ fun FrontendReportScreen(
                         Text("⌖", style = MaterialTheme.typography.titleLarge, color = NaviBlue)
                         Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("만안로 지하보도 앞", style = MaterialTheme.typography.bodyMedium, color = NaviInk)
+                            Text("전북대 정문 보행로", style = MaterialTheme.typography.bodyMedium, color = NaviInk)
                             Text("현재 위치에서 자동 지정 · ±8m", style = MaterialTheme.typography.labelMedium, color = NaviInkMuted)
                         }
                         Text("지도에서\n조정", style = MaterialTheme.typography.labelMedium, color = NaviBlue)

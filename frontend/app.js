@@ -10,28 +10,28 @@ const DEMO_GRAPH = {
       destination_node: "DEMO-B",
       block_edge: "DEMO-E15",
       expected: {
-        standard: { distance_m: 1081.9 },
-        accessible_before: { distance_m: 1302.5 },
-        accessible_after: { distance_m: 1736.3 },
+        standard: { distance_m: 130.7 },
+        accessible_before: { distance_m: 130.7 },
+        accessible_after: { distance_m: 153.5 },
       },
     },
   },
   features: [
-    pointFeature("DEMO-A", "출발지 A · 데모", 37.4019, 126.9223),
-    pointFeature("DEMO-M", "접근성 분기점 · 데모", 37.3999, 126.9247),
-    pointFeature("DEMO-B", "목적지 B · 데모", 37.3977, 126.9281),
+    pointFeature("DEMO-A", "전북대학교 정문 방향 · 합성 데모", 35.8463514, 127.1319861),
+    pointFeature("DEMO-M", "접근성 분기점 · 합성 데모", 35.8458917, 127.1319832),
+    pointFeature("DEMO-B", "전북대 캠퍼스 도착점 · 합성 데모", 35.845787, 127.1312826),
     {
       type: "Feature",
       properties: { feature_type: "edge", edge_id: "DEMO-E15", blocked: false, source: "synthetic", verified: false },
-      geometry: { type: "LineString", coordinates: [[126.9247, 37.3999], [126.9258, 37.3991]] },
+      geometry: { type: "LineString", coordinates: [[127.1319832, 35.8458917], [127.13172, 35.84583]] },
     },
   ],
 };
 
 const DEMO_ROUTES = {
-  standard: [[126.9223, 37.4019], [126.9235, 37.4009], [126.9252, 37.4002], [126.9266, 37.3989], [126.9281, 37.3977]],
-  before: [[126.9223, 37.4019], [126.9229, 37.4003], [126.9247, 37.3999], [126.9258, 37.3991], [126.9271, 37.3988], [126.9281, 37.3977]],
-  after: [[126.9223, 37.4019], [126.9218, 37.4002], [126.9231, 37.3985], [126.9251, 37.3977], [126.9270, 37.3969], [126.9281, 37.3977]],
+  standard: [[127.1319861, 35.8463514], [127.1319832, 35.8458917], [127.1312826, 35.845787]],
+  before: [[127.1319861, 35.8463514], [127.1319832, 35.8458917], [127.13172, 35.84583], [127.1312826, 35.845787]],
+  after: [[127.1319861, 35.8463514], [127.13212, 35.84602], [127.13191, 35.8457], [127.13152, 35.84561], [127.1312826, 35.845787]],
 };
 
 const state = {

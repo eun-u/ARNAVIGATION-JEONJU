@@ -127,7 +127,7 @@ fun FrontendSplashScreen(onFinished: () -> Unit) {
                     }
                     Text("접근성 경로 데이터를 준비하고 있어요", style = MaterialTheme.typography.bodySmall, color = NaviInkSoft)
                     Text(
-                        "연구용 PoC · 안양 대표 회랑 · 일부 접근성 정보는 검증 전 데이터예요  v0.4.0",
+                        "연구용 PoC · 전북대 전주캠퍼스 · 일부 접근성 정보는 검증 전 데이터예요  v0.4.0",
                         style = MaterialTheme.typography.labelMedium,
                         color = NaviInkMuted,
                     )
@@ -437,7 +437,7 @@ fun FrontendMobilityProfileScreen(
                         .padding(12.dp),
                 ) {
                     Text(
-                        "ⓘ  이 조건에서는 안양 대표 회랑 경로가 평균 +180m 길어지고, 계단 구간 2곳이 제외돼요.",
+                        "ⓘ  전북대 실증 데이터 연결 전에는 우회 거리와 제외 구간을 확정하지 않아요.",
                         style = MaterialTheme.typography.bodySmall,
                         color = NaviBlue,
                     )
@@ -530,7 +530,7 @@ fun FrontendSearchScreen(
     FrontendDemoPage {
         Column(Modifier.fillMaxSize()) {
             FrontendDemoTopBar(
-                title = "안양시청",
+                title = "전북대학교 중앙도서관",
                 onBack = onBack,
                 trailing = {
                     Text("×", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.titleLarge, color = NaviInkMuted)
@@ -555,15 +555,15 @@ fun FrontendSearchScreen(
                 Text("검색 결과", style = MaterialTheme.typography.labelMedium, color = NaviInkMuted)
                 Spacer(Modifier.height(4.dp))
                 SearchResult(
-                    title = "안양시청",
-                    address = "경기 안양시 동안구 시민대로 235 · 1.3km",
+                    title = "전북대학교 중앙도서관",
+                    address = "전북특별자치도 전주시 덕진구 백제대로 567 · 1.3km",
                     badges = listOf("✓ 경사로 확인" to NaviPass, "⚠ 출입구 정보 미검증" to NaviCaution),
                     onClick = onDestinationSelected,
                 )
                 DemoDivider()
                 SearchResult(
-                    title = "안양시청 민원실",
-                    address = "시민대로 235 지하 1층 · 1.3km",
+                    title = "전북대학교 중앙도서관 출입구",
+                    address = "백제대로 567 · 1.3km",
                     badges = listOf("엘리베이터 정보 없음" to NaviInkMuted),
                     onClick = onDestinationSelected,
                 )
@@ -571,7 +571,7 @@ fun FrontendSearchScreen(
                 Text("최근 검색", style = MaterialTheme.typography.labelMedium, color = NaviInkMuted)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("안양역 1번 출구", "중앙시장", "목적지 B").forEach {
+                    listOf("전북대학교 정문", "전북대학교 박물관", "중앙도서관").forEach {
                         Text(
                             it,
                             modifier = Modifier
@@ -588,7 +588,7 @@ fun FrontendSearchScreen(
                     Text(
                         buildAnnotatedString {
                             append("ⓘ 지금은 ")
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = NaviInk)) { append("안양 대표 회랑") }
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = NaviInk)) { append("전북대 전주캠퍼스") }
                             append(" 안에서만 경로를 계산할 수 있어요. 범위 밖 장소는 위치만 보여드려요.")
                         },
                         style = MaterialTheme.typography.bodySmall,

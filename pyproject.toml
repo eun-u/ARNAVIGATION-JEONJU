@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "navi-accessible-routing-poc"
 version = "0.1.0"
-description = "NaVi accessibility-aware routing proof of concept for Anyang"
+description = "NaVi accessibility-aware routing proof of concept for Jeonju and Jeonbuk National University"
 readme = "readme.md"
 requires-python = ">=3.11"
 dependencies = [

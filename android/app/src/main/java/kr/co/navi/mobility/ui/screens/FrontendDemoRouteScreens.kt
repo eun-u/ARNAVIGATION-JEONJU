@@ -94,9 +94,9 @@ fun FrontendPlanScreen(
                 Column(Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
                     DemoGlassCard {
                         Column {
-                            JourneySummaryRow(NaviBlue, "출발", "현재 위치 · 안양역 1번 출구", showSwap = true)
+                            JourneySummaryRow(NaviBlue, "출발", "현재 위치 · 전북대학교 정문", showSwap = true)
                             DemoDivider(Modifier.padding(vertical = 8.dp))
-                            JourneySummaryRow(NaviBlock, "도착", "안양시청", showSwap = false)
+                            JourneySummaryRow(NaviBlock, "도착", "전북대학교 중앙도서관", showSwap = false)
                         }
                     }
                     Spacer(Modifier.height(10.dp))
@@ -271,7 +271,7 @@ fun FrontendRouteResultScreen(
                         )
                     }
                     Spacer(Modifier.height(6.dp))
-                    Text("안양시청", style = MaterialTheme.typography.headlineSmall, color = NaviInk)
+                    Text("전북대학교 중앙도서관", style = MaterialTheme.typography.headlineSmall, color = NaviInk)
                     Spacer(Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text("22", style = MaterialTheme.typography.displaySmall, color = NaviBlue)
@@ -379,9 +379,9 @@ fun FrontendExplainScreen(
                 Spacer(Modifier.height(14.dp))
                 Text("이 구간을 제외했어요", style = MaterialTheme.typography.labelMedium, color = NaviInkMuted)
                 Spacer(Modifier.height(6.dp))
-                ExcludedSection("만안로 지하보도 계단", "계단 14단 · 엘리베이터 정보 없음 → 설정한 조건에서 통과 불가")
+                ExcludedSection("백제대로 보행 연결부 계단", "합성 데모 · 실증 데이터 연결 전에는 통과 여부를 확정하지 않음")
                 DemoDivider()
-                ExcludedSection("중앙시장 북측 계단", "계단 6단 · 우회로 +221m")
+                ExcludedSection("중앙도서관 북측 계단", "합성 데모 · 우회 거리는 실증 데이터 연결 후 계산")
                 Spacer(Modifier.height(12.dp))
                 Text("데이터 신뢰 수준", style = MaterialTheme.typography.labelMedium, color = NaviInkMuted)
                 Spacer(Modifier.height(7.dp))
@@ -469,7 +469,7 @@ fun FrontendRerouteScreen(
                 ) {
                     Column {
                         Text("⚠ 앞 구간을 지날 수 없다고 하셨어요", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                        Text("만안로 공사 구간 · 방금 제보", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.84f))
+                        Text("전북대 정문 보행로 공사 후보 · 방금 제보", style = MaterialTheme.typography.labelMedium, color = Color.White.copy(alpha = 0.84f))
                     }
                 }
             }
@@ -553,7 +553,7 @@ fun FrontendArrivalScreen(
                 DemoVectorIcon(DemoSymbol.Check, "도착 완료", Modifier.size(48.dp), NaviPass)
             }
             Spacer(Modifier.height(18.dp))
-            Text("안양시청에\n도착했어요.", style = MaterialTheme.typography.headlineMedium, color = NaviInk)
+            Text("전북대학교 중앙도서관에\n도착했어요.", style = MaterialTheme.typography.headlineMedium, color = NaviInk)
             Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 MetricSummary("실제 이동", "26분", NaviInk, Modifier.weight(1f))
