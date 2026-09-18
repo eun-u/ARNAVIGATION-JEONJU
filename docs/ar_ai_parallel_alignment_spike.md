@@ -1,6 +1,6 @@
 # M1-VIS AR 기준선·AI 보정 병렬 정합 스파이크
 
-상태: 계획 확정, 구현 대기
+상태: **M1-VIS-1 정적 비교 완료, M1-VIS-2 녹화 replay 대기**
 
 기준일: 2026-09-18
 
@@ -54,7 +54,7 @@
 
 ## 실행 순서
 
-### 1. 정적 거리 영상 A/B
+### 1. 정적 거리 영상 A/B — 완료
 
 - 동일한 거리 이미지와 동일한 route/시야 정보를 A와 B에 입력한다.
 - 카카오 Roadview 또는 네이버 Panorama의 공식 viewer overlay로 방향 표시 UX를 확인한다.
@@ -63,7 +63,31 @@
 
 이 단계는 보도 인식과 투영 로직을 확인하지만 GPS, ARCore tracking, Depth 정확도를 증명하지 않는다.
 
-### 2. 녹화 영상 replay A/B
+#### M1-VIS-1 구현 결과 — 2026-09-18
+
+`scripts/run_m1_vis_comparison.py`는 한 정적 frame에서 A 리본과 외부 sidewalk mask 기반 B 리본을 같은 pixel 좌표계로 비교한다. 실제 AI 모델은 실행하지 않으며 `android/feature/ai-perception/**`도 수정하지 않았다.
+
+입력 계약은 다음과 같다.
+
+- frame: ID, 촬영 timestamp, 평가 timestamp, width/height, 선택적 로컬 이미지 경로
+- A: pixel centerline과 ribbon half-width
+- mask: 동일 frame ID·timestamp, width/height, confidence, 행별 sidewalk span
+- policy: 최소 confidence `0.70`, 최대 mask age `300ms`, 최대 횡보정 pixel
+
+mask 누락·크기 불일치·frame 불일치·미래 timestamp·stale·저신뢰·빈 sidewalk는 모두 `FALLBACK_A`가 되며 B 좌표는 A와 같아진다. 유효한 B도 `shadow`로만 기록하고 사용자 가시 안내는 계속 A다.
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_m1_vis_comparison.py `
+  --input backend\tests\fixtures\m1_vis\synthetic_static_frame.json `
+  --report artifacts\m1-vis\synthetic-golden\report.json `
+  --svg artifacts\m1-vis\synthetic-golden\comparison.svg
+```
+
+JSON에는 A/B 보도 내부 비율, 경계 이탈 비율, 보도 중심 pixel offset, B 횡이동량, Gate 결과와 provenance를 기록한다. 단일 synthetic frame에는 시간축 흔들림과 정답 segmentation mask가 없으므로 jitter·IoU·Dice·pixel recall은 수치를 만들지 않고 `not_evaluated`로 기록한다.
+
+golden fixture에서는 로직 검증용으로 보도 내부 비율이 A `0.0`에서 B `1.0`, 보도 중심 평균 offset이 `6px`에서 `3px`로 변했다. 이는 인위적으로 만든 mask의 예상값이며 실제 AI 정확도나 현장 개선 근거가 아니다. 생성 JSON·SVG와 로컬 원본 이미지는 `artifacts/m1-vis/`에만 두고 Git에서 제외한다.
+
+### 2. 녹화 영상 replay A/B — 바로 다음 작업
 
 - 기존 ARCore MP4/telemetry 또는 동일 계약의 녹화 frame을 사용한다.
 - frame timestamp를 기준으로 pose/depth/route와 mask를 결합한다.

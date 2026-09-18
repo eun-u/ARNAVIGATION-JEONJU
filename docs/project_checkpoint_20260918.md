@@ -1,6 +1,6 @@
 # NaVi 프로젝트 현재 체크포인트
 
-기준일: 2026-09-18 18:54 KST
+기준일: 2026-09-18 19:18 KST
 
 기준 브랜치: `master`
 
@@ -13,9 +13,9 @@
 | 영역 | 상태 | 확인된 결과 | 다음 Gate |
 |---|---|---|---|
 | M0 모듈화 | 완료 | AR·AI·fusion·공통 계약을 독립 Gradle 모듈로 분리 | 계약 변경 시 회귀 테스트 |
-| M1 AR | 진행 중 | ARCore pose/depth, 3D route ribbon, 2D fallback, Recording/Playback, telemetry, 20분 soak 완료 | M1-VIS 정적 A/B 후 전북대 25m 현장 정합 3회 |
+| M1 AR | 진행 중 | 기존 AR 실험과 M1-VIS-1 정적 A/B harness 완료 | M1-VIS-2 replay 후 SM-S911N shadow |
 | E2E-WC | 합성 폐루프 완료·현장 보류 | 경로 A → 세션 차단 → 경로 B → 저정확도 거부 → 3회·2초 자동 도착 통과 | A·B 사람 사전 점검 뒤 현장 1회 |
-| M1-VIS | 다음 작업 | 기하 리본 A와 sidewalk-mask 보정 shadow B의 병렬 비교 계획 확정 | 정적 frame harness와 fallback fixture 구현 |
+| M1-VIS | 1단계 완료 | 정적 frame A/B, stale·저신뢰 fallback, JSON·SVG와 golden fixture 검증 | 녹화 frame sequence replay |
 | M2 AI device-free | 별도 작업선 | importer·tracker·평가기 계약과 에뮬레이터 실행 경로 존재 | 실제 라벨 데이터와 모델 비교 |
 | 공간자료·Graph 후보 | 자동화 완료·사람 검수 대기 | 후보 247개/196개 Edge, 요청 한정 시뮬레이션 17개 | Human Review 전 Graph 승격 금지 |
 | 서비스 Graph | 유지 | 기준 Graph 504 Node/723 Edge, 평가 전후 SHA-256 동일 | 검증된 observation만 별도 승격 |
@@ -56,11 +56,19 @@
 - Android 지도는 현재 MapLibre/OSM을 사용한다.
 - Kakao JavaScript/REST 키는 로컬 `.env`에만 있으며 Git에 포함하지 않는다. 이 키들은 Android 네이티브 지도 키가 아니다.
 
-## GitHub 동기화 전 회귀 검증
+## M1-VIS-1 정적 A/B 비교
 
-2026-09-18 18:54 KST 기준 결과:
+- 동일 pixel 좌표계에서 기하 리본 A와 sidewalk mask 기반 제한 보정 B를 비교하는 독립 CLI를 추가했다.
+- Gate는 confidence `0.70`, 최대 mask age `300ms`, 동일 frame stamp·크기다. 실패한 B는 A와 동일하며 실제 안내는 항상 A다.
+- JSON은 보도 내부 비율, 경계 이탈, 보도 중심 offset, 횡이동량, fallback 사유와 안전 경계를 저장한다. SVG는 A·mask·B를 side-by-side로 표시한다.
+- synthetic golden fixture 결과 A `0.0 →` B `1.0` 보도 내부 비율은 알고리즘 예상값일 뿐 실제 정확도 주장이 아니다.
+- 실제 모델·M2 파일, 앱 실시간 안내, 재탐색과 Graph는 변경하지 않았다.
 
-- Python/backend: `60 tests`, 전부 통과
+## 현재 회귀 검증
+
+2026-09-18 19:18 KST 기준 결과:
+
+- Python/backend: `73 tests`, 전부 통과
 - `:core:guidance-contract`: `13 tests`, failure 0
 - `:feature:ar-navigation`: `17 tests`, failure 0
 - `:feature:ai-perception`: `28 tests`, failure 0
@@ -80,6 +88,6 @@
 
 ## 바로 다음 작업
 
-`M1-VIS-1`: 같은 정적 거리 frame에 현재 기하 리본 A와 외부 sidewalk mask 기반 shadow 리본 B를 투영하는 비교 harness를 만든다. timestamp 불일치, stale mask, 저신뢰 mask는 모두 A fallback으로 귀결되도록 golden fixture로 검증한다. B는 안내·재탐색·Graph를 변경하지 않는다.
+`M1-VIS-2`: 기존 녹화 frame sequence와 telemetry를 M1-VIS-1 계약으로 변환해 A/B 정합, 시간축 jitter, fallback 횟수·복구 시간과 반복 재현성을 검증한다. M2 모델·평가기와 실제 앱 안내는 아직 연결하지 않는다.
 
 세부 계획은 [`ar_ai_parallel_alignment_spike.md`](ar_ai_parallel_alignment_spike.md), 전북대 현장 절차는 [`m1_local_field_route_jbnu.md`](m1_local_field_route_jbnu.md), 재탐색 폐루프는 [`e2e_wc_jbnu_route.md`](e2e_wc_jbnu_route.md)를 따른다.

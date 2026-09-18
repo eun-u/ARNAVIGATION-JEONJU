@@ -1,0 +1,48 @@
+{
+  "schema_version": "m1-vis-input-v1",
+  "case_id": "synthetic-sidewalk-lateral-shift",
+  "provenance": {
+    "source": "synthetic_golden_fixture",
+    "synthetic": true
+  },
+  "frame": {
+    "frame_id": "frame-001",
+    "timestamp_ms": 1000,
+    "evaluation_timestamp_ms": 1150,
+    "width_px": 16,
+    "height_px": 12
+  },
+  "baseline": {
+    "ribbon_half_width_px": 1.0,
+    "centerline": [
+      {"x": 5.0, "y": 11.0},
+      {"x": 5.0, "y": 0.0}
+    ]
+  },
+  "mask": {
+    "frame_id": "frame-001",
+    "timestamp_ms": 1000,
+    "width_px": 16,
+    "height_px": 12,
+    "confidence": 0.91,
+    "sidewalk_rows": [
+      {"y": 0, "spans": [[7, 15]]},
+      {"y": 1, "spans": [[7, 15]]},
+      {"y": 2, "spans": [[7, 15]]},
+      {"y": 3, "spans": [[7, 15]]},
+      {"y": 4, "spans": [[7, 15]]},
+      {"y": 5, "spans": [[7, 15]]},
+      {"y": 6, "spans": [[7, 15]]},
+      {"y": 7, "spans": [[7, 15]]},
+      {"y": 8, "spans": [[7, 15]]},
+      {"y": 9, "spans": [[7, 15]]},
+      {"y": 10, "spans": [[7, 15]]},
+      {"y": 11, "spans": [[7, 15]]}
+    ]
+  },
+  "policy": {
+    "min_mask_confidence": 0.70,
+    "max_mask_age_ms": 300,
+    "max_lateral_shift_px": 3.0
+  }
+}

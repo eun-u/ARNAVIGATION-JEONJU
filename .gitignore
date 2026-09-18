@@ -19,6 +19,7 @@ android/.idea/
 android/feature/ai-perception/src/debug/assets/*.tflite
 artifacts/m2-device-free/
 artifacts/m2-device-free-fixture/
+artifacts/m1-vis/
 artifacts/navi-candidate-*.png
 artifacts/navi-candidate-*.xml
 artifacts/navi-candidates.png

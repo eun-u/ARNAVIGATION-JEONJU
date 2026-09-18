@@ -1,0 +1,121 @@
+{
+  "schema_version": "m1-vis-report-v1",
+  "case_id": "synthetic-sidewalk-lateral-shift",
+  "provenance": {
+    "source": "synthetic_golden_fixture",
+    "synthetic": true,
+    "verified": false,
+    "field_verified": false
+  },
+  "frame": {
+    "frame_id": "frame-001",
+    "timestamp_ms": 1000,
+    "evaluation_timestamp_ms": 1150,
+    "width_px": 16,
+    "height_px": 12,
+    "image_present": false,
+    "image_sha256": null
+  },
+  "policy": {
+    "min_mask_confidence": 0.7,
+    "max_mask_age_ms": 300,
+    "max_lateral_shift_px": 3.0
+  },
+  "gate": {
+    "status": "APPLIED_SHADOW",
+    "fallback_reason": null,
+    "mask_age_ms": 150,
+    "mask_confidence": 0.91
+  },
+  "guidance": {
+    "active_variant": "GEOMETRY_BASELINE",
+    "user_visible_variant": "GEOMETRY_BASELINE",
+    "shadow_variant": "AI_ASSISTED_SHADOW"
+  },
+  "variants": {
+    "a": {
+      "id": "GEOMETRY_BASELINE",
+      "centerline_px": [
+        [5.0, 11.0],
+        [5.0, 10.0],
+        [5.0, 9.0],
+        [5.0, 8.0],
+        [5.0, 7.0],
+        [5.0, 6.0],
+        [5.0, 5.0],
+        [5.0, 4.0],
+        [5.0, 3.0],
+        [5.0, 2.0],
+        [5.0, 1.0],
+        [5.0, 0.0]
+      ],
+      "metrics": {
+        "ribbon_pixel_count": 36,
+        "inside_sidewalk_pixel_count": 0,
+        "inside_sidewalk_ratio": 0.0,
+        "boundary_escape_ratio": 1.0,
+        "sidewalk_center_sample_count": 12,
+        "sidewalk_center_coverage_ratio": 1.0,
+        "mean_sidewalk_center_offset_px": 6.0,
+        "max_sidewalk_center_offset_px": 6.0
+      }
+    },
+    "b": {
+      "id": "AI_ASSISTED_SHADOW",
+      "applied": true,
+      "centerline_px": [
+        [8.0, 11.0],
+        [8.0, 10.0],
+        [8.0, 9.0],
+        [8.0, 8.0],
+        [8.0, 7.0],
+        [8.0, 6.0],
+        [8.0, 5.0],
+        [8.0, 4.0],
+        [8.0, 3.0],
+        [8.0, 2.0],
+        [8.0, 1.0],
+        [8.0, 0.0]
+      ],
+      "metrics": {
+        "ribbon_pixel_count": 36,
+        "inside_sidewalk_pixel_count": 36,
+        "inside_sidewalk_ratio": 1.0,
+        "boundary_escape_ratio": 0.0,
+        "sidewalk_center_sample_count": 12,
+        "sidewalk_center_coverage_ratio": 1.0,
+        "mean_sidewalk_center_offset_px": 3.0,
+        "max_sidewalk_center_offset_px": 3.0
+      },
+      "mean_lateral_shift_px": 3.0,
+      "max_lateral_shift_px": 3.0
+    }
+  },
+  "delta": {
+    "inside_sidewalk_ratio": 1.0,
+    "boundary_escape_ratio": -1.0,
+    "mean_sidewalk_center_offset_px": -3.0
+  },
+  "segmentation_accuracy": {
+    "status": "not_evaluated",
+    "reason": "NO_GROUND_TRUTH_MASK",
+    "iou": null,
+    "dice": null,
+    "pixel_recall": null
+  },
+  "temporal_stability": {
+    "status": "not_evaluated",
+    "reason": "SINGLE_STATIC_FRAME",
+    "jitter_px": null
+  },
+  "safety": {
+    "mode": "shadow",
+    "route_mutated": false,
+    "graph_mutated": false,
+    "public_graph_update_allowed": false
+  },
+  "runtime": {
+    "processing_ms": 0.0,
+    "excluded_from_determinism": true
+  }
+}

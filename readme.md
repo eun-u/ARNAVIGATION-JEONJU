@@ -12,7 +12,7 @@ NaVi는 스마트폰 카메라와 접근성 경로 엔진을 결합해 휠체어
 - M1 AR은 SM-S911N에서 ARCore pose/tracking, Depth, 3D route ribbon, 2D fallback, Recording/Playback과 20분 안정성 시험까지 완료했습니다. 실제 보도 위 리본 정합은 전북대 내부 25m 구간의 현장 3회 전까지 미검증입니다.
 - 전북대 로컬 E2E-WC Graph의 합성 Android 시험에서 `A 130.7m → session-local 차단 → B 153.5m → 저정확도 거부 → 3회·2초 자동 도착` 폐루프를 통과했습니다. 원본 Graph와 Edge는 변경되지 않았고 관측 후보는 `pending`, `verified=false`입니다.
 - ARCore 또는 후면 카메라를 사용할 수 없는 환경에서는 설치 화면을 자동 실행하지 않고 2D 안내로 강등합니다.
-- 현재 활성 작업은 M1-VIS 정적 frame A/B 비교입니다. 기하 기반 리본 A는 계속 실제 안내를 담당하고, sidewalk mask 기반 보정 B는 검증 전까지 shadow/debug 출력만 만듭니다.
+- M1-VIS-1 정적 frame A/B harness가 완료됐습니다. 기하 리본 A는 계속 실제 안내를 담당하고 sidewalk mask 기반 B는 shadow JSON·SVG만 생성합니다. 다음 작업은 기존 녹화 frame sequence를 같은 계약으로 재생하는 M1-VIS-2입니다.
 - Android 최종 디자인 화면은 전북대 전주캠퍼스 기준 문구로 전환했습니다. 표시되는 합성 예시를 실제 전북대 실증 결과로 해석하면 안 됩니다.
 
 상세 완료 근거, 남은 위험과 한 개로 고정한 다음 시작점은 [프로젝트 마스터 계획](docs/project_master_plan.md)을 기준으로 합니다.

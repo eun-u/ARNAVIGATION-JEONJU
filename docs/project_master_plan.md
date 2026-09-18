@@ -1,7 +1,7 @@
 # NaVi 프로젝트 마스터 계획과 현재 상태
 
-마지막 갱신: 2026-09-18 18:54 KST
-현재 활성 작업: M1-VIS — 정적 거리 frame에서 기하 기준선 A와 AI 보정 shadow B를 비교하는 harness 준비
+마지막 갱신: 2026-09-18 19:18 KST
+현재 활성 작업: M1-VIS-2 — 녹화 frame sequence에서 A/B와 stale fallback을 반복 검증하는 replay 준비
 
 이 문서는 NaVi 개발의 **단일 작업 기준**이다. 날짜가 붙은 체크포인트, 초기 제안서, 개별 모듈 문서와 상태가 충돌하면 이 문서의 `현재 상태`, `결정 사항`, `바로 다음 작업`을 우선한다. 세부 설계와 원시 결과는 링크된 문서에 남기되, 작업을 마칠 때마다 이 문서에 완료 근거와 다음 시작점을 반영한다.
 
@@ -34,7 +34,7 @@
 | 단계 | 상태 | 현재 근거 | 다음 조건 |
 |---|---|---|---|
 | M0 계약·모듈 골격 | 완료 | `guidance-contract`, `ar-navigation`, `ai-perception`, `guidance-fusion` 분리 및 빌드·계약 테스트 | 경계 변경 시 회귀 테스트 |
-| M1 AR 기술 스파이크 | 진행 중 | ARCore pose/tracking, Depth, route ribbon, 2D fallback, Recording/Playback, telemetry, 20분 soak, Playback 5회, M1-OBS·M1-PERF 완료, 전북대 로컬 25m 경로 준비 | M1-VIS 정적 A/B 후 현장 정합 3회 |
+| M1 AR 기술 스파이크 | 진행 중 | 기존 AR 실험과 M1-VIS-1 정적 A/B·fallback·JSON/SVG harness 완료 | M1-VIS-2 녹화 replay 후 SM-S911N shadow |
 | E2E-WC 휠체어 가정 재탐색 실증 | 보류 | 단독 에뮬레이터에서 A 130.7m → session-local 차단 → B 153.5m → 저정확도 거부 → 3회·2초 자동 도착 폐루프 통과 | A·B 사람 사전 점검 뒤에만 현장 1회 실행 |
 | M2 AI device-free | 별도 채팅 소유 | 이 채팅에서는 AI importer/tracker/segmentation/evaluation 파일을 수정하지 않음 | 별도 채팅 결과를 계약으로 인계 |
 | 공간데이터·Graph 후보 | 자동화 완료·사람 검수 대기 | 247개 후보/196개 Edge, 요청 한정 시뮬레이션 17개, 근거 전용 230개, 정사영상 참조 247/247 | 계단 후보 검수·정사영상 RMSE 확보 전 Graph 승격 금지 |
@@ -173,7 +173,7 @@
 - 현재 frontend 경로 결과·재탐색·도착 화면 일부에는 실데이터와 별개인 안양/정적 데모 문구와 수치가 남아 있다. 화면 작업 소유 채팅에서 session 데이터로 교체한 뒤 시각 회귀를 다시 수행한다.
 - Kakao JavaScript/REST 키는 루트 `.env`에만 저장했고 `.gitignore` 적용을 확인했다. 현재 Android 지도는 계속 MapLibre/OSM이며, 두 키를 Android 네이티브 지도 키로 오해해 연결하지 않는다.
 
-## 신규 계획: M1-VIS AR·AI 보정 병렬 비교
+## M1-VIS AR·AI 보정 병렬 비교
 
 - 비교 A `GEOMETRY_BASELINE`: 현재 GPS·heading·ARCore pose/depth 기반 경로 리본을 그대로 유지한다.
 - 비교 B `AI_ASSISTED_SHADOW`: 같은 frame에서 오픈소스 보도 segmentation mask를 얻어 리본의 횡방향 위치만 제한적으로 보정한다.
@@ -183,6 +183,15 @@
 - 현재 AR benchmark CPU 평균이 `70.829%`이므로 AI를 AR과 같은 FPS로 실행하지 않는다. 5Hz부터 시작해 성능 여유가 확인될 때만 10Hz로 올린다.
 - M1/AR 작업은 기준 리본과 비교 harness를 담당하고, 오픈소스 모델·mask 평가는 별도 M2 채팅이 담당하며, 실시간 결합은 M3 `guidance-fusion`에서 수행한다.
 - 상세 계획: `docs/ar_ai_parallel_alignment_spike.md`
+
+### M1-VIS-1 완료 — 정적 frame A/B
+
+- `scripts/run_m1_vis_comparison.py`가 같은 pixel 좌표계의 A centerline과 sidewalk mask를 받아 제한 보정 B를 만들고 JSON·SVG를 생성한다.
+- confidence `0.70` 이상, mask age `300ms` 이하, frame stamp·크기 일치를 Gate로 고정했다. 실패 시 B는 A와 동일하며 사용자 안내는 항상 A다.
+- synthetic golden fixture에서 A/B 정합 metric과 최대 횡보정 상한을 재현했고 stale `301ms`, confidence `0.699`, frame/timestamp/크기 불일치, 빈 mask fallback을 검증했다.
+- 단일 synthetic frame의 결과는 `verified=false`, `field_verified=false`이며 실제 AI 정확도·GPS/AR 정합·현장 개선을 의미하지 않는다.
+- 회귀 검증: Python `73 tests`, 공통 계약 `13`, AR `17`, AI `28`, app `20` 전부 통과. debug·androidTest APK와 app·AR lint도 통과했다.
+- 생성 결과는 Git 제외 경로 `artifacts/m1-vis/synthetic-golden/`에 저장된다.
 
 ## 완료 작업: 공간데이터 Graph 후보와 Android 검토 화면
 
@@ -201,14 +210,14 @@
 
 ## 바로 다음 작업
 
-### M1-VIS-1: 정적 frame A/B 비교 harness
+### M1-VIS-2: 녹화 replay A/B 비교
 
-1. `docs/ar_ai_parallel_alignment_spike.md`의 공통 frame·좌표·mask 입력 계약을 고정하고, M2 소유 파일은 수정하지 않는다.
-2. 같은 정적 거리 frame에 현재 기하 리본 A와 외부에서 전달받은 sidewalk mask 기반 shadow 리본 B를 함께 투영한다.
-3. 리본 보도 내부 비율, 횡오차, 흔들림과 처리 시간을 동일 JSON 형식으로 저장한다. B는 화면 debug/shadow 출력만 만들며 안내·재탐색·Graph를 변경하지 않는다.
-4. synthetic/golden fixture로 timestamp 불일치, stale mask, 저신뢰 mask가 모두 A fallback으로 귀결되는지 단위 테스트한다.
+1. 기존 ARCore MP4·telemetry에서 평가 frame sequence를 만들되 M2 importer·모델 파일은 수정하지 않는다.
+2. frame별 A centerline과 외부 mask 결과를 M1-VIS-1 입력 계약으로 변환하고 동일 frame stamp만 결합한다.
+3. frame별 정합 metric에 반복 구간의 jitter, fallback 횟수·복구 시간을 추가하고 processing time을 제외한 반복 결과가 동일한지 확인한다.
+4. 결과는 계속 `shadow`, `verified=false`, `field_verified=false`이며 앱 안내·재탐색·Graph에 연결하지 않는다.
 
-`M1-ALIGN` 25m 현장 3회와 E2E-WC 현장 1회는 폐기하지 않는다. M1-VIS 정적 비교 뒤 전북대 A·B 사람 사전 점검이 가능할 때 각각 별도 성공 조건으로 실행한다.
+`M1-ALIGN` 25m 현장 3회와 E2E-WC 현장 1회는 폐기하지 않는다. M1-VIS-2 replay와 SM-S911N shadow 뒤 전북대 A·B 사람 사전 점검이 가능할 때 각각 별도 성공 조건으로 실행한다.
 
 ## 작업 경계
 
