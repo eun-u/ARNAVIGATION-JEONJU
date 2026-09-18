@@ -1,0 +1,100 @@
+[
+  {
+    "run": "20260918-232900-134-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260918-232958-515-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-001653-914-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-001747-626-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-001836-056-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-002047-835-prepare",
+    "mode": "Prepare",
+    "status": "preflight_passed",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-002059-047-replay",
+    "mode": "Replay",
+    "status": "failed",
+    "error": "process_failed (1): C:\\Project\\ARNAVIGATION-JEONJU\\.venv\\Scripts\\python.exe\n\nTraceback (most recent call last):\r\n  File \"C:\\Project\\ARNAVIGATION-JEONJU\\scripts\\validate_jeonju_clip.py\", line 270, in <module>\r\n    print(json.dumps(validate(args.directory)))\r\n                     ~~~~~~~~^^^^^^^^^^^^^^^^\r\n  File \"C:\\Project\\ARNAVIGATION-JEONJU\\scripts\\validate_jeonju_clip.py\", line 134, in validate\r\n    raise ValueError(\"input_missing: \" + \", \".join(missing))\r\nValueError: input_missing: C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\recording.mp4, C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\clip_manifest.json, C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\frames.jsonl, C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\calibration.json\r\n",
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-002108-845-live",
+    "mode": "Live",
+    "status": "failed",
+    "error": "physical_device_required_for_live_capture",
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-002119-706-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-002156-446-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-003043-750-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-004727-063-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-004804-777-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  },
+  {
+    "run": "20260919-005040-007-selftest",
+    "mode": "SelfTest",
+    "status": "model_loading_verified",
+    "error": null,
+    "field_acceptance_verified": false
+  }
+]

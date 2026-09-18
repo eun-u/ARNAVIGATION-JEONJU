@@ -1,0 +1,67 @@
+[
+  {
+    "number": 1,
+    "run": "NaVi-collect-20260919-022341-193-a2b8792d",
+    "zip": "data/NaVi-collect-20260919-022341-193-a2b8792d.zip",
+    "zip_sha256": "46887e04cd240c00363fc84f221cfe333499998556326381d48c09612cdac406",
+    "zip_bytes": 544100636,
+    "video": "artifacts/jeonju/runs/field-intake-20260919/NaVi-collect-20260919-022341-193-a2b8792d/recording.mp4",
+    "video_sha256": "9e8dc4a0b141333ff8c364a9a5198a659e67effb458dcc05a7387813a01d5dc4",
+    "duration_s": 180.457,
+    "frames": 690,
+    "calibration_status": "pending",
+    "replay_eligible": false
+  },
+  {
+    "number": 2,
+    "run": "NaVi-collect-20260919-023430-697-4a81ff58",
+    "zip": "data/NaVi-collect-20260919-023430-697-4a81ff58.zip",
+    "zip_sha256": "308534f8d0cf04e6074e3cd48299824c6921311c538a41659c728b13cd31b792",
+    "zip_bytes": 542435360,
+    "video": "artifacts/jeonju/runs/field-intake-20260919/NaVi-collect-20260919-023430-697-4a81ff58/recording.mp4",
+    "video_sha256": "9daab5e9ae5a5c771a10f73c5cdf15acd220f9e5d705da012a4a590b5e7aaa12",
+    "duration_s": 180.453,
+    "frames": 685,
+    "calibration_status": "pending",
+    "replay_eligible": false
+  },
+  {
+    "number": 3,
+    "run": "NaVi-collect-20260919-024105-060-5a85f57b",
+    "zip": "data/NaVi-collect-20260919-024105-060-5a85f57b.zip",
+    "zip_sha256": "be39d9e01b5fa4258b2f56aea0e195fd03727dfe50deedacba348bf2dbbe3ba1",
+    "zip_bytes": 147347851,
+    "video": "artifacts/jeonju/runs/field-intake-20260919/NaVi-collect-20260919-024105-060-5a85f57b/recording.mp4",
+    "video_sha256": "76134895c20123d122b1955fcfccf087cda36879325ec09558b2e1c206b15701",
+    "duration_s": 44.331,
+    "frames": 203,
+    "calibration_status": "pending",
+    "replay_eligible": false
+  },
+  {
+    "number": 4,
+    "run": "NaVi-collect-20260919-024204-341-339c8af2",
+    "zip": "data/NaVi-collect-20260919-024204-341-339c8af2.zip",
+    "zip_sha256": "58bb93aa27989237f05cdd0f3a616216e967782820990c8e73ec080e7cc55bcd",
+    "zip_bytes": 513327723,
+    "video": "artifacts/jeonju/runs/field-intake-20260919/NaVi-collect-20260919-024204-341-339c8af2/recording.mp4",
+    "video_sha256": "dc8dfbc480f21537a7445989a2bdcfff3ec29a0bd587adaeacd9919e2707e8d6",
+    "duration_s": 180.347,
+    "frames": 654,
+    "calibration_status": "pending",
+    "replay_eligible": false
+  },
+  {
+    "number": 5,
+    "run": "NaVi-collect-20260919-024719-670-dd86e6fb",
+    "zip": "data/NaVi-collect-20260919-024719-670-dd86e6fb.zip",
+    "zip_sha256": "7b4a1a18302a9ad5649dec3a84c7fa3d01f8a886d5be3c3a408e260d7a57ea42",
+    "zip_bytes": 538222856,
+    "video": "artifacts/jeonju/runs/field-intake-20260919/NaVi-collect-20260919-024719-670-dd86e6fb/recording.mp4",
+    "video_sha256": "3e642a6803da0726479550540f62b0e7ead00e8e1c0181a9fc5e04523bac87cc",
+    "duration_s": 180.392,
+    "frames": 714,
+    "calibration_status": "pending",
+    "replay_eligible": false
+  }
+]

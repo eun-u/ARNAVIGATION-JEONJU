@@ -1,0 +1,13 @@
+{
+  "file": "ar_app_arrows_illustration.png",
+  "kind": "ai_generated_video_based_ar_ui_illustration",
+  "tool": "built-in image_gen",
+  "prompt_file": "ar_arrows_prompt.txt",
+  "references": ["ar_app_illustration.png", "05_outer_walkway.png", "06_curved_walkway.png"],
+  "actual_app_screenshot": false,
+  "actual_arcore_render": false,
+  "route_geometry_from_server": false,
+  "field_verified": false,
+  "app_code_modified": false,
+  "purpose": "Illustrate repeated floor arrows instead of a continuous ribbon on existing video scenes."
+}

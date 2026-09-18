@@ -46,7 +46,7 @@ object PocReroutePolicy {
         val capture=spatial.capture ?: return "alignment_unavailable"
         val calibration=capture.calibration ?: return "alignment_unavailable"
         if(spatial.trackingQuality!=TrackingQuality.TRACKING || calibration.revision!=calibrationRevision) return "alignment_unavailable"
-        val accuracy=spatial.accuracy?.horizontalMeters
+        val accuracy=spatial.navigationBudgetMeters()
         if(accuracy==null || !accuracy.isFinite() || accuracy<=0 || accuracy>1.5) return "position_accuracy_insufficient"
         if(nowEpochMillis!=null && nowEpochMillis-capture.observedAtEpochMillis !in -1_000L..5_000L) return "position_stale"
         val user=spatial.geoCoordinate ?: return "alignment_unavailable"

@@ -1,0 +1,92 @@
+{
+    "status":  "model_loading_verified",
+    "run_id":  "20260919-001747-626-selftest",
+    "mode":  "SelfTest",
+    "variant":  "Benchmark",
+    "clip_id":  "C01",
+    "device_serial":  "emulator-5554",
+    "field_acceptance_verified":  false,
+    "error":  null,
+    "steps":  [
+                  "Checking bundle integrity and importing P0 source bytes",
+                  "Checking pinned model",
+                  "Checking dedicated Jeonju server",
+                  "Installing Benchmark on emulator-5554",
+                  "Starting SelfTest"
+              ],
+    "started_at":  "2026-09-18T15:17:47.6325481Z",
+    "dataset_revision":  "jeonju-p0-20260918-1ace3878",
+    "scope_revision":  "jbnu-internal-eight-v1",
+    "graph_sha256":  "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+    "bundle_sha256":  "1ace3878b27854dfbe28445e3fa5e1ff0cce14169212cffa2e0059d122cbba1f",
+    "apk":  "C:\\Project\\ARNAVIGATION-JEONJU\\android\\app\\build\\outputs\\apk\\benchmark\\app-benchmark.apk",
+    "apk_sha256":  "f45e322ce610692841ddd3bc540c0eb44e0f07d9ae989a70554e2d7e17e70ed9",
+    "database":  "C:\\Project\\ARNAVIGATION-JEONJU\\data\\runtime\\jeonju_p0_jeonju-p0-20260918-1ace3878_20260919-001747-626-selftest.db",
+    "server_health":  {
+                          "status":  "ok",
+                          "service":  "NaVi",
+                          "region_id":  "JEONJU_JBNU_SOUTH_P0",
+                          "dataset_revision":  "jeonju-p0-20260918-1ace3878",
+                          "scope_revision":  "jbnu-internal-eight-v1",
+                          "graph_sha256":  "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+                          "profiles":  [
+                                           "default",
+                                           "wheelchair",
+                                           "demo_jeonju"
+                                       ],
+                          "scope_edge_count":  8,
+                          "missing_inputs":  [
+                                                 "C01-C03/recording.mp4",
+                                                 "C01-C03/clip_manifest.json",
+                                                 "C01-C03/frames.jsonl",
+                                                 "C01-C03/calibration.json",
+                                                 "C01-C03/depth and semantics"
+                                             ],
+                          "field_crossing_check":  "pending",
+                          "database":  {
+                                           "schema_version":  2,
+                                           "graph_revision":  0,
+                                           "edge_overlay_count":  0
+                                       },
+                          "observations":  {
+                                               "pending":  0
+                                           },
+                          "graph":  {
+                                        "nodes":  1056,
+                                        "edges":  1517,
+                                        "source":  "user_provided_osm_export",
+                                        "accessibility_attributes":  "osm_tags_only_unknown_unless_explicit"
+                                    },
+                          "graph_enrichment":  {
+                                                   "available":  false,
+                                                   "candidate_count":  0,
+                                                   "route_affecting_candidate_count":  0
+                                               }
+                      },
+    "app":  {
+                "status":  "model_loading_verified",
+                "run_id":  "20260919-001747-626-selftest",
+                "input_mode":  "SelfTest",
+                "clip_id":  "C01",
+                "model_loading_verified":  true,
+                "frames":  0,
+                "reroutes":  0,
+                "tts_ready":  true,
+                "inference_p95_ms":  null,
+                "backend_p95_ms":  null,
+                "open_frame_leases":  0,
+                "render_samples":  0,
+                "render_frame_interval_p95_ms":  null,
+                "render_work_p95_ms":  null,
+                "gl_submitted_route_revisions":  [
+
+                                                 ],
+                "arrived":  false,
+                "remaining_m":  130.7,
+                "error":  null,
+                "field_acceptance_verified":  false,
+                "recording":  null,
+                "event_log":  "/storage/emulated/0/Android/data/kr.co.navi.mobility/files/jeonju/runs/20260919-001747-626-selftest/events.jsonl"
+            },
+    "finished_at":  "2026-09-18T15:17:58.7575870Z"
+}

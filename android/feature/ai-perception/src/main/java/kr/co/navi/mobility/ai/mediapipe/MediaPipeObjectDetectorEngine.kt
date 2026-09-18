@@ -77,13 +77,18 @@ class MediaPipeObjectDetectorEngine(
             val uprightBitmap = FramePixels.bitmap(frame)
             try {
                 val startedAt = System.nanoTime()
+                // MPImage owns its Bitmap and may recycle it when closed. Preserve cone input first.
+                val pixelWidth=uprightBitmap.width
+                val pixelHeight=uprightBitmap.height
+                val pixels=IntArray(pixelWidth*pixelHeight)
+                uprightBitmap.getPixels(pixels,0,pixelWidth,0,0,pixelWidth,pixelHeight)
                 val result = synchronized(lock) {
                     check(!closed) { "MediaPipe object detector is closed" }
                     val input=BitmapImageBuilder(uprightBitmap).build()
                     try {detector.detect(input)} finally {input.close()}
                 }
-                val width = uprightBitmap.width.toFloat()
-                val height = uprightBitmap.height.toFloat()
+                val width = pixelWidth.toFloat()
+                val height = pixelHeight.toFloat()
                 val detections = result.detections().mapNotNull { detection ->
                     val category = detection.categories().maxByOrNull { it.score() }
                         ?: return@mapNotNull null
@@ -101,9 +106,7 @@ class MediaPipeObjectDetectorEngine(
                         ),
                     )
                 }
-                val pixels=IntArray(uprightBitmap.width*uprightBitmap.height)
-                uprightBitmap.getPixels(pixels,0,uprightBitmap.width,0,0,uprightBitmap.width,uprightBitmap.height)
-                val cones=coneDetector.detect(pixels,uprightBitmap.width,uprightBitmap.height)
+                val cones=coneDetector.detect(pixels,pixelWidth,pixelHeight)
                 val inferenceMillis = (System.nanoTime() - startedAt) / NANOS_PER_MILLISECOND
                 PerceptionResult(
                     stamp = frame.stamp,
@@ -112,7 +115,7 @@ class MediaPipeObjectDetectorEngine(
                     detections = detections + cones,
                 )
             } finally {
-                uprightBitmap.recycle()
+                if(!uprightBitmap.isRecycled)uprightBitmap.recycle()
             }
         }
 

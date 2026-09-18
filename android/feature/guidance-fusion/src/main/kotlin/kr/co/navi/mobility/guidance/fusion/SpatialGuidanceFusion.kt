@@ -22,9 +22,11 @@ class SpatialGuidanceFusion : GuidanceFusion {
         fun defer(reason: String): List<HazardObservation> { lastReason=reason;tracks.clear();return emptyList() }
         if (c==null || pose==null || calibration==null || spatialContext.trackingQuality!=TrackingQuality.TRACKING) return defer("alignment_unavailable")
         if (revision!=calibration.revision) {tracks.clear();revision=calibration.revision}
-        if (depth==null || semantics==null) return defer("depth_or_semantics_missing")
+        val relative=calibration is PocStartAlignment
+        if (semantics==null || (depth==null && !relative)) return defer("depth_or_semantics_missing")
         val time=spatialContext.stamp.timestampNanos
-        if (abs(time-depth.timestampNanos)>100_000_000 || abs(time-semantics.timestampNanos)>100_000_000) return defer("spatial_timestamp_mismatch")
+        val freshDepth=depth?.takeIf{abs(time-it.timestampNanos)<=100_000_000}
+        if ((!relative && freshDepth==null) || abs(time-semantics.timestampNanos)>100_000_000) return defer("spatial_timestamp_mismatch")
         if (calibration.errorAt(pose.position(),time)>1.5) return defer("alignment_uncertain")
         tracks.removeAll { time-it.lastNs>500_000_000 || time<=it.lastNs }
         val assigned=mutableSetOf<String>()
@@ -32,9 +34,11 @@ class SpatialGuidanceFusion : GuidanceFusion {
         return perceptionResult.detections.mapNotNull { detection ->
             if (detection.confidence<0.6f || detection.label !in setOf("person","bicycle","car","motorcycle","bus","truck","traffic_cone")) return@mapNotNull null
             val bounds=detection.bounds
+            val groundPoint=if(relative && detection.label=="traffic_cone") groundContact(pose,c,bounds) else null
             // Sample the object's lower central region; median of valid, confident raw depth values.
             val samples=mutableListOf<Pair<Vec3,Double>>()
             for (iy in 0..2) for (ix in 0..2) {
+                val depth=freshDepth ?: continue
                 val u=bounds.left+(bounds.right-bounds.left)*(0.3+ix*0.2)
                 val v=bounds.top+(bounds.bottom-bounds.top)*(0.55+iy*0.12)
                 val pixel=unrotate(u,v,c.rotationDegrees,c.intrinsics)
@@ -46,11 +50,13 @@ class SpatialGuidanceFusion : GuidanceFusion {
                 val meters=mm/1000.0
                 samples+=pose.transform(Vec3((pixel.first-c.intrinsics.cx)*meters/c.intrinsics.fx,-(pixel.second-c.intrinsics.cy)*meters/c.intrinsics.fy,-meters)) to meters
             }
-            if (samples.size<4) {lastReason="insufficient_depth_samples";return@mapNotNull null}
+            if (samples.size<4 && groundPoint==null) {lastReason="insufficient_depth_samples";return@mapNotNull null}
             val sorted=samples.sortedBy { it.second }
-            if (sorted.last().second-sorted.first().second>0.8) {lastReason="depth_discontinuity";return@mapNotNull null}
-            val (world,distance)=sorted[sorted.size/2]
-            val error=calibration.errorAt(world,time)+0.10+distance*0.015
+            val rawValid=sorted.size>=4 && sorted.last().second-sorted.first().second<=0.8
+            if(!rawValid && groundPoint==null){lastReason="depth_discontinuity";return@mapNotNull null}
+            val usePlane=!rawValid
+            val (world,distance)=if(usePlane)requireNotNull(groundPoint) else sorted[sorted.size/2]
+            val error=calibration.errorAt(world,time)+if(usePlane)0.15+distance*0.03 else 0.10+distance*0.015
             if (error>1.5) {lastReason="object_position_uncertain";return@mapNotNull null}
             // The ground just below the object must contain confident sidewalk pixels.
             var sidewalk=0;var examined=0
@@ -63,7 +69,8 @@ class SpatialGuidanceFusion : GuidanceFusion {
                 val idx=(uv.second*semantics.height).toInt()*semantics.width+(uv.first*semantics.width).toInt()
                 if ((semantics.confidence[idx].toInt() and 255)>=153) {
                     examined++
-                    if ((semantics.labels[idx].toInt() and 255)==5) sidewalk++ // AR_SEMANTIC_LABEL_SIDEWALK
+                    val label=semantics.labels[idx].toInt() and 255
+                    if (label==5 || (relative && label==6)) sidewalk++ // SIDEWALK; TERRAIN only in fixed-course PoC
                 }
             }
             if (examined<3 || sidewalk.toDouble()/examined<0.6) {lastReason="outside_sidewalk_or_mask_uncertain";return@mapNotNull null}
@@ -81,9 +88,24 @@ class SpatialGuidanceFusion : GuidanceFusion {
             val duration=(time-track.firstNs)/1_000_000
             if (moving || duration<2000) {lastReason=if(moving) "moving_object" else "persistence_pending";return@mapNotNull null}
             lastReason="stationary_sidewalk_observation"
-            HazardObservation("${calibration.revision}-${track.id}",spatialContext.stamp,"stationary_obstacle",calibration.geo(world),error,distance,null,
-                duration,false,detection.confidence,perceptionResult.modelVersion,ObservationEvidence(listOf(detection.label),listOf(track.id)),calibration.revision,true)
+            HazardObservation("${calibration.revision}-${track.id}",spatialContext.stamp,"stationary_obstacle",calibration.geo(world),if(calibration is MapCalibration)error else null,distance,null,
+                duration,false,detection.confidence,perceptionResult.modelVersion,ObservationEvidence(listOf(detection.label),listOf(track.id),
+                    if(usePlane)"ground_plane_ray" else "raw_depth",if(usePlane)c.groundHeightMeters else null,
+                    if(relative)"sidewalk_or_terrain" else "sidewalk"),calibration.revision,true,calibration.source,if(calibration is PocStartAlignment)error else null)
         }
+    }
+    /** Only a currently detected horizontal plane; no assumed camera height or image-centre proxy. */
+    private fun groundContact(pose: LocalPose,c: SpatialCapture,b: NormalizedRegion): Pair<Vec3,Double>? {
+        val y=c.groundHeightMeters?.takeIf{it.isFinite()} ?: return null
+        if(pose.yMeters-y !in 0.4..2.5 || b.bottom>=0.98f)return null
+        val p=unrotate((b.left+b.right)/2.0,b.bottom.toDouble(),c.rotationDegrees,c.intrinsics)
+        val end=pose.transform(Vec3((p.first-c.intrinsics.cx)/c.intrinsics.fx,-(p.second-c.intrinsics.cy)/c.intrinsics.fy,-1.0))
+        val dy=end.y-pose.yMeters
+        if(dy>=-0.1)return null
+        val t=(y-pose.yMeters)/dy
+        val point=Vec3(pose.xMeters+(end.x-pose.xMeters)*t,y,pose.zMeters+(end.z-pose.zMeters)*t)
+        val distance=horizontal(point,pose.position())
+        return if(distance in 0.3..8.0)point to distance else null
     }
     private fun horizontal(a: Vec3,b: Vec3)=hypot(a.x-b.x,a.z-b.z)
     private fun unrotate(u: Double,v: Double,r: Int,k: CameraIntrinsics): Pair<Double,Double> {
@@ -96,7 +118,7 @@ class SpatialGuidanceFusion : GuidanceFusion {
 class RouteImpactMapper(private val allSegments: List<RouteSegment>) {
     fun match(observation: HazardObservation,snapshot: RouteSnapshot,user: GeoCoordinate): EdgeImpact? {
         val point=observation.geoCoordinate ?: return null
-        val error=observation.horizontalAccuracyMeters ?: return null
+        val error=observation.navigationBudgetMeters() ?: return null
         if (observation.dynamic || !observation.corridorOccupied || !error.isFinite() || error<0.0 || error>1.5) return null
         val matches=allSegments.mapNotNull { segment ->
             nearestForwardRouteSegment(segment.geometry.map{listOf(it.longitude,it.latitude)},point,3.0)?.let { segment to it }

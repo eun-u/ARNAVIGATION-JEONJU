@@ -38,6 +38,13 @@ class RouteRequest(BaseModel):
     destination: Coordinate
     profile: Literal["default", "wheelchair", "demo_jeonju"] = "wheelchair"
     session_id: str | None = Field(default=None, min_length=8, max_length=80)
+    alignment_source: Literal["measured_references", "poc_start"] = "measured_references"
+
+    @model_validator(mode="after")
+    def fixed_course_only(self):
+        if self.alignment_source == "poc_start" and self.profile != "demo_jeonju":
+            raise ValueError("poc_start requires demo_jeonju")
+        return self
 
 
 class ExcludedEdge(BaseModel):
@@ -55,6 +62,7 @@ class ProvenanceSummary(BaseModel):
 
 
 class RouteResult(BaseModel):
+    alignment_source: Literal["measured_references", "poc_start"] = "measured_references"
     status: Literal["ok"] = "ok"
     distance_m: float
     estimated_minutes: int
@@ -95,9 +103,20 @@ class RouteComparison(BaseModel):
 
 
 class CurrentPosition(Coordinate):
-    accuracy_m: float = Field(gt=0, le=3)
+    accuracy_m: float | None = Field(default=None, gt=0, le=3)
+    alignment_source: Literal["measured_references", "poc_start"] = "measured_references"
+    relative_tracking_budget_m: float | None = Field(default=None, gt=0, le=1.5)
     timestamp: datetime
     calibration_revision: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def separate_accuracy_from_relative_budget(self):
+        if self.alignment_source == "poc_start":
+            if self.accuracy_m is not None or self.relative_tracking_budget_m is None or not self.calibration_revision.startswith("poc-start-"):
+                raise ValueError("poc_start requires relative budget and unknown absolute accuracy")
+        elif self.accuracy_m is None or self.relative_tracking_budget_m is not None:
+            raise ValueError("measured alignment requires absolute accuracy")
+        return self
 
 
 class AvoidanceUpdate(BaseModel):
@@ -106,7 +125,7 @@ class AvoidanceUpdate(BaseModel):
     frame_id: str = Field(min_length=1, max_length=160)
     observed_at: datetime
     ttl_seconds: int = Field(default=60, ge=5, le=300)
-    source: Literal["live_ai", "replay_ai", "contract_test"]
+    source: Literal["live_ai", "replay_ai", "contract_test", "poc_live_ai"]
     evidence: dict[str, Any] = Field(default_factory=dict)
 
 

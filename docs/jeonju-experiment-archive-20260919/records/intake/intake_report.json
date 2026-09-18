@@ -1,0 +1,447 @@
+[
+  {
+    "archive": "NaVi-collect-20260919-022341-193-a2b8792d.zip",
+    "zip_sha256": "46887e04cd240c00363fc84f221cfe333499998556326381d48c09612cdac406",
+    "integrity": {
+      "status": "raw_collection_integrity_passed",
+      "frames": 690,
+      "prompt_window_frames": {
+        "C01": 267,
+        "C02": 215,
+        "C03": 208
+      },
+      "capture_workflow_completed": true,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "replay_eligible": false,
+      "media_decode": "not_checked_by_host_validator"
+    },
+    "summary": {
+      "run_id": "collect-20260919-022341-193-a2b8792d",
+      "stop_reason": "automatic_completed",
+      "capture_workflow_completed": true,
+      "network_status": "verified",
+      "tts_ready": true,
+      "frames": 690,
+      "tracking_frames": 686,
+      "depth_frames": 686,
+      "semantics_frames": 686,
+      "location_frames": 690,
+      "light_frames": 690,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "case_windows": [
+        {
+          "id": "C01",
+          "start_ms": 0,
+          "end_ms": 60000,
+          "frames": 267,
+          "review_status": "pending"
+        },
+        {
+          "id": "C02",
+          "start_ms": 60000,
+          "end_ms": 120000,
+          "frames": 215,
+          "review_status": "pending"
+        },
+        {
+          "id": "C03",
+          "start_ms": 120000,
+          "end_ms": 180000,
+          "frames": 208,
+          "review_status": "pending"
+        }
+      ],
+      "recording_error": null
+    },
+    "duration_s": 180.457,
+    "lux_min_median_max": [
+      0,
+      0.0,
+      28.0125
+    ],
+    "location_accuracy_min_median_max_m": [
+      3.7900925,
+      3.7900925,
+      76.602
+    ],
+    "frames_with_model_label_not_ground_truth": {
+      "car": 123,
+      "cat": 64,
+      "bed": 2,
+      "teddy bear": 2,
+      "person": 23,
+      "elephant": 4,
+      "horse": 2,
+      "train": 1,
+      "boat": 2,
+      "bicycle": 2,
+      "motorcycle": 1,
+      "dog": 3,
+      "bear": 2,
+      "fire hydrant": 7,
+      "bird": 1,
+      "umbrella": 12,
+      "bench": 32,
+      "snowboard": 1,
+      "truck": 1,
+      "tv": 2
+    },
+    "scene_labels_verified": false
+  },
+  {
+    "archive": "NaVi-collect-20260919-023430-697-4a81ff58.zip",
+    "zip_sha256": "308534f8d0cf04e6074e3cd48299824c6921311c538a41659c728b13cd31b792",
+    "integrity": {
+      "status": "raw_collection_integrity_passed",
+      "frames": 685,
+      "prompt_window_frames": {
+        "C01": 262,
+        "C02": 217,
+        "C03": 206
+      },
+      "capture_workflow_completed": true,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "replay_eligible": false,
+      "media_decode": "not_checked_by_host_validator"
+    },
+    "summary": {
+      "run_id": "collect-20260919-023430-697-4a81ff58",
+      "stop_reason": "automatic_completed",
+      "capture_workflow_completed": true,
+      "network_status": "verified",
+      "tts_ready": true,
+      "frames": 685,
+      "tracking_frames": 675,
+      "depth_frames": 675,
+      "semantics_frames": 675,
+      "location_frames": 685,
+      "light_frames": 685,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "case_windows": [
+        {
+          "id": "C01",
+          "start_ms": 0,
+          "end_ms": 60000,
+          "frames": 262,
+          "review_status": "pending"
+        },
+        {
+          "id": "C02",
+          "start_ms": 60000,
+          "end_ms": 120000,
+          "frames": 217,
+          "review_status": "pending"
+        },
+        {
+          "id": "C03",
+          "start_ms": 120000,
+          "end_ms": 180000,
+          "frames": 206,
+          "review_status": "pending"
+        }
+      ],
+      "recording_error": null
+    },
+    "duration_s": 180.453,
+    "lux_min_median_max": [
+      0,
+      0,
+      52.987503
+    ],
+    "location_accuracy_min_median_max_m": [
+      3.7900925,
+      3.7900925,
+      82.731
+    ],
+    "frames_with_model_label_not_ground_truth": {
+      "person": 71,
+      "cat": 68,
+      "elephant": 6,
+      "car": 92,
+      "sports ball": 1,
+      "dog": 7,
+      "bird": 1,
+      "horse": 1,
+      "bear": 5,
+      "bench": 33,
+      "chair": 1,
+      "fire hydrant": 11,
+      "boat": 1,
+      "frisbee": 1,
+      "bed": 1,
+      "bicycle": 1,
+      "umbrella": 4,
+      "motorcycle": 2,
+      "tv": 1,
+      "truck": 1
+    },
+    "scene_labels_verified": false
+  },
+  {
+    "archive": "NaVi-collect-20260919-024105-060-5a85f57b.zip",
+    "zip_sha256": "be39d9e01b5fa4258b2f56aea0e195fd03727dfe50deedacba348bf2dbbe3ba1",
+    "integrity": {
+      "status": "raw_collection_integrity_passed",
+      "frames": 203,
+      "prompt_window_frames": {
+        "C01": 203,
+        "C02": 0,
+        "C03": 0
+      },
+      "capture_workflow_completed": false,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "replay_eligible": false,
+      "media_decode": "not_checked_by_host_validator"
+    },
+    "summary": {
+      "run_id": "collect-20260919-024105-060-5a85f57b",
+      "stop_reason": "user_stopped",
+      "capture_workflow_completed": false,
+      "network_status": "verified",
+      "tts_ready": true,
+      "frames": 203,
+      "tracking_frames": 198,
+      "depth_frames": 198,
+      "semantics_frames": 198,
+      "location_frames": 203,
+      "light_frames": 203,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "case_windows": [
+        {
+          "id": "C01",
+          "start_ms": 0,
+          "end_ms": 60000,
+          "frames": 203,
+          "review_status": "pending"
+        },
+        {
+          "id": "C02",
+          "start_ms": 60000,
+          "end_ms": 120000,
+          "frames": 0,
+          "review_status": "pending"
+        },
+        {
+          "id": "C03",
+          "start_ms": 120000,
+          "end_ms": 180000,
+          "frames": 0,
+          "review_status": "pending"
+        }
+      ],
+      "recording_error": null
+    },
+    "duration_s": 44.331,
+    "lux_min_median_max": [
+      0,
+      1.0125,
+      108.00001
+    ],
+    "location_accuracy_min_median_max_m": [
+      3.7900925,
+      3.7900925,
+      30.917
+    ],
+    "frames_with_model_label_not_ground_truth": {
+      "cat": 35,
+      "person": 8,
+      "car": 38,
+      "elephant": 9,
+      "bottle": 1,
+      "horse": 1,
+      "bench": 1
+    },
+    "scene_labels_verified": false
+  },
+  {
+    "archive": "NaVi-collect-20260919-024204-341-339c8af2.zip",
+    "zip_sha256": "58bb93aa27989237f05cdd0f3a616216e967782820990c8e73ec080e7cc55bcd",
+    "integrity": {
+      "status": "raw_collection_integrity_passed",
+      "frames": 654,
+      "prompt_window_frames": {
+        "C01": 249,
+        "C02": 211,
+        "C03": 194
+      },
+      "capture_workflow_completed": true,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "replay_eligible": false,
+      "media_decode": "not_checked_by_host_validator"
+    },
+    "summary": {
+      "run_id": "collect-20260919-024204-341-339c8af2",
+      "stop_reason": "automatic_completed",
+      "capture_workflow_completed": true,
+      "network_status": "verified",
+      "tts_ready": true,
+      "frames": 654,
+      "tracking_frames": 648,
+      "depth_frames": 648,
+      "semantics_frames": 648,
+      "location_frames": 654,
+      "light_frames": 654,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "case_windows": [
+        {
+          "id": "C01",
+          "start_ms": 0,
+          "end_ms": 60000,
+          "frames": 249,
+          "review_status": "pending"
+        },
+        {
+          "id": "C02",
+          "start_ms": 60000,
+          "end_ms": 120000,
+          "frames": 211,
+          "review_status": "pending"
+        },
+        {
+          "id": "C03",
+          "start_ms": 120000,
+          "end_ms": 180000,
+          "frames": 194,
+          "review_status": "pending"
+        }
+      ],
+      "recording_error": null
+    },
+    "duration_s": 180.347,
+    "lux_min_median_max": [
+      0,
+      0.0,
+      72.0225
+    ],
+    "location_accuracy_min_median_max_m": [
+      3.7900925,
+      3.7900925,
+      100
+    ],
+    "frames_with_model_label_not_ground_truth": {
+      "person": 41,
+      "cat": 81,
+      "car": 95,
+      "dog": 9,
+      "fire hydrant": 13,
+      "skateboard": 1,
+      "bed": 1,
+      "truck": 3,
+      "train": 1,
+      "bicycle": 2,
+      "bench": 5,
+      "bear": 1,
+      "horse": 2,
+      "elephant": 2,
+      "umbrella": 1,
+      "tv": 4
+    },
+    "scene_labels_verified": false
+  },
+  {
+    "archive": "NaVi-collect-20260919-024719-670-dd86e6fb.zip",
+    "zip_sha256": "7b4a1a18302a9ad5649dec3a84c7fa3d01f8a886d5be3c3a408e260d7a57ea42",
+    "integrity": {
+      "status": "raw_collection_integrity_passed",
+      "frames": 714,
+      "prompt_window_frames": {
+        "C01": 272,
+        "C02": 236,
+        "C03": 206
+      },
+      "capture_workflow_completed": true,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "replay_eligible": false,
+      "media_decode": "not_checked_by_host_validator"
+    },
+    "summary": {
+      "run_id": "collect-20260919-024719-670-dd86e6fb",
+      "stop_reason": "automatic_completed",
+      "capture_workflow_completed": true,
+      "network_status": "verified",
+      "tts_ready": true,
+      "frames": 714,
+      "tracking_frames": 709,
+      "depth_frames": 709,
+      "semantics_frames": 709,
+      "location_frames": 714,
+      "light_frames": 714,
+      "calibration_status": "pending",
+      "case_labels_verified": false,
+      "field_acceptance_verified": false,
+      "case_windows": [
+        {
+          "id": "C01",
+          "start_ms": 0,
+          "end_ms": 60000,
+          "frames": 272,
+          "review_status": "pending"
+        },
+        {
+          "id": "C02",
+          "start_ms": 60000,
+          "end_ms": 120000,
+          "frames": 236,
+          "review_status": "pending"
+        },
+        {
+          "id": "C03",
+          "start_ms": 120000,
+          "end_ms": 180000,
+          "frames": 206,
+          "review_status": "pending"
+        }
+      ],
+      "recording_error": null
+    },
+    "duration_s": 180.392,
+    "lux_min_median_max": [
+      0,
+      0.0,
+      93.01501
+    ],
+    "location_accuracy_min_median_max_m": [
+      3.7900925,
+      3.7900925,
+      54.494
+    ],
+    "frames_with_model_label_not_ground_truth": {
+      "person": 56,
+      "car": 96,
+      "fire hydrant": 13,
+      "dog": 8,
+      "cat": 130,
+      "teddy bear": 1,
+      "elephant": 11,
+      "boat": 1,
+      "bird": 1,
+      "tv": 1,
+      "keyboard": 1,
+      "airplane": 2,
+      "truck": 1,
+      "bench": 4,
+      "umbrella": 1,
+      "bear": 1,
+      "sports ball": 1
+    },
+    "scene_labels_verified": false
+  }
+]

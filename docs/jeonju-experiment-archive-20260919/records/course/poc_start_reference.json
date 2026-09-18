@@ -1,0 +1,10 @@
+{
+  "source_capture": "NaVi-collect-20260919-022341-193-a2b8792d",
+  "frame_id": 63,
+  "elapsed_ms": 12473,
+  "role": "start_area_visual_reference",
+  "selection": "nearest reported GPS sample to configured start; not a surveyed point",
+  "reported_gps_accuracy_m": 3.7900925,
+  "field_verified": false,
+  "surveyed_reference": false
+}

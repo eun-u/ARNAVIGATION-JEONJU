@@ -1,0 +1,2 @@
+# Evidence hashes refer to the original bytes, including line endings.
+docs/jeonju-experiment-archive-20260919/** -text whitespace=cr-at-eol

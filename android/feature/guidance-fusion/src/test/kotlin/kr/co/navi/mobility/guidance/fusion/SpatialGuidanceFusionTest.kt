@@ -8,6 +8,29 @@ import kotlin.math.sin
 
 /** Synthetic geometry/observation contracts only; no scene inference or field accuracy claims. */
 class SpatialGuidanceFusionTest {
+    @Test fun fixedCourseConeUsesRealPlaneGeometryAndKeepsAbsoluteAccuracyUnknown() {
+        val c=PocStartAlignment(geo,geo.copy(latitude=geo.latitude+0.0001),LocalPose(0f,1.4f,0f,0f,0f,0f,1f),1_000_000_000,"poc-start-test")
+        val path=RouteSegment("path","path",listOf(geo,geo.copy(latitude=geo.latitude+0.0002)))
+        val snapshot=RouteSnapshot(1,0,"scope","data","session",path.geometry,listOf(path),22.0)
+        for(kind in listOf("inside","outside","moving","road","no_plane")) {
+            val fusion=SpatialGuidanceFusion();val observations=mutableListOf<HazardObservation>()
+            repeat(20){i ->
+                val base=spatial(i,sidewalk=kind!="road",depth=false,poseX=if(kind=="moving")i*.15f else 0f)
+                val s=base.copy(geoCoordinate=c.geo(base.localPose!!.position()),accuracy=PoseAccuracy(relativeTrackingBudgetMeters=.25),
+                    capture=base.capture!!.copy(calibration=c,groundHeightMeters=if(kind=="no_plane")null else 0.0))
+                val box=if(kind=="outside")NormalizedRegion(.8f,.2f,.95f,.7f) else NormalizedRegion(.3f,.2f,.7f,.7f)
+                observations+=fusion.fuse(s,PerceptionResult(s.stamp,"contract-only",0,listOf(DetectedRegion("traffic_cone",.9f,box))))
+            }
+            if(kind in listOf("inside","outside")) {
+                assertTrue(kind,observations.isNotEmpty())
+                val o=observations.first();assertNull(o.horizontalAccuracyMeters)
+                assertEquals("ground_plane_ray",o.evidence.spatialMethod)
+                assertNotNull(o.relativeTrackingBudgetMeters)
+                val impact=RouteImpactMapper(listOf(path)).match(o,snapshot,geo)
+                if(kind=="inside")assertNotNull(impact) else assertNull(impact)
+            } else assertTrue(kind,observations.isEmpty())
+        }
+    }
     private val geo=GeoCoordinate(35.845,127.131)
     private val calibration=MapCalibration.fromReferences(
         CalibrationReference(geo,Vec3(0.0,1.4,0.0),0.01,"test A"),

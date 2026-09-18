@@ -47,7 +47,7 @@ class PocNavigationProgressTracker {
         // Keep the high-water stamp even after a bad input, so old frames cannot form a new run.
         if(previousStamp!=null && (stamp.timestampNanos<=previousStamp.timestampNanos || stamp.frameId<=previousStamp.frameId)) return defer("frame_out_of_order")
         lastStamp=stamp
-        val statedAccuracy=spatial.accuracy?.horizontalMeters
+        val statedAccuracy=spatial.navigationBudgetMeters()
         val calibrationError=calibration.errorAt(pose.position(),stamp.timestampNanos)
         if(statedAccuracy==null || !statedAccuracy.isFinite() || statedAccuracy<0 || !calibrationError.isFinite() || calibrationError<0) return defer("alignment_uncertain")
         val accuracy=max(statedAccuracy,calibrationError)

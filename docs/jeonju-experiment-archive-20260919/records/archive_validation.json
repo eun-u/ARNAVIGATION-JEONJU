@@ -1,0 +1,16 @@
+{
+  "assets_checked": 271,
+  "sha256_matches": true,
+  "relative_links_exist": true,
+  "statistics_reconciled": true,
+  "image_kinds": {
+    "original_cpu_frame_view": 153,
+    "original_video_still": 6,
+    "original_still_contact_sheet": 1,
+    "recorded_detection_review_contact_sheet": 16,
+    "cone_pixel_experiment_contact_sheet": 13,
+    "historical_app_screenshot": 13,
+    "ai_generated_design_illustration": 2
+  },
+  "field_acceptance_verified": false
+}

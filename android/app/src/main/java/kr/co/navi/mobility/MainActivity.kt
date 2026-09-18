@@ -25,9 +25,9 @@ class MainActivity : ComponentActivity() {
         MapLibre.getInstance(this)
         container = NaviAppContainer(applicationContext)
         enableEdgeToEdge()
-        val demoMode=intent.getStringExtra("jeonju_mode") ?: "Collect"
+        val demoMode=intent.getStringExtra("jeonju_mode") ?: "Hackathon"
         if(!intent.getBooleanExtra("legacy_ui",false)) {
-            require(demoMode in setOf("Collect","Live","Replay","SelfTest"))
+            require(demoMode in setOf("Collect","Hackathon","PocLive","Live","Replay","SelfTest"))
             val clip=intent.getStringExtra("clip_id") ?: "C01"
             require(clip.matches(Regex("[A-Za-z0-9_-]{1,60}")))
             val stored = ServerConnectionStore(applicationContext).load()

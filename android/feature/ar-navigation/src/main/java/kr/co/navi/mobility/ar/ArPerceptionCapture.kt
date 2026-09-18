@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /** ARCore owns each Image; copies leave this method only after the hardware buffers are closed. */
 internal class ArPerceptionCapture {
     var frameId=0L
-    fun capture(frame: Frame,rotation: Int,calibration: MapCalibration?,inputMode: String,trackingEpoch: Long,receiver: (SpatialFrameContext,PerceptionFrameLease)->Unit) {
+    fun capture(frame: Frame,rotation: Int,calibration: RouteAlignment?,inputMode: String,trackingEpoch: Long,receiver: (SpatialFrameContext,PerceptionFrameLease)->Unit) {
         frame.acquireCameraImage().use { cpu ->
             val stamp=FrameStamp(++frameId,frame.timestamp)
             val k=frame.camera.imageIntrinsics
@@ -54,7 +54,7 @@ internal class ArPerceptionCapture {
                 plane!=null && plane.trackingState==TrackingState.TRACKING && plane.type==Plane.Type.HORIZONTAL_UPWARD_FACING && plane.isPoseInPolygon(it.hitPose)
             }?.hitPose?.ty()?.toDouble() else null
             val alignmentError=c?.errorAt(local.position(),frame.timestamp)?.takeIf{it.isFinite()}
-            val spatial=SpatialFrameContext(stamp,local,c?.geo(local.position()),alignmentError?.let{PoseAccuracy(horizontalMeters=it)},
+            val spatial=SpatialFrameContext(stamp,local,c?.geo(local.position()),alignmentError?.let{if(c is PocStartAlignment)PoseAccuracy(relativeTrackingBudgetMeters=it) else PoseAccuracy(horizontalMeters=it)},
                 if(tracking)TrackingQuality.TRACKING else TrackingQuality.DEGRADED,depth!=null,
                 SpatialCapture(intrinsics,transform,depth,semantics,c,rotation,System.currentTimeMillis(),inputMode,
                     ground,viewTransform,trackingEpoch))

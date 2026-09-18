@@ -1,0 +1,1042 @@
+{
+  "schema": "navi.assistant_detection_review.v1",
+  "review_status": "pending_human_review",
+  "verified": false,
+  "selection_rule": "All supported detections with recorded score >= 0.6 in these five runs",
+  "precision_or_recall_computed": false,
+  "annotations": [
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 452,
+      "timestamp_ns": 357188827436497,
+      "elapsed_s": 92.13,
+      "detector": {
+        "label": "car",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.62708336,
+          0.3234375,
+          0.75416666,
+          0.4203125
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 476,
+      "timestamp_ns": 357194060866352,
+      "elapsed_s": 97.358,
+      "detector": {
+        "label": "car",
+        "confidence": 0.6796875,
+        "bounds": [
+          0,
+          0.24375,
+          0.27083334,
+          0.4109375
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 479,
+      "timestamp_ns": 357194727431443,
+      "elapsed_s": 98.012,
+      "detector": {
+        "label": "car",
+        "confidence": 0.61328125,
+        "bounds": [
+          0.62291664,
+          0,
+          0.9916667,
+          0.228125
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 509,
+      "timestamp_ns": 357201260688598,
+      "elapsed_s": 104.546,
+      "detector": {
+        "label": "person",
+        "confidence": 0.63671875,
+        "bounds": [
+          0,
+          0,
+          0.26666668,
+          0.896875
+        ]
+      },
+      "assistant_review": "background_or_shadow_not_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 511,
+      "timestamp_ns": 357201694204025,
+      "elapsed_s": 104.993,
+      "detector": {
+        "label": "car",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.21875,
+          0.1578125,
+          0.58125,
+          0.3578125
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 768,
+      "timestamp_ns": 357254336068297,
+      "elapsed_s": 157.659,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0.0375,
+          0.7203125,
+          0.47708333,
+          0.996875
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frame_id": 827,
+      "timestamp_ns": 357266265718543,
+      "elapsed_s": 169.56,
+      "detector": {
+        "label": "person",
+        "confidence": 0.69921875,
+        "bounds": [
+          0.029166667,
+          0,
+          0.32708332,
+          0.5046875
+        ]
+      },
+      "assistant_review": "background_or_shadow_not_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 2,
+      "timestamp_ns": 357758089427108,
+      "elapsed_s": 0.075,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0.0125,
+          0.2203125,
+          0.98333335,
+          0.7140625
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 5,
+      "timestamp_ns": 357758691278722,
+      "elapsed_s": 0.659,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0.014583333,
+          0.0125,
+          0.98333335,
+          1
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 352,
+      "timestamp_ns": 357829915860844,
+      "elapsed_s": 71.953,
+      "detector": {
+        "label": "person",
+        "confidence": 0.84375,
+        "bounds": [
+          0.004166667,
+          0,
+          0.9916667,
+          1
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 377,
+      "timestamp_ns": 357834931500698,
+      "elapsed_s": 76.969,
+      "detector": {
+        "label": "person",
+        "confidence": 0.61328125,
+        "bounds": [
+          0.68125,
+          0.221875,
+          0.74791664,
+          0.340625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 378,
+      "timestamp_ns": 357835132001248,
+      "elapsed_s": 77.174,
+      "detector": {
+        "label": "person",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.61041665,
+          0.1640625,
+          0.6791667,
+          0.2921875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 381,
+      "timestamp_ns": 357835733436589,
+      "elapsed_s": 77.777,
+      "detector": {
+        "label": "person",
+        "confidence": 0.69921875,
+        "bounds": [
+          0.51666665,
+          0.321875,
+          0.5854167,
+          0.4546875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 382,
+      "timestamp_ns": 357835933927686,
+      "elapsed_s": 78.003,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.54375,
+          0.315625,
+          0.6,
+          0.440625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 385,
+      "timestamp_ns": 357836535772080,
+      "elapsed_s": 78.567,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.5375,
+          0.2890625,
+          0.6166667,
+          0.425
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 386,
+      "timestamp_ns": 357836736365098,
+      "elapsed_s": 78.798,
+      "detector": {
+        "label": "person",
+        "confidence": 0.73828125,
+        "bounds": [
+          0.55,
+          0.296875,
+          0.62291664,
+          0.4328125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 388,
+      "timestamp_ns": 357837137231708,
+      "elapsed_s": 79.18,
+      "detector": {
+        "label": "person",
+        "confidence": 0.7890625,
+        "bounds": [
+          0.51666665,
+          0.325,
+          0.59375,
+          0.475
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 389,
+      "timestamp_ns": 357837337745261,
+      "elapsed_s": 79.391,
+      "detector": {
+        "label": "person",
+        "confidence": 0.75390625,
+        "bounds": [
+          0.5229167,
+          0.3203125,
+          0.59583336,
+          0.4640625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 390,
+      "timestamp_ns": 357837538414807,
+      "elapsed_s": 79.604,
+      "detector": {
+        "label": "person",
+        "confidence": 0.85546875,
+        "bounds": [
+          0.51875,
+          0.3125,
+          0.6,
+          0.4671875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 392,
+      "timestamp_ns": 357837939779469,
+      "elapsed_s": 79.988,
+      "detector": {
+        "label": "person",
+        "confidence": 0.7890625,
+        "bounds": [
+          0.5416667,
+          0.3234375,
+          0.6354167,
+          0.4875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 393,
+      "timestamp_ns": 357838140441350,
+      "elapsed_s": 80.184,
+      "detector": {
+        "label": "person",
+        "confidence": 0.75390625,
+        "bounds": [
+          0.52916664,
+          0.315625,
+          0.62708336,
+          0.4890625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 394,
+      "timestamp_ns": 357838341158280,
+      "elapsed_s": 80.369,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0.50208336,
+          0.31875,
+          0.59791666,
+          0.4859375
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 396,
+      "timestamp_ns": 357838742450935,
+      "elapsed_s": 80.782,
+      "detector": {
+        "label": "person",
+        "confidence": 0.8671875,
+        "bounds": [
+          0.5,
+          0.33125,
+          0.5854167,
+          0.515625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 397,
+      "timestamp_ns": 357838943065107,
+      "elapsed_s": 80.98,
+      "detector": {
+        "label": "person",
+        "confidence": 0.81640625,
+        "bounds": [
+          0.48125,
+          0.3296875,
+          0.56458336,
+          0.5171875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 398,
+      "timestamp_ns": 357839143673221,
+      "elapsed_s": 81.178,
+      "detector": {
+        "label": "person",
+        "confidence": 0.8671875,
+        "bounds": [
+          0.4625,
+          0.334375,
+          0.5625,
+          0.5296875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 399,
+      "timestamp_ns": 357839344350314,
+      "elapsed_s": 81.379,
+      "detector": {
+        "label": "person",
+        "confidence": 0.91015625,
+        "bounds": [
+          0.46875,
+          0.3265625,
+          0.5875,
+          0.5296875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 401,
+      "timestamp_ns": 357839745736911,
+      "elapsed_s": 81.767,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0.4375,
+          0.2578125,
+          0.55625,
+          0.48125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 402,
+      "timestamp_ns": 357839946400360,
+      "elapsed_s": 81.982,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.44583333,
+          0.2546875,
+          0.5520833,
+          0.4828125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 403,
+      "timestamp_ns": 357840146976119,
+      "elapsed_s": 82.178,
+      "detector": {
+        "label": "person",
+        "confidence": 0.69921875,
+        "bounds": [
+          0.44791666,
+          0.253125,
+          0.5520833,
+          0.4953125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 406,
+      "timestamp_ns": 357840748660298,
+      "elapsed_s": 82.79,
+      "detector": {
+        "label": "person",
+        "confidence": 0.84375,
+        "bounds": [
+          0.45,
+          0.2234375,
+          0.6041667,
+          0.5
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 408,
+      "timestamp_ns": 357841150058996,
+      "elapsed_s": 83.189,
+      "detector": {
+        "label": "person",
+        "confidence": 0.69921875,
+        "bounds": [
+          0.48958334,
+          0.209375,
+          0.63125,
+          0.5265625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 409,
+      "timestamp_ns": 357841350553242,
+      "elapsed_s": 83.413,
+      "detector": {
+        "label": "person",
+        "confidence": 0.76953125,
+        "bounds": [
+          0.51875,
+          0.215625,
+          0.6625,
+          0.5453125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 410,
+      "timestamp_ns": 357841551020110,
+      "elapsed_s": 83.601,
+      "detector": {
+        "label": "person",
+        "confidence": 0.81640625,
+        "bounds": [
+          0.56041664,
+          0.178125,
+          0.74583334,
+          0.534375
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 412,
+      "timestamp_ns": 357841952307280,
+      "elapsed_s": 83.995,
+      "detector": {
+        "label": "person",
+        "confidence": 0.953125,
+        "bounds": [
+          0.59583336,
+          0.103125,
+          0.88958335,
+          0.553125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 413,
+      "timestamp_ns": 357842152990348,
+      "elapsed_s": 84.187,
+      "detector": {
+        "label": "person",
+        "confidence": 0.91015625,
+        "bounds": [
+          0.63125,
+          0.0171875,
+          0.90833336,
+          0.540625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 415,
+      "timestamp_ns": 357842554117002,
+      "elapsed_s": 84.591,
+      "detector": {
+        "label": "person",
+        "confidence": 0.90234375,
+        "bounds": [
+          0.52708334,
+          0.0015625,
+          0.93541664,
+          0.4953125
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 417,
+      "timestamp_ns": 357842955925999,
+      "elapsed_s": 84.999,
+      "detector": {
+        "label": "person",
+        "confidence": 0.85546875,
+        "bounds": [
+          0.53541666,
+          0,
+          0.975,
+          0.6984375
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 420,
+      "timestamp_ns": 357843557524068,
+      "elapsed_s": 85.603,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0.3875,
+          0,
+          0.79375,
+          0.7265625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 421,
+      "timestamp_ns": 357843758349062,
+      "elapsed_s": 85.82,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.25625,
+          0.0125,
+          0.84375,
+          0.8609375
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 423,
+      "timestamp_ns": 357844159635152,
+      "elapsed_s": 86.196,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.39583334,
+          0.003125,
+          0.8354167,
+          0.771875
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 424,
+      "timestamp_ns": 357844360311872,
+      "elapsed_s": 86.401,
+      "detector": {
+        "label": "person",
+        "confidence": 0.73828125,
+        "bounds": [
+          0.31875,
+          0.0125,
+          0.8541667,
+          0.9265625
+        ]
+      },
+      "assistant_review": "visible_external_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frame_id": 474,
+      "timestamp_ns": 357854555589425,
+      "elapsed_s": 96.6,
+      "detector": {
+        "label": "car",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.63958335,
+          0.25625,
+          0.98125,
+          0.4109375
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024105-060-5a85f57b",
+      "frame_id": 132,
+      "timestamp_ns": 358166371389121,
+      "elapsed_s": 27.245,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.3625,
+          0.6515625,
+          0.98541665,
+          0.99375
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024105-060-5a85f57b",
+      "frame_id": 200,
+      "timestamp_ns": 358180360394773,
+      "elapsed_s": 41.232,
+      "detector": {
+        "label": "person",
+        "confidence": 0.61328125,
+        "bounds": [
+          0.35,
+          0.0046875,
+          0.98333335,
+          0.99375
+        ]
+      },
+      "assistant_review": "background_or_shadow_not_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024204-341-339c8af2",
+      "frame_id": 2,
+      "timestamp_ns": 358197999135910,
+      "elapsed_s": 0.088,
+      "detector": {
+        "label": "person",
+        "confidence": 0.69921875,
+        "bounds": [
+          0.004166667,
+          0.0125,
+          0.9916667,
+          1
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024204-341-339c8af2",
+      "frame_id": 163,
+      "timestamp_ns": 358231290071001,
+      "elapsed_s": 33.425,
+      "detector": {
+        "label": "car",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.52916664,
+          0.2890625,
+          0.80625,
+          0.4125
+        ]
+      },
+      "assistant_review": "visible_vehicle_road_side",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024204-341-339c8af2",
+      "frame_id": 164,
+      "timestamp_ns": 358231490691004,
+      "elapsed_s": 33.662,
+      "detector": {
+        "label": "car",
+        "confidence": 0.75390625,
+        "bounds": [
+          0.525,
+          0.275,
+          0.8020833,
+          0.403125
+        ]
+      },
+      "assistant_review": "visible_vehicle_road_side",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024204-341-339c8af2",
+      "frame_id": 561,
+      "timestamp_ns": 358314629354460,
+      "elapsed_s": 116.779,
+      "detector": {
+        "label": "person",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.004166667,
+          0.5640625,
+          0.52708334,
+          0.9875
+        ]
+      },
+      "assistant_review": "background_or_shadow_not_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024204-341-339c8af2",
+      "frame_id": 680,
+      "timestamp_ns": 358339985257174,
+      "elapsed_s": 142.116,
+      "detector": {
+        "label": "car",
+        "confidence": 0.6796875,
+        "bounds": [
+          0,
+          0.234375,
+          0.3,
+          0.4125
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 256,
+      "timestamp_ns": 358565284624249,
+      "elapsed_s": 51.488,
+      "detector": {
+        "label": "person",
+        "confidence": 0.73828125,
+        "bounds": [
+          0,
+          0.0046875,
+          0.96875,
+          0.99375
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 487,
+      "timestamp_ns": 358612697910921,
+      "elapsed_s": 98.906,
+      "detector": {
+        "label": "car",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.29583332,
+          0.1609375,
+          0.6,
+          0.31875
+        ]
+      },
+      "assistant_review": "visible_vehicle_road_side",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 488,
+      "timestamp_ns": 358612898616201,
+      "elapsed_s": 99.108,
+      "detector": {
+        "label": "car",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.22083333,
+          0.0984375,
+          0.55,
+          0.2828125
+        ]
+      },
+      "assistant_review": "visible_vehicle_road_side",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 734,
+      "timestamp_ns": 358664027673770,
+      "elapsed_s": 150.231,
+      "detector": {
+        "label": "person",
+        "confidence": 0.73828125,
+        "bounds": [
+          0.0020833334,
+          0.5109375,
+          0.49583334,
+          0.9859375
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 745,
+      "timestamp_ns": 358666394279815,
+      "elapsed_s": 152.586,
+      "detector": {
+        "label": "person",
+        "confidence": 0.71875,
+        "bounds": [
+          0.2625,
+          0.6078125,
+          0.8854167,
+          0.9921875
+        ]
+      },
+      "assistant_review": "background_or_shadow_not_person",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 801,
+      "timestamp_ns": 358678528866497,
+      "elapsed_s": 164.711,
+      "detector": {
+        "label": "person",
+        "confidence": 0.61328125,
+        "bounds": [
+          0.7729167,
+          0.0921875,
+          0.8625,
+          0.25625
+        ]
+      },
+      "assistant_review": "uncertain_visual_match",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 810,
+      "timestamp_ns": 358680528754635,
+      "elapsed_s": 166.72,
+      "detector": {
+        "label": "person",
+        "confidence": 0.63671875,
+        "bounds": [
+          0.010416667,
+          0.640625,
+          0.37291667,
+          0.9828125
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    },
+    {
+      "source": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frame_id": 815,
+      "timestamp_ns": 358681595340910,
+      "elapsed_s": 167.789,
+      "detector": {
+        "label": "person",
+        "confidence": 0.6796875,
+        "bounds": [
+          0,
+          0.58125,
+          0.53333336,
+          0.9890625
+        ]
+      },
+      "assistant_review": "photographer_body_part_not_external_obstacle",
+      "human_verified": false
+    }
+  ],
+  "counts": {
+    "uncertain_visual_match": 7,
+    "background_or_shadow_not_person": 5,
+    "photographer_body_part_not_external_obstacle": 10,
+    "visible_external_person": 31,
+    "visible_vehicle_road_side": 4
+  }
+}

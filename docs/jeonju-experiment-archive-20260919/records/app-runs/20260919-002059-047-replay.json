@@ -1,0 +1,66 @@
+{
+    "status":  "failed",
+    "run_id":  "20260919-002059-047-replay",
+    "mode":  "Replay",
+    "variant":  "Debug",
+    "clip_id":  "C01",
+    "device_serial":  "",
+    "field_acceptance_verified":  false,
+    "error":  "process_failed (1): C:\\Project\\ARNAVIGATION-JEONJU\\.venv\\Scripts\\python.exe\n\nTraceback (most recent call last):\r\n  File \"C:\\Project\\ARNAVIGATION-JEONJU\\scripts\\validate_jeonju_clip.py\", line 270, in \u003cmodule\u003e\r\n    print(json.dumps(validate(args.directory)))\r\n                     ~~~~~~~~^^^^^^^^^^^^^^^^\r\n  File \"C:\\Project\\ARNAVIGATION-JEONJU\\scripts\\validate_jeonju_clip.py\", line 134, in validate\r\n    raise ValueError(\"input_missing: \" + \", \".join(missing))\r\nValueError: input_missing: C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\recording.mp4, C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\clip_manifest.json, C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\frames.jsonl, C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01\\calibration.json\r\n",
+    "steps":  [
+                  "Checking bundle integrity and importing P0 source bytes",
+                  "Checking pinned model",
+                  "Checking dedicated Jeonju server",
+                  "Validating measured replay input: C:\\Project\\ARNAVIGATION-JEONJU\\data\\replay\\jeonju_p0\\C01"
+              ],
+    "started_at":  "2026-09-18T15:20:59.0533175Z",
+    "dataset_revision":  "jeonju-p0-20260918-1ace3878",
+    "scope_revision":  "jbnu-internal-eight-v1",
+    "graph_sha256":  "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+    "bundle_sha256":  "1ace3878b27854dfbe28445e3fa5e1ff0cce14169212cffa2e0059d122cbba1f",
+    "apk":  "C:\\Project\\ARNAVIGATION-JEONJU\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+    "apk_sha256":  "f8cb51471f3b06fef749b2c82a78840d59abfb29c506f3d6fb4736df1dece128",
+    "database":  "C:\\Project\\ARNAVIGATION-JEONJU\\data\\runtime\\jeonju_p0_jeonju-p0-20260918-1ace3878_20260919-002059-047-replay.db",
+    "server_health":  {
+                          "status":  "ok",
+                          "service":  "NaVi",
+                          "region_id":  "JEONJU_JBNU_SOUTH_P0",
+                          "dataset_revision":  "jeonju-p0-20260918-1ace3878",
+                          "scope_revision":  "jbnu-internal-eight-v1",
+                          "graph_sha256":  "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+                          "profiles":  [
+                                           "default",
+                                           "wheelchair",
+                                           "demo_jeonju"
+                                       ],
+                          "scope_edge_count":  8,
+                          "missing_inputs":  [
+                                                 "C01-C03/recording.mp4",
+                                                 "C01-C03/clip_manifest.json",
+                                                 "C01-C03/frames.jsonl",
+                                                 "C01-C03/calibration.json",
+                                                 "C01-C03/depth and semantics"
+                                             ],
+                          "field_crossing_check":  "pending",
+                          "database":  {
+                                           "schema_version":  2,
+                                           "graph_revision":  0,
+                                           "edge_overlay_count":  0
+                                       },
+                          "observations":  {
+                                               "pending":  0
+                                           },
+                          "graph":  {
+                                        "nodes":  1056,
+                                        "edges":  1517,
+                                        "source":  "user_provided_osm_export",
+                                        "accessibility_attributes":  "osm_tags_only_unknown_unless_explicit"
+                                    },
+                          "graph_enrichment":  {
+                                                   "available":  false,
+                                                   "candidate_count":  0,
+                                                   "route_affecting_candidate_count":  0
+                                               }
+                      },
+    "finished_at":  "2026-09-18T15:21:03.9268225Z"
+}

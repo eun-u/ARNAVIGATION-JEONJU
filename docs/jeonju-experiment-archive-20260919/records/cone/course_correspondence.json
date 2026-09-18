@@ -1,0 +1,143 @@
+{
+  "kind": "course_correspondence_diagnostic",
+  "scope_revision": "jbnu-internal-eight-v1",
+  "graph_sha256": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+  "alignment_applied_to_originals": false,
+  "field_verified": false,
+  "runs": [
+    {
+      "run": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "frames_sha256": "a318e4fa30f8013370383fcd6569c24290629c09dd35b8e181600f939a8df931",
+      "start_reference_candidate": {
+        "frame_id": 63,
+        "elapsed_ms": 12473,
+        "image": "images/63.png",
+        "raw_gps_distance_to_start_m": 0.40771725428349886,
+        "reported_accuracy_m": 3.7900925
+      },
+      "raw_gps_nearest_edge_samples_within_3m": {
+        "OSM_E_471373639_917a7d9bd3": 195,
+        "OSM_E_471373639_d887f067b9": 15,
+        "OSM_E_471373642_95ec0c4e13": 78,
+        "OSM_E_1175116968_1a5cbd9c27": 44,
+        "OSM_E_1175116968_4d464d2d7d": 60,
+        "OSM_E_1175116968_5e42bfe341": 166,
+        "OSM_E_471373646_870e5dbb6c": 16
+      },
+      "diagnostic_ar_to_raw_gps_fit": {
+        "samples": 177,
+        "rotation_degrees": 173.5150261031561,
+        "translation_east_m": 1.1318374028751155,
+        "translation_north_m": 4.831188971570683,
+        "raw_gps_residual_rmse_m": 1.0670818795667727,
+        "note": "Rigid fit to noisy GPS, not independent error or registration evidence"
+      },
+      "verified": false
+    },
+    {
+      "run": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "frames_sha256": "bf6dc110492134449d775dee0e185ddb3c19794f460c6975ddbaa8f574c27c98",
+      "start_reference_candidate": {
+        "frame_id": 27,
+        "elapsed_ms": 5175,
+        "image": "images/27.png",
+        "raw_gps_distance_to_start_m": 0.3815701397272576,
+        "reported_accuracy_m": 3.7900925
+      },
+      "raw_gps_nearest_edge_samples_within_3m": {
+        "OSM_E_471373639_917a7d9bd3": 237,
+        "OSM_E_471373639_d887f067b9": 17,
+        "OSM_E_471373642_95ec0c4e13": 26,
+        "OSM_E_1175116968_1a5cbd9c27": 29,
+        "OSM_E_1175116968_4d464d2d7d": 31,
+        "OSM_E_1175116968_5e42bfe341": 168,
+        "OSM_E_471373646_870e5dbb6c": 16
+      },
+      "diagnostic_ar_to_raw_gps_fit": {
+        "samples": 172,
+        "rotation_degrees": -178.38758530541915,
+        "translation_east_m": -0.08575278622564975,
+        "translation_north_m": 3.0561413484140445,
+        "raw_gps_residual_rmse_m": 0.7326109054725645,
+        "note": "Rigid fit to noisy GPS, not independent error or registration evidence"
+      },
+      "verified": false
+    },
+    {
+      "run": "NaVi-collect-20260919-024105-060-5a85f57b",
+      "frames_sha256": "5aad09eba68c4e4530d978e069d994cd89da811d6a229de53f39c19f88cf0efa",
+      "start_reference_candidate": {
+        "frame_id": 41,
+        "elapsed_ms": 8027,
+        "image": "images/41.png",
+        "raw_gps_distance_to_start_m": 1.4299723685972525,
+        "reported_accuracy_m": 3.7900925
+      },
+      "raw_gps_nearest_edge_samples_within_3m": {
+        "OSM_E_471373639_917a7d9bd3": 163
+      },
+      "diagnostic_ar_to_raw_gps_fit": {
+        "samples": 43,
+        "rotation_degrees": -159.54127018029928,
+        "translation_east_m": -1.7267607417933473,
+        "translation_north_m": 5.244235960502612,
+        "raw_gps_residual_rmse_m": 0.9503018496866037,
+        "note": "Rigid fit to noisy GPS, not independent error or registration evidence"
+      },
+      "verified": false
+    },
+    {
+      "run": "NaVi-collect-20260919-024204-341-339c8af2",
+      "frames_sha256": "b35a3023efd7072b04db69687f8862dfcdbd4fd5199fdfc13dd212fb0e3f781b",
+      "start_reference_candidate": {
+        "frame_id": 157,
+        "elapsed_ms": 32225,
+        "image": "images/157.png",
+        "raw_gps_distance_to_start_m": 0.7616135962206615,
+        "reported_accuracy_m": 3.7900925
+      },
+      "raw_gps_nearest_edge_samples_within_3m": {
+        "OSM_E_471373639_917a7d9bd3": 125,
+        "OSM_E_471373642_95ec0c4e13": 11,
+        "OSM_E_1175116968_1a5cbd9c27": 16,
+        "OSM_E_1175116968_4d464d2d7d": 22,
+        "OSM_E_1175116968_5e42bfe341": 97
+      },
+      "diagnostic_ar_to_raw_gps_fit": {
+        "samples": 174,
+        "rotation_degrees": -5.659666457948745,
+        "translation_east_m": -2.0627412409351162,
+        "translation_north_m": -38.67754207299197,
+        "raw_gps_residual_rmse_m": 1.4731727376767199,
+        "note": "Rigid fit to noisy GPS, not independent error or registration evidence"
+      },
+      "verified": false
+    },
+    {
+      "run": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "frames_sha256": "40d6b5ebf28fc28326d0ecd094a0f5f5be1eaa677f852495f81d11c9759c9f5e",
+      "start_reference_candidate": {
+        "frame_id": 36,
+        "elapsed_ms": 6226,
+        "image": "images/36.png",
+        "raw_gps_distance_to_start_m": 0.750545446887646,
+        "reported_accuracy_m": 3.7900925
+      },
+      "raw_gps_nearest_edge_samples_within_3m": {
+        "OSM_E_471373639_917a7d9bd3": 324,
+        "OSM_E_471373639_d887f067b9": 44,
+        "OSM_E_471373642_95ec0c4e13": 6,
+        "OSM_E_1175116968_1a5cbd9c27": 3
+      },
+      "diagnostic_ar_to_raw_gps_fit": {
+        "samples": 174,
+        "rotation_degrees": -166.81371689786786,
+        "translation_east_m": -0.6674516330269658,
+        "translation_north_m": 2.4753475392721036,
+        "raw_gps_residual_rmse_m": 1.2865321028056536,
+        "note": "Rigid fit to noisy GPS, not independent error or registration evidence"
+      },
+      "verified": false
+    }
+  ]
+}

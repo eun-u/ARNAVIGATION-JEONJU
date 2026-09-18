@@ -24,10 +24,21 @@ private fun vecJson(v: Vec3)=JSONArray(listOf(v.x,v.y,v.z))
 private fun JSONArray.vec(): Vec3 {require(length()==3);return Vec3(getDouble(0),getDouble(1),getDouble(2))}
 private fun refJson(r: CalibrationReference)=JSONObject().put("geo",geoJson(r.geo)).put("world",vecJson(r.world)).put("accuracy_m",r.accuracyMeters).put("label",r.label)
 private fun JSONObject.reference()=CalibrationReference(getJSONObject("geo").geo(),getJSONArray("world").vec(),getDouble("accuracy_m"),getString("label"))
-fun calibrationJson(c: MapCalibration)=JSONObject().put("schema_version",1).put("method","two_measured_references")
+private fun measuredCalibrationJson(c: MapCalibration)=JSONObject().put("schema_version",1).put("method","two_measured_references")
     .put("revision",c.revision).put("first",refJson(c.first)).put("second",refJson(c.second)).put("yaw_radians",c.yawRadians)
     .put("created_timestamp_ns",c.createdTimestampNanos).put("yaw_error_radians",c.yawErrorRadians).put("coordinate_system","AR_WORLD_METERS_to_WGS84")
     .put("uncertainty_policy","reference_error + distance*sin(yaw_error) + 0.005*distance + 0.001*seconds; not measured tracking accuracy")
+fun calibrationJson(c: RouteAlignment): JSONObject = when(c) {
+    is MapCalibration -> measuredCalibrationJson(c)
+    is PocStartAlignment -> JSONObject().put("schema_version",2).put("method","operator_fixed_course_start")
+        .put("revision",c.revision).put("origin",geoJson(c.origin)).put("forward",geoJson(c.forward))
+        .put("anchor_pose",JSONArray(listOf(c.anchorPose.xMeters,c.anchorPose.yMeters,c.anchorPose.zMeters,
+            c.anchorPose.quaternionX,c.anchorPose.quaternionY,c.anchorPose.quaternionZ,c.anchorPose.quaternionW)))
+        .put("created_timestamp_ns",c.createdTimestampNanos).put("alignment_source",c.source)
+        .put("absolute_accuracy_m",JSONObject.NULL).put("field_verified",false)
+        .put("coordinate_system","operator_assumed_course_coordinates")
+        .put("relative_budget_policy","0.20 + 0.004*distance + 0.0005*seconds; configured tolerance, not measured accuracy")
+}
 fun parseCalibration(j: JSONObject): MapCalibration {
     require(j.getInt("schema_version")==1 && j.getString("method")=="two_measured_references" && j.getString("coordinate_system")=="AR_WORLD_METERS_to_WGS84")
     val computed=MapCalibration.fromReferences(j.getJSONObject("first").reference(),j.getJSONObject("second").reference(),j.getLong("created_timestamp_ns"),j.getString("revision"))
@@ -65,11 +76,15 @@ private fun recordingDuration(file: File): Long {
 }
 private fun sameReferenceMetadata(a: CalibrationReference,b: CalibrationReference)=
     a.geo==b.geo && a.accuracyMeters==b.accuracyMeters && a.label==b.label
-private fun sameCalibrationReferences(a: MapCalibration,b: MapCalibration)=a.revision==b.revision &&
-    a.createdTimestampNanos==b.createdTimestampNanos && sameReferenceMetadata(a.first,b.first) && sameReferenceMetadata(a.second,b.second)
+private fun sameCalibrationReferences(a: RouteAlignment,b: RouteAlignment)=a.revision==b.revision &&
+    a.createdTimestampNanos==b.createdTimestampNanos && when {
+        a is MapCalibration && b is MapCalibration -> sameReferenceMetadata(a.first,b.first) && sameReferenceMetadata(a.second,b.second)
+        a is PocStartAlignment && b is PocStartAlignment -> a.origin==b.origin && a.forward==b.forward
+        else -> false
+    }
 
 /** Exact sampled CPU PNGs are retained alongside ARCore MP4 to avoid approximate MP4/pose seeking. */
-class ClipWriter(val directory: File,private val bootstrap: JSONObject,private val calibration: MapCalibration?,private val clipId: String,private val collectionOnly: Boolean=false) {
+class ClipWriter(val directory: File,private val bootstrap: JSONObject,private val calibration: RouteAlignment?,private val clipId: String,private val collectionOnly: Boolean=false) {
     private var frames=0
     private var firstTimestamp=0L
     private var lastTimestamp=0L
@@ -123,6 +138,8 @@ class ClipWriter(val directory: File,private val bootstrap: JSONObject,private v
             .put("tracking_epoch",c.trackingEpoch)
             .put("geo_coordinate",s.geoCoordinate?.let(::geoJson) ?: JSONObject.NULL)
             .put("horizontal_accuracy_m",s.accuracy?.horizontalMeters?.takeIf{it.isFinite()} ?: JSONObject.NULL)
+            .put("relative_tracking_budget_m",s.accuracy?.relativeTrackingBudgetMeters?.takeIf{it.isFinite()} ?: JSONObject.NULL)
+            .put("alignment_source",c.calibration?.source ?: "unregistered")
             .put("pose_coordinates","AR_WORLD_METERS_x_right_y_up_negative_z_forward")
         c.imageToView?.let { v -> row.put("image_to_view",JSONArray(listOf(v.originU,v.originV,v.xU,v.xV,v.yU,v.yV))) }
         collection?.let { row.put("collection",it) }
@@ -154,11 +171,14 @@ class ClipWriter(val directory: File,private val bootstrap: JSONObject,private v
         require(duration>=sampledDuration-500 && duration<=(System.nanoTime()-createdAtNanos)/1_000_000+2_000){"recording_duration_mismatch"}
         val hashes=JSONObject()
         directory.walkTopDown().filter{it.isFile && it.name!="clip_manifest.json"}.forEach{hashes.put(it.relativeTo(directory).invariantSeparatorsPath,sha256(it))}
-        val m=JSONObject().put("schema_version",if(collectionOnly)3 else 2).put("clip_id",clipId).put("input_provenance","arcore_live_capture")
+        val m=JSONObject().put("schema_version",if(collectionOnly)3 else if(calibration is PocStartAlignment)4 else 2).put("clip_id",clipId).put("input_provenance","arcore_live_capture")
+            .put("route_source",bootstrap.optString("route_source","server_route"))
+            .put("preset_id",bootstrap.optString("preset_id").ifBlank{null} ?: JSONObject.NULL)
+            .put("server_required",bootstrap.optBoolean("server_required",true))
             .put("completion_state","finalized").put("recording_duration_ms",duration)
             .put("first_capture_epoch_ms",firstEpochMillis).put("last_capture_epoch_ms",lastEpochMillis)
             .put("cpu_image_width",imageWidth).put("cpu_image_height",imageHeight).put("rotations_degrees",JSONArray(rotations.sorted()))
-            .put("frame_calibration_policy",if(collectionOnly)"unregistered_ARCore_world" else "per_frame_ARCore_anchor_poses")
+            .put("frame_calibration_policy",if(collectionOnly)"unregistered_ARCore_world" else if(calibration is PocStartAlignment)"operator_fixed_course_start_relative_AR" else "per_frame_ARCore_anchor_poses")
             .put("model_sha256","0720bf247bd76e6594ea28fa9c6f7c5242be774818997dbbeffc4da460c723bb")
             .put("pipeline_revision",kr.co.navi.mobility.ai.mediapipe.MediaPipeObjectDetectorConfig.DEFAULT_PIPELINE_REVISION)
             .put("cone_detector_revision",kr.co.navi.mobility.ai.cone.ConeShapeDetector.REVISION)
@@ -168,8 +188,10 @@ class ClipWriter(val directory: File,private val bootstrap: JSONObject,private v
             .put("timebase","ARCore monotonic nanoseconds; per-frame original UTC also recorded")
             .put("object_inference_on_replay","fresh model inference on exact sampled CPU frames")
             .put("semantics_on_replay","recorded sensor masks; not fresh segmentation")
-            .put("field_crossing_check",if(collectionOnly)"pending" else "operator_confirmed_at_capture").put("accessibility_verified",false).put("files",hashes)
+            .put("field_crossing_check",if(collectionOnly || calibration is PocStartAlignment)"pending" else "operator_confirmed_at_capture").put("accessibility_verified",false).put("files",hashes)
         if(collectionOnly) m.put("capture_purpose","case_collection").put("calibration_status","pending")
+            .put("replay_eligible",false).put("field_acceptance_verified",false).put("case_labels_verified",false)
+        if(calibration is PocStartAlignment)m.put("alignment_source","poc_start").put("absolute_accuracy_m",JSONObject.NULL)
             .put("replay_eligible",false).put("field_acceptance_verified",false).put("case_labels_verified",false)
         listOf("region_id","scope_revision","dataset_revision","graph_sha256").forEach{m.put(it,bootstrap.getString(it))}
         val target=File(directory,"clip_manifest.json")

@@ -131,7 +131,7 @@ class ArCoreNavigationView(
     }
 
     /** A saved transform cannot establish a new live AR world alignment. */
-    fun setPocCalibration(calibration: MapCalibration?) {
+    fun setPocCalibration(calibration: RouteAlignment?) {
         queueEvent {
             if(calibration==null) renderer.clearPocAlignment()
             // Non-null snapshots are owned by the live Anchors; never replace their current poses.
@@ -155,9 +155,17 @@ class ArCoreNavigationView(
         }
     }
 
-    fun updatePocRoute(route: List<GeoCoordinate>,calibration: MapCalibration?,routeRevision: Int=0) {
+    fun updatePocRoute(route: List<GeoCoordinate>,calibration: RouteAlignment?,routeRevision: Int=0) {
         require(routeRevision>=0)
         queueEvent {renderer.setPocRoute(route,calibration,routeRevision)}
+    }
+
+    fun capturePocStart(origin: GeoCoordinate,forward: GeoCoordinate,callback: (Result<PocStartAlignment>)->Unit) {
+        if(!resumed || disposed) {post{callback(Result.failure(IllegalStateException("AR 카메라를 먼저 준비하세요.")))};return}
+        queueEvent {
+            val result=runCatching{renderer.capturePocStart(origin,forward)}
+            post{callback(result)}
+        }
     }
 
     fun startPocRecording(target: File) {
@@ -704,7 +712,7 @@ private class ArCoreRenderer(
     private var lastTrackingState: Boolean? = null
     private var lastTelemetryAt = 0L
     @Volatile var perceptionListener: ((SpatialFrameContext,PerceptionFrameLease)->Unit)?=null
-    @Volatile var pocCalibration: MapCalibration?=null
+    @Volatile var pocCalibration: RouteAlignment?=null
     @Volatile var cameraSensorOrientation: Int=0
     val trackingEpoch=java.util.concurrent.atomic.AtomicLong(0)
     private val perceptionCapture=ArPerceptionCapture()
@@ -712,6 +720,7 @@ private class ArCoreRenderer(
     private data class AnchoredReference(val anchor: Anchor,val reference: CalibrationReference,val epoch: Long)
     private var referenceA: AnchoredReference?=null
     private var referenceB: AnchoredReference?=null
+    private var startAnchor: Anchor?=null
     private var lastCameraPose: Pose?=null
     private var lastCameraTimestamp=0L
     private var lastCameraReceivedAt=0L
@@ -726,6 +735,7 @@ private class ArCoreRenderer(
 
     /** Called on GL, or after GLSurfaceView.onPause has stopped the GL thread. */
     fun clearPocAlignment() {
+        startAnchor?.let{runCatching{it.detach()}};startAnchor=null
         referenceA?.anchor?.let{runCatching{it.detach()}}
         referenceB?.anchor?.let{runCatching{it.detach()}}
         referenceA=null;referenceB=null;pocCalibration=null
@@ -772,7 +782,30 @@ private class ArCoreRenderer(
         } catch(error: Throwable) {anchor.detach();throw error}
     }
 
-    private fun refreshPocAlignment(): MapCalibration? {
+    fun capturePocStart(origin: GeoCoordinate,forward: GeoCoordinate): PocStartAlignment {
+        val pose=checkNotNull(lastCameraPose){"카메라를 천천히 움직여 주변을 인식시키세요."}
+        check(lastCameraEpoch==trackingEpoch.get() && SystemClock.elapsedRealtime()-lastCameraReceivedAt in 0..750){"카메라 추적을 다시 준비하세요."}
+        val activeSession=checkNotNull(session)
+        val p=LocalPose(pose.tx(),pose.ty(),pose.tz(),pose.qx(),pose.qy(),pose.qz(),pose.qw())
+        val alignment=PocStartAlignment(origin,forward,p,lastCameraTimestamp,"poc-start-${java.util.UUID.randomUUID()}")
+        val anchor=activeSession.createAnchor(pose)
+        startAnchor?.detach();referenceA?.anchor?.detach();referenceB?.anchor?.detach()
+        referenceA=null;referenceB=null;startAnchor=anchor;pocCalibration=alignment
+        currentPocRoute=emptyList();currentPocRouteRevision=0
+        ribbonRenderer.setPocRoute(emptyList(),alignment)
+        return alignment
+    }
+
+    private fun refreshPocAlignment(): RouteAlignment? {
+        (pocCalibration as? PocStartAlignment)?.let {prior ->
+            val anchor=startAnchor
+            if(anchor==null || anchor.trackingState!=TrackingState.TRACKING){clearPocAlignment();return null}
+            val p=anchor.pose
+            val updated=runCatching{prior.copy(anchorPose=LocalPose(p.tx(),p.ty(),p.tz(),p.qx(),p.qy(),p.qz(),p.qw()))}
+                .getOrElse{clearPocAlignment();return null}
+            pocCalibration=updated;ribbonRenderer.setPocRoute(currentPocRoute,updated)
+            return updated
+        }
         val first=referenceA ?: return null
         val second=referenceB
         if(first.epoch!=trackingEpoch.get() || first.anchor.trackingState!=TrackingState.TRACKING ||
@@ -781,7 +814,7 @@ private class ArCoreRenderer(
         }
         val prior=pocCalibration ?: return null
         if(second==null)return null
-        val updated=runCatching {prior.withTrackedReferences(first.anchor.pose.worldPosition(),second.anchor.pose.worldPosition())}.getOrElse {
+        val updated=runCatching {(prior as MapCalibration).withTrackedReferences(first.anchor.pose.worldPosition(),second.anchor.pose.worldPosition())}.getOrElse {
             clearPocAlignment();return null
         }
         pocCalibration=updated
@@ -790,7 +823,7 @@ private class ArCoreRenderer(
         return updated
     }
 
-    fun setPocRoute(route: List<GeoCoordinate>,calibration: MapCalibration?,routeRevision: Int) {
+    fun setPocRoute(route: List<GeoCoordinate>,calibration: RouteAlignment?,routeRevision: Int) {
         val current=pocCalibration?.takeIf{it.revision==calibration?.revision}
         if(current==null) {
             // An old inference or network reply must not erase or revive a newer alignment.
@@ -1078,7 +1111,7 @@ private class RouteRibbonRenderer {
     private var colorUniform = 0
     private var guidance: ForwardGuidancePath? = null
     private var pocRoute: List<GeoCoordinate>?=null
-    private var pocCalibration: MapCalibration?=null
+    private var pocCalibration: RouteAlignment?=null
     private var headingDegrees: Float? = null
     private var guidanceRevision = 0
     private var anchoredRevision = -1
@@ -1102,7 +1135,7 @@ private class RouteRibbonRenderer {
         guidanceRevision += 1
     }
 
-    fun setPocRoute(route: List<GeoCoordinate>,calibration: MapCalibration?) {
+    fun setPocRoute(route: List<GeoCoordinate>,calibration: RouteAlignment?) {
         pocRoute=route;pocCalibration=calibration;guidanceRevision++
     }
 
@@ -1138,7 +1171,7 @@ private class RouteRibbonRenderer {
         activeVertices.position(0)
         GLES20.glVertexAttribPointer(positionAttribute, 3, GLES20.GL_FLOAT, false, 0, activeVertices)
         GLES20.glEnableVertexAttribArray(positionAttribute)
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexCount)
+        GLES20.glDrawArrays(if(pocRoute!=null)GLES20.GL_TRIANGLES else GLES20.GL_TRIANGLE_STRIP, 0, vertexCount)
         GLES20.glDisableVertexAttribArray(positionAttribute)
         GLES20.glDisable(GLES20.GL_BLEND)
         return true
@@ -1159,14 +1192,7 @@ private class RouteRibbonRenderer {
             } ?: return null
             val centres=pocRoute.orEmpty().map { c.world(it,ground.hitPose.ty().toDouble()+0.02) }
             if(centres.size<2)return null
-            val values=ArrayList<Float>()
-            centres.forEachIndexed { i,p ->
-                val a=centres[(i-1).coerceAtLeast(0)];val b=centres[(i+1).coerceAtMost(centres.lastIndex)]
-                val dx=b.x-a.x;val dz=b.z-a.z;val len=hypot(dx,dz).coerceAtLeast(0.001)
-                val nx=-dz/len*RIBBON_HALF_WIDTH_METERS;val nz=dx/len*RIBBON_HALF_WIDTH_METERS
-                values.addAll(listOf((p.x+nx).toFloat(),p.y.toFloat(),(p.z+nz).toFloat(),(p.x-nx).toFloat(),p.y.toFloat(),(p.z-nz).toFloat()))
-            }
-            return floatBufferOf(*values.toFloatArray())
+            return floatBufferOf(*kr.co.navi.mobility.guidance.contract.floorArrowTriangles(centres))
         }
         val path = guidance ?: return null
         val heading = headingDegrees ?: return null

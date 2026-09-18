@@ -1,0 +1,64 @@
+{
+  "created_at": "2026-09-18T19:57:44.821771+00:00",
+  "apk": "artifacts\\jeonju\\runs\\hackathon-east-delivery-20260919\\NaVi-Jeonju-Hackathon.apk",
+  "apk_sha256": "aa9902692eb77b09f0de9fb6bb67ba28c4d80b8ac3c59ad5e7fe63f3c71007c3",
+  "apk_bytes": 108415199,
+  "default_mode": "Hackathon",
+  "route_source": "user_declared_fixed_course",
+  "destination": {
+    "lat": 35.8457996,
+    "lon": 127.1319938
+  },
+  "east_edge": "OSM_E_1327522116_93e880e796",
+  "server_required_for_preset_navigation": false,
+  "ar_geometry": "repeated_blue_floor_arrows_2m_spacing",
+  "trigger_modes": [
+    "real_2d_cone_cue_in_preset_zone",
+    "explicit_operator_button"
+  ],
+  "autonomous_obstacle_localization": false,
+  "android_tests": {
+    "contract": {
+      "tests": 38,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "fusion": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ai": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    "ar": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  },
+  "emulator_instrumentation": {
+    "passed": 10,
+    "offline_model_preparation_verified": true,
+    "initial_failure": "recycled_bitmap_pixel_read_fixed_before_successful_retry"
+  },
+  "debug_benchmark_instrumentation_builds": "passed",
+  "debug_lint": "passed",
+  "s23_installed": false,
+  "field_acceptance_verified": false,
+  "graph_sha256": "5b006cb4aecaf0f289f989a530d0d73c34f795809febf67aad52921f8f2aa923",
+  "original_recordings_changed": false,
+  "backend_changes_this_delivery": false
+}

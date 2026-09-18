@@ -21,6 +21,7 @@ data class RouteRequestDto(
     val destination: CoordinateDto,
     val profile: String = "wheelchair",
     @SerialName("session_id") val sessionId: String? = null,
+    @SerialName("alignment_source") val alignmentSource: String = "measured_references",
 )
 
 @Serializable
@@ -41,6 +42,7 @@ data class ProvenanceSummaryDto(
 
 @Serializable
 data class RouteResultDto(
+    @SerialName("alignment_source") val alignmentSource: String = "measured_references",
     val status: String = "ok",
     @SerialName("distance_m") val distanceM: Double,
     @SerialName("estimated_minutes") val estimatedMinutes: Int,

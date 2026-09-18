@@ -148,6 +148,8 @@ def create_app(
             a = store.get_node(node)
             return {"lat":a["lat"], "lon":a["lon"]}
         return {**s.data,"graph_revision":database.graph_revision,"profile":"demo_jeonju",
+                "alignment_sources":["measured_references","poc_start"],
+                "poc_start_forward":{"lat":35.8458917,"lon":127.1319832},
                 "origin":coordinate(s.data["origin_node"]),"destination":coordinate(s.data["destination_node"]),
                 "segments":[{"edge_id":e,"physical_segment_id":e,"geometry":store.get_edge(e)["geometry"]} for e in sorted(s.allowed)]}
 

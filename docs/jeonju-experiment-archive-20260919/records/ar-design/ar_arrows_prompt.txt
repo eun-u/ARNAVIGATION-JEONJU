@@ -1,0 +1,12 @@
+Edit the first supplied image, the two-panel NaVi AR illustration, with one targeted change: replace BOTH solid continuous blue floor ribbons with a sequence of separate blue directional arrows laid flat on the sidewalk.
+
+The second and third supplied images are the original camera backgrounds for the left and right panels respectively. Use them to restore the original pavement visible between the arrows. Preserve the actual photographed scene, nighttime lighting, blur, trees, road, buildings, lampposts and perspective. Keep the first image's two-panel layout, UI titles, buttons, subtitles, typography and source timestamps unchanged, except the explanatory line described below.
+
+Arrow design: 7 to 9 clearly separated blue directional arrow symbols per panel, each with a broad V-shaped arrowhead and a short stem, all pointing in the direction of forward walking, away from the camera. They are flat virtual floor markings with perspective foreshortening, NOT upright signs. Use saturated #2963F5 at about 90% opacity with a subtle narrow light edge for legibility. Leave ample empty visible original sidewalk between each arrow. The nearest arrow is largest, each farther arrow becomes progressively smaller and the gaps compress into the distance. Arrows occupy only the central part of the walkway, around one third of the walkway width, so the sidewalk surface remains visible. No continuous ribbon or connecting line underneath them. No neon glow, no floating signs, no added objects.
+Left panel: arrows continue straight along the brick pedestrian walkway.
+Right panel: the sequence follows the visible sidewalk curve to the right, and each arrow rotates smoothly along the direction of that curve, staying on the sidewalk and never crossing the road.
+
+Preserve the prominent top label exactly: "영상 기반 AR 합성 예시 · 실제 앱 캡처 아님"
+Change ONLY the second explanatory line to exactly: "기존 촬영 장면에 연속 화살표를 표현한 설명용 이미지"
+Preserve all other Korean text as it appears in the first supplied image.
+This remains a clearly marked AI-generated illustrative composite, not an actual app capture, not a localization result and not a real route-engine output. Do not add any claims or measurements.

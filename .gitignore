@@ -42,3 +42,9 @@ data/processed/evaluation/
 # Temporary field access codes, provisioned APKs and tunnel runtime state are local only.
 android/app/src/main/assets/field_connection.local.json
 artifacts/jeonju/field-server/
+# Provisioned APKs can contain local access credentials; distribute separately.
+*.apk
+# Ad-hoc run output stays local; curated experiment evidence is under docs/.
+/artifacts/jeonju/*.log
+/artifacts/jeonju/poc-start-pytest.xml
+/artifacts/jeonju/start-reference-candidate.jpg

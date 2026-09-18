@@ -44,10 +44,23 @@ def check_observation_order(service, session_id, items, conflict):
 
 def spatial_evidence(item, position, scope, store, *, clearance=False):
     evidence = item.evidence
+    relative = position.alignment_source == "poc_start"
+    method=evidence.get("spatial_method", "raw_depth")
+    plane=evidence.get("ground_height_m")
+    relative_spatial_valid=(method == "raw_depth" and evidence.get("depth_valid") is True) or (
+        method == "ground_plane_ray" and evidence.get("ground_plane_valid") is True
+        and isinstance(plane, (int,float)) and not isinstance(plane, bool) and math.isfinite(plane)
+        and evidence.get("labels") == ["traffic_cone"])
+    if relative and (clearance or item.source != "poc_live_ai" or evidence.get("alignment_source") != "poc_start"
+                     or evidence.get("accuracy_m") is not None or not relative_spatial_valid
+                     or evidence.get("semantics_valid") is not True):
+        raise PocContractError("poc_start_evidence_required", status_code=422)
+    if not relative and (item.source == "poc_live_ai" or evidence.get("alignment_source", "measured_references") != "measured_references"):
+        raise PocContractError("alignment_source_mismatch", status_code=422)
     try:
         persistence = float(evidence.get("persistence_ms", 0))
         confidence = float(evidence.get("confidence", 0))
-        error = float(evidence["accuracy_m"])
+        error = float(evidence["relative_tracking_budget_m" if relative else "accuracy_m"])
         numeric_valid = all(math.isfinite(v) for v in (persistence, confidence, error)) and (
             persistence >= 2000 and 0.6 <= confidence <= 1 and 0 < error <= 1.5
         )
@@ -98,10 +111,15 @@ def reroute_poc(service, record, update):
     position=update.current_position
     if position is None:
         raise PocContractError("current_position_required",status_code=422)
+    alignment_source=record["request"].get("alignment_source", "measured_references")
+    if position.alignment_source != alignment_source:
+        raise PocContractError("alignment_source_mismatch",status_code=422)
+    if alignment_source == "poc_start" and (update.avoidance_clearances or any(i.source != "poc_live_ai" for i in update.avoidance_upserts)):
+        raise PocContractError("poc_start_evidence_required",status_code=422)
     now=utc_now()
     if not -1 <= (now-aware(position.timestamp)).total_seconds() <= 5:
         raise PocContractError("position_stale",status_code=422)
-    scope.match(service.store,position,position.accuracy_m,update.progress_edge_id)
+    scope.match(service.store,position,position.relative_tracking_budget_m if alignment_source == "poc_start" else position.accuracy_m,update.progress_edge_id)
     check_observation_order(service,session_id,[*update.avoidance_upserts,*update.avoidance_clearances],conflict)
     previous=RouteResult.model_validate(record["route"]) if record["route"] else None
     avoidances=state["avoidances"]
@@ -114,7 +132,7 @@ def reroute_poc(service, record, update):
         if item.edge_id in avoidances and avoidances[item.edge_id]["source"] != item.source:
             raise conflict("observation_source_mismatch")
         observed_at=aware(item.observed_at)
-        if item.source == "live_ai" and not -1 <= (now-observed_at).total_seconds() <= 5:
+        if item.source in ("live_ai", "poc_live_ai") and not -1 <= (now-observed_at).total_seconds() <= 5:
             raise PocContractError("observation_stale",status_code=422)
         if item.source != "contract_test":
             spatial_evidence(item,position,scope,service.store)
@@ -158,13 +176,13 @@ def reroute_poc(service, record, update):
     for edge_id,avoidance in avoidances.items():
         evidence=avoidance.get("evidence",{})
         try:
-            error=float(evidence.get("accuracy_m",99))
+            error=float(evidence.get("relative_tracking_budget_m" if alignment_source == "poc_start" else "accuracy_m",99))
             if edge_id in blocks and evidence.get("object_position") and 0 < error <= 1.5:
                 blocked_positions[edge_id]=(Coordinate.model_validate(evidence["object_position"]),error+scope.data["map_error_m"])
         except (ValueError,TypeError):
             pass # A contract-only unmeasured block excludes the whole physical edge.
     try:
-        route=service._decorate_route(service.engine.find_accessible_route(request,blocks,blocked_positions=blocked_positions),session_id,expires).model_copy(update={"route_revision":revision})
+        route=service._decorate_route(service.engine.find_accessible_route(request,blocks,blocked_positions=blocked_positions),session_id,expires).model_copy(update={"route_revision":revision,"alignment_source":alignment_source})
     except RouteNotFoundError:
         pass
     response=SessionRerouteResponse(status="recalculated" if route else "no_accessible_route", session_id=session_id,

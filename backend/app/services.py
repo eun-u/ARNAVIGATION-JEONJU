@@ -40,10 +40,21 @@ class RouteService:
         return result.model_copy(update={"session_id": session_id, "graph_revision": self.database.graph_revision, "expires_at": expires_at})
 
     def route(self, request: RouteRequest) -> RouteResult:
+        if request.alignment_source == "poc_start":
+            scope = self.engine.scope
+            if scope is None:
+                raise PocContractError("poc_start_scope_required", status_code=422)
+            from .routing import haversine_m
+            from .schemas import Coordinate
+            graph = scope.snapshot(self.store)
+            for point, key in ((request.origin, "origin_node"), (request.destination, "destination_node")):
+                node = graph.nodes[scope.data[key]]
+                if haversine_m(point, Coordinate(lat=node["lat"], lon=node["lon"])) > 0.1:
+                    raise PocContractError("poc_start_fixed_course_required", status_code=422)
         if self.engine.scope and request.session_id:
             raise PocContractError("existing_session_requires_reroute")
         session_id, expires_at = self._session_identity(request.session_id)
-        result = self._decorate_route(self.engine.find_accessible_route(request), session_id, expires_at)
+        result = self._decorate_route(self.engine.find_accessible_route(request), session_id, expires_at).model_copy(update={"alignment_source": request.alignment_source})
         self.database.save_session(
             session_id,
             request.model_dump(mode="json", exclude={"session_id"}),
@@ -76,6 +87,8 @@ class RouteService:
         )
 
     def compare(self, request: RouteRequest) -> RouteComparison:
+        if request.alignment_source == "poc_start":
+            raise PocContractError("poc_start_requires_route", status_code=422)
         if self.engine.scope and request.session_id:
             raise PocContractError("existing_session_requires_reroute")
         session_id, expires_at = self._session_identity(request.session_id)

@@ -12,35 +12,48 @@ data class DepthSamples(val width: Int, val height: Int, val millimeters: IntArr
 data class SemanticSamples(val width: Int, val height: Int, val labels: ByteArray, val confidence: ByteArray, val timestampNanos: Long)
 data class CalibrationReference(val geo: GeoCoordinate, val world: Vec3, val accuracyMeters: Double, val label: String)
 
+/** Coordinate transform provenance is independent of the tracking error policy. */
+sealed interface RouteAlignment {
+    val revision: String
+    val createdTimestampNanos: Long
+    val source: String
+    fun mapMeters(world: Vec3): Vec3
+    fun geo(world: Vec3): GeoCoordinate
+    fun world(geo: GeoCoordinate, y: Double): Vec3
+    /** For poc_start this is a relative tracking budget, never geographic accuracy. */
+    fun errorAt(world: Vec3, timestamp: Long): Double
+}
+
 /** A measured two-reference alignment, never inferred from a single GPS fix. */
 data class MapCalibration(
-    val revision: String,
+    override val revision: String,
     val first: CalibrationReference,
     val second: CalibrationReference,
     val yawRadians: Double,
-    val createdTimestampNanos: Long,
+    override val createdTimestampNanos: Long,
     val yawErrorRadians: Double,
-) {
+) : RouteAlignment {
+    override val source: String get() = "measured_references"
     /** Stable local map metres: east, zero, south. AR world rebasing cannot move this point. */
-    fun mapMeters(world: Vec3): Vec3 {
+    override fun mapMeters(world: Vec3): Vec3 {
         val x=world.x-first.world.x; val north=-(world.z-first.world.z)
         val east=x*cos(yawRadians)+north*sin(yawRadians)
         val n=north*cos(yawRadians)-x*sin(yawRadians)
         return Vec3(east,0.0,-n)
     }
-    fun geo(world: Vec3): GeoCoordinate {
+    override fun geo(world: Vec3): GeoCoordinate {
         val map=mapMeters(world)
         return GeoCoordinate(first.geo.latitude-map.z/111195.08,first.geo.longitude+map.x/(111195.08*cos(Math.toRadians(first.geo.latitude))))
     }
     /** Recompute with this frame's two tracked Anchor poses, preserving calibration identity and age. */
     fun withTrackedReferences(firstWorld: Vec3,secondWorld: Vec3): MapCalibration = fromReferences(
         first.copy(world=firstWorld),second.copy(world=secondWorld),createdTimestampNanos,revision)
-    fun world(geo: GeoCoordinate, y: Double): Vec3 {
+    override fun world(geo: GeoCoordinate, y: Double): Vec3 {
         val e=(geo.longitude-first.geo.longitude)*111195.08*cos(Math.toRadians(first.geo.latitude))
         val n=(geo.latitude-first.geo.latitude)*111195.08
         return Vec3(first.world.x+e*cos(yawRadians)-n*sin(yawRadians),y,first.world.z-e*sin(yawRadians)-n*cos(yawRadians))
     }
-    fun errorAt(world: Vec3, timestamp: Long): Double {
+    override fun errorAt(world: Vec3, timestamp: Long): Double {
         val elapsed=(timestamp-createdTimestampNanos)/1e9
         if (elapsed !in 0.0..600.0) return Double.POSITIVE_INFINITY
         val displacement=hypot(world.x-first.world.x,world.z-first.world.z)
@@ -73,7 +86,7 @@ data class SpatialCapture(
     val imageToTexture: ImageTransform,
     val depth: DepthSamples?,
     val semantics: SemanticSamples?,
-    val calibration: MapCalibration?,
+    val calibration: RouteAlignment?,
     val rotationDegrees: Int,
     val observedAtEpochMillis: Long,
     val inputMode: String,

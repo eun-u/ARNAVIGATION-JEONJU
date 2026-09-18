@@ -36,6 +36,7 @@ data class PoseAccuracy(
     val horizontalMeters: Double? = null,
     val verticalMeters: Double? = null,
     val yawDegrees: Double? = null,
+    val relativeTrackingBudgetMeters: Double? = null,
 )
 
 enum class TrackingQuality {
@@ -119,6 +120,9 @@ data class PerceptionResult(
 data class ObservationEvidence(
     val labels: List<String>,
     val trackIds: List<String>,
+    val spatialMethod: String = "raw_depth",
+    val groundHeightMeters: Double? = null,
+    val semanticsGate: String = "sidewalk",
 )
 
 data class HazardObservation(
@@ -136,6 +140,8 @@ data class HazardObservation(
     val evidence: ObservationEvidence,
     val calibrationRevision: String? = null,
     val corridorOccupied: Boolean = false,
+    val alignmentSource: String = "measured_references",
+    val relativeTrackingBudgetMeters: Double? = null,
 ) {
     init {
         require(observationId.isNotBlank())

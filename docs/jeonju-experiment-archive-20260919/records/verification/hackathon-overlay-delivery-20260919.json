@@ -1,0 +1,31 @@
+﻿{
+    "created_at":  "2026-09-19T05:11:44.9672276+09:00",
+    "apk":  "NaVi-Jeonju-Hackathon.apk",
+    "sha256":  "f679f1a8572ea7c244cd15cfcfb44bb75ebfa332d42d381cddf7c0099c464a0a",
+    "build_types":  [
+                        "debug",
+                        "benchmark"
+                    ],
+    "build_success":  true,
+    "app_unit_tests":  {
+                           "total":  44,
+                           "passed":  43,
+                           "failures":  0,
+                           "errors":  0,
+                           "skipped":  1
+                       },
+    "debug_lint_errors":  0,
+    "changes":  [
+                    "actual_detection_labels_scores_class_colors",
+                    "live_and_replay_overlay",
+                    "requested_two_ui_strings_removed"
+                ],
+    "detector_model_changed":  false,
+    "tree_detection_supported":  false,
+    "new_field_recording_required":  false,
+    "physical_s23_connected":  false,
+    "physical_s23_installed":  false,
+    "live_ar_field_verified":  false,
+    "current_ui_runtime_visually_verified":  false,
+    "log":  "artifacts/jeonju/hackathon-overlay-build.log"
+}

@@ -16,6 +16,29 @@ import java.util.UUID
 /** Synthetic adapter/resource tests only. These are not field captures or AI scene evidence. */
 @RunWith(AndroidJUnit4::class)
 class JeonjuAdapterTest {
+    @Test fun fixedCourseSidecarsCannotBecomeMeasuredCalibration() {
+        val context=InstrumentationRegistry.getInstrumentation().targetContext
+        val dir=File(context.cacheDir,"poc-start-contract-${UUID.randomUUID()}")
+        val frame=Frame(0)
+        val pose=LocalPose(0f,1.4f,0f,0f,0f,0f,1f)
+        val c=PocStartAlignment(GeoCoordinate(35.846,127.131),GeoCoordinate(35.8458,127.131),pose,0,"poc-start-test")
+        val original=contractSpatial(frame,contractCalibration())
+        val s=original.copy(localPose=pose,geoCoordinate=c.geo(pose.position()),accuracy=PoseAccuracy(relativeTrackingBudgetMeters=.2),capture=original.capture!!.copy(calibration=c))
+        try {
+            val writer=ClipWriter(dir,JSONObject(),c,"poc-start-contract")
+            writer.append(s,frame)
+            val row=JSONObject(File(dir,"frames.jsonl").readText())
+            assertTrue(row.isNull("horizontal_accuracy_m"))
+            assertEquals(.2,row.getDouble("relative_tracking_budget_m"),0.0)
+            assertEquals("poc_start",row.getString("alignment_source"))
+            val saved=JSONObject(File(dir,"calibration.json").readText())
+            assertEquals("operator_fixed_course_start",saved.getString("method"))
+            assertTrue(saved.isNull("absolute_accuracy_m"))
+            assertFalse(saved.getBoolean("field_verified"))
+            assertThrows(IllegalArgumentException::class.java){parseCalibration(saved)}
+            assertThrows(IllegalArgumentException::class.java){writer.finish()}
+        } finally {frame.close();dir.deleteRecursively()}
+    }
     @Test fun rawCollectionKeepsDeviceLocationSeparateFromARAlignmentAndCannotReplayAsValidatedClip() {
         val context=InstrumentationRegistry.getInstrumentation().targetContext
         val dir=File(context.cacheDir,"collection-contract-${UUID.randomUUID()}")

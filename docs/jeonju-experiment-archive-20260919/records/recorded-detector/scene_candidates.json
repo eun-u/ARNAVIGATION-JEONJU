@@ -1,0 +1,49 @@
+{
+  "schema": "navi.assistant_scene_review.v1",
+  "reviewer": "assistant_visual_review",
+  "review_status": "pending_human_review",
+  "verified": false,
+  "calibration_status": "pending",
+  "routing_validation_passed": false,
+  "time_basis": "Nominal seconds in recording.mp4 for video previews; original collection elapsed times for CPU frame references. These clocks have not been independently synchronized.",
+  "cases": [
+    {
+      "id": "C01_construction_diagnostic",
+      "run": "NaVi-collect-20260919-022341-193-a2b8792d",
+      "start_s": 45,
+      "end_s": 85,
+      "selection": "diagnostic_only_not_C01_acceptance",
+      "observation": "공사 중 지면, 구덩이와 콘. 현재 지원 정지 장애물 클래스에 해당하지 않아 C01 충족으로 계산하지 않음.",
+      "human_verified": false
+    },
+    {
+      "id": "C02_vehicle_outside_candidate",
+      "run": "NaVi-collect-20260919-024204-341-339c8af2",
+      "start_s": 20,
+      "end_s": 50,
+      "selection": "candidate",
+      "observation": "차도 쪽 검은 차량과 분리된 보행로. 33.42~33.66초에 car 신뢰도 0.6 이상 2회. 차량의 정지 여부와 지도상의 진행 공간은 미확정.",
+      "expected_behavior_after_verified_alignment": "no_route_avoidance_for_object_outside_travel_corridor",
+      "human_verified": false
+    },
+    {
+      "id": "C03_passing_person_candidate",
+      "run": "NaVi-collect-20260919-023430-697-4a81ff58",
+      "start_s": 70,
+      "end_s": 100,
+      "selection": "candidate",
+      "observation": "약 77~86초에 외부 사람이 다가와 촬영자 앞을 통과하고 이후 공간이 비워짐. 76.9~86.5초 원본 CPU 샘플 36개 중 person>=0.6 기록 31개. 정답 기반 재현율 아님.",
+      "expected_behavior_after_verified_alignment": "no_unnecessary_reroute_for_transient_moving_person",
+      "human_verified": false
+    },
+    {
+      "id": "D01_self_shadow_negative",
+      "run": "NaVi-collect-20260919-024719-670-dd86e6fb",
+      "start_s": 145,
+      "end_s": 175,
+      "selection": "diagnostic_only",
+      "observation": "촬영자의 손과 그림자 등에 person 검출. 외부의 통행 방해 객체와 구분해야 하는 오류 분석 자료.",
+      "human_verified": false
+    }
+  ]
+}

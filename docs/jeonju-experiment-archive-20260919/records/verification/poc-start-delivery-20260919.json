@@ -1,0 +1,79 @@
+{
+  "created_at": "2026-09-18T19:10:36.044789+00:00",
+  "apk": "artifacts\\jeonju\\runs\\poc-start-delivery-20260919\\NaVi-Jeonju-PoC.apk",
+  "apk_sha256": "2664be8f598083e31accfa48fb97874c1a0f644e08dcad1ed3ef9f187642576c",
+  "apk_bytes": 108397614,
+  "android_unit_tests": {
+    "contract": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "fusion": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ai": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ar": {
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "python_tests": {
+    "tests": 183,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2
+  },
+  "emulator_adapter_tests": {
+    "device": "emulator-5554",
+    "passed": 9,
+    "initial_attempt": "process_crashed_then_force_stop_retry_passed",
+    "field_evidence": false
+  },
+  "benchmark_build": "passed",
+  "debug_lint": "passed",
+  "live_server": {
+    "url": "https://shopping-recommendation-emails-flow.trycloudflare.com",
+    "latest_restart_blocked_by_automatic_approval": true,
+    "last_two_validation_changes_deployed": false,
+    "http_status": 200,
+    "region": "JEONJU_JBNU_SOUTH_P0",
+    "alignment_sources": [
+      "measured_references",
+      "poc_start"
+    ]
+  },
+  "real_recording_diagnostic": {
+    "frames": 2946,
+    "cone_frames": 129,
+    "sustained_observations": 0,
+    "reasons_on_cone_frames": {
+      "alignment_unavailable": 8,
+      "insufficient_depth_samples": 65,
+      "outside_sidewalk_or_mask_uncertain": 46,
+      "persistence_pending": 8,
+      "moving_object": 2
+    },
+    "alignment": "assumed_first_frame_not_map_validation"
+  },
+  "s23_installed": false,
+  "field_acceptance_verified": false,
+  "original_data_mutated": false
+}

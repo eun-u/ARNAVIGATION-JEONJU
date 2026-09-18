@@ -1,0 +1,19 @@
+Edit the TWO supplied real video stills into ONE comparison image showing two Android NaVi AR navigation screen illustrations side by side. This is explicitly an illustrative composite, NOT an actual app screenshot, NOT an ARCore replay result, and NOT proof of localization or obstacle avoidance.
+
+Input image 1 is the real night brick sidewalk with hedge on the right, road and street lamp on the left, from video 4 at 01:22.52. Use it as the left screen camera background.
+Input image 2 is the real night curved sidewalk with road on the left, from video 5 at 01:52.52. Use it as the right screen camera background.
+Preserve each photo's real perspective, pavement, trees, lampposts, road, cones, blur, nighttime exposure, and framing. Do not invent or remove scene objects. No scene beautification.
+
+Add a simple, continuous, flat blue AR ribbon directly on each sidewalk surface in perspective, blue approximately #2963F5, 82 percent opacity. Broadest close to the camera at the lower foreground and narrowing with distance. On the left, center the ribbon on the brick pedestrian walkway toward its vanishing point, away from the roadside pole. On the right, follow the visible right-hand sidewalk as it curves to the right, never crossing onto the road. Use flat geometry, not a floating pipe, not bright neon, no giant arrows, no animated effects, and no claim of precise terrain conformity. This ribbon is a manual visual illustration of the app's existing flat blue floor-ribbon concept; do not imply the actual routing engine has computed these paths.
+
+Layout: a high-resolution clean image around 1536x1280, with two flat Android-like vertical application panels side by side on a plain light neutral background. No physical phone frames, no angled devices, no decorative advertising scene. Camera imagery should dominate both panels with only small white app title areas and a simple bottom guidance area. Use legible Korean sans-serif typography.
+At the very top, OUTSIDE both app panels, a prominent readable provenance label exactly: "영상 기반 AR 합성 예시 · 실제 앱 캡처 아님"
+Secondary line exactly: "기존 촬영 장면에 파란 경로 띠를 표현한 설명용 이미지"
+Each panel app title exactly: "NaVi 전북대 자동 시연"
+Left subtitle exactly: "직진 안내 예시"
+Right subtitle exactly: "곡선 구간 안내 예시"
+Left bottom guidance text exactly: "앞으로 천천히 걸어가세요."
+Right bottom guidance text exactly: "보행로를 따라 이동하세요."
+Both bottom simple blue buttons exactly: "종료하고 기록 내보내기"
+Below each panel, small source label: left "원본 영상 4 · 01:22.52", right "원본 영상 5 · 01:52.52".
+This is an enlarged AR-camera concept illustration, not a pixel-identical copy of the current app's scrollable screen. Do not add a map, measurements, distance, confidence scores, GPS accuracy, detection boxes, successful reroute labels, or any invented test result.

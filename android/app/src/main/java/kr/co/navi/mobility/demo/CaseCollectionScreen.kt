@@ -71,7 +71,8 @@ fun CaseCollectionScreen(activity: Activity, coordinator: CaseCollectionCoordina
                     if(camera && location) {cameraRequested=true; coordinator.start()}
                     else permissions.launch(required)
                 }) { Text("사례 수집 시작") }
-                OutlinedButton(onClick={activity.intent.putExtra("jeonju_mode","Live");activity.recreate()},modifier=Modifier.fillMaxWidth()) {Text("실시간 콘 감지·우회")}
+                OutlinedButton(onClick={activity.intent.putExtra("jeonju_mode","Hackathon");activity.recreate()},modifier=Modifier.fillMaxWidth()) {Text("해커톤 지정 코스 · 콘 감지·우회")}
+                OutlinedButton(onClick={activity.intent.putExtra("jeonju_mode","PocLive");activity.recreate()},modifier=Modifier.fillMaxWidth()) {Text("서버 기반 자동 우회")}
                 Text("최초 권한 요청은 허용해주세요. 촬영 중에는 화면을 켜두세요. 인터넷이 끊겨도 기기에 저장됩니다.",style=MaterialTheme.typography.bodySmall)
             }
             CollectionPhase.PREPARING -> { LinearProgressIndicator(Modifier.fillMaxWidth()); OutlinedButton(onClick={coordinator.stop()}) {Text("취소")} }

@@ -43,7 +43,7 @@ fun JeonjuDemoScreen(activity: Activity,coordinator: JeonjuCoordinator) {
     val permissions=rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){cameraGranted=it[Manifest.permission.CAMERA]==true}
     val lifecycle=LocalLifecycleOwner.current
     var arStatus by remember{mutableStateOf("카메라 권한을 허용하세요.")}
-    val arView=remember(cameraGranted){if(cameraGranted && coordinator.mode=="Live")ArCoreNavigationView(activity,activity){arStatus=it.message ?: it.mode.name} else null}
+    val arView=remember(cameraGranted){if(cameraGranted && coordinator.isLive)ArCoreNavigationView(activity,activity){arStatus=it.message ?: it.mode.name} else null}
     DisposableEffect(arView,lifecycle) {
         arView?.let(coordinator::attach)
         val observer=LifecycleEventObserver {_,event->when(event){
@@ -61,21 +61,23 @@ fun JeonjuDemoScreen(activity: Activity,coordinator: JeonjuCoordinator) {
     LaunchedEffect(state.calibration?.revision){confirmed=false}
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         Text("NaVi 전북대 자동 시연",style=MaterialTheme.typography.headlineSmall)
-        Text("${coordinator.mode} · ${coordinator.clipId}",style=MaterialTheme.typography.labelLarge)
-        Text("demo_jeonju · 접근성 미확인 속성 허용",color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.labelMedium)
+        if(!coordinator.isHackathon)Text(if(coordinator.isPoc)"전주 고정 코스 · 실시간 시연" else "${coordinator.mode} · ${coordinator.clipId}",style=MaterialTheme.typography.labelLarge)
+        Text("PoC 시연 경로 · 현장 통행 가능 여부 확인 필요",color=MaterialTheme.colorScheme.error,style=MaterialTheme.typography.labelMedium)
         Text(state.message,style=MaterialTheme.typography.bodyLarge)
         if(!state.running && !state.starting)OutlinedButton(onClick={activity.intent.putExtra("jeonju_mode","Collect");activity.recreate()}) {Text("버튼 하나로 사례 수집")}
-        ServerConnectionSettings(activity,coordinator.backend,enabled=!state.running && !state.starting && !state.capturingReference)
-        if(coordinator.mode=="Live") {
+        if(!coordinator.isHackathon)ServerConnectionSettings(activity,coordinator.backend,enabled=!state.running && !state.starting && !state.capturingReference)
+        if(coordinator.isHackathon)Text("장애물 앞에서 되돌아가 오른쪽 보행로로 우회합니다. 아래 합류점에서 종료합니다.",style=MaterialTheme.typography.bodyMedium)
+        if(coordinator.isPoc && !state.running && !state.terminal)PocStartGuide(activity)
+        if(coordinator.isLive) {
             if(!cameraGranted)Button(onClick={permissions.launch(arrayOf(Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION))}){Text("카메라·위치 권한 준비")}
             arView?.let {view->Box(Modifier.fillMaxWidth().height(260.dp)) {
                 AndroidView(factory={view},modifier=Modifier.fillMaxSize())
                 LiveDetections(state)
             }}
             Text("현재 콘 감지 ${state.detections.count{it.label=="traffic_cone"}}개",style=MaterialTheme.typography.titleMedium)
-            if(!state.running)Text("콘 감지는 준비 화면에서도 표시됩니다. 기준점 정합을 마친 뒤 시작하면 경로 영향을 판단합니다.",style=MaterialTheme.typography.bodySmall)
+            if(!state.running)Text(if(coordinator.isPoc)"출발점에서 남쪽 보행로를 향하세요. 시작하면 현재 위치와 방향을 기준으로 안내합니다." else "콘 감지는 준비 화면에서도 표시됩니다. 기준점 정합을 마친 뒤 시작하면 경로 영향을 판단합니다.",style=MaterialTheme.typography.bodySmall)
             Text(arStatus,style=MaterialTheme.typography.bodySmall)
-            if(!state.running && !state.terminal) {
+            if(!state.running && !state.terminal && !coordinator.isPoc) {
                 Text("정합 준비: 위치가 알려진 두 기준점에 카메라를 차례로 놓고 기록하세요. 기준점은 5m 이상 떨어져 있어야 합니다.",style=MaterialTheme.typography.bodyMedium)
                 OutlinedTextField(label={Text("기준점 이름")},value=label,onValueChange={label=it},singleLine=true,modifier=Modifier.fillMaxWidth())
                 Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
@@ -97,11 +99,19 @@ fun JeonjuDemoScreen(activity: Activity,coordinator: JeonjuCoordinator) {
         }
         if(coordinator.mode=="Replay") ReplayFrame(state)
         if(state.guidanceValid)state.route?.let {route->
-            RouteMap(route,route,emptyList(),state.reroutes>0,Modifier.fillMaxWidth().height(230.dp))
+            if(coordinator.isHackathon) {
+                PresetCourseMap(coordinator.presetMapSegments,state.snapshot?.geometry.orEmpty(),state.spatial?.geoCoordinate,Modifier.fillMaxWidth().height(200.dp))
+                Text("지정 코스 약도 · 위쪽이 북쪽 · 파랑: 안내 경로 · 초록: 도착점",style=MaterialTheme.typography.bodySmall)
+            } else RouteMap(route,route,emptyList(),state.reroutes>0,Modifier.fillMaxWidth().height(230.dp))
             Text("${state.remainingMeters?.let{"남은 거리 ${it.toInt()}m"} ?: "현재 위치 확인 중"} · 경로 ${state.snapshot?.revision}",style=MaterialTheme.typography.titleMedium)
         }
         if(state.running) {
-            Text("프레임 ${state.frames} · 자동 우회 ${state.reroutes}\n${decisionText(state.decision)}",style=MaterialTheme.typography.bodyMedium)
+            Text("${decisionText(state.decision)} · 우회 ${state.reroutes}회",style=MaterialTheme.typography.bodyMedium)
+            if(coordinator.isHackathon && state.presetTrigger==null) {
+                Text("지정 지점에서 콘을 비추면 자동 전환합니다.",style=MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick=coordinator::switchPresetManually,enabled=!state.presetSwitching,modifier=Modifier.fillMaxWidth()){Text("장애물 확인 · 지정 우회 시작")}
+            }
+            state.presetTrigger?.let {Text(if(it=="operator_button")"수동 확인으로 지정 경로 전환" else "콘 인식으로 지정 경로 전환",style=MaterialTheme.typography.bodySmall)}
             Button(onClick=coordinator::stop,modifier=Modifier.fillMaxWidth()){Text("종료하고 기록 내보내기")}
         } else if(!state.terminal && coordinator.mode!="SelfTest") {
             if(!state.ttsReady)OutlinedButton(onClick={activity.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))}){Text("한국어 음성 데이터 준비")}
@@ -110,9 +120,10 @@ fun JeonjuDemoScreen(activity: Activity,coordinator: JeonjuCoordinator) {
                 state.capturingReference -> "기준점 기록을 마치면 시연을 시작할 수 있습니다."
                 !state.prepared -> "서버와 모델 준비가 완료돼야 합니다."
                 !state.ttsReady -> "한국어 음성 데이터를 먼저 준비하세요."
-                coordinator.mode!="Replay" && !state.referenceA -> "기준점 A를 먼저 기록하세요."
-                coordinator.mode!="Replay" && state.calibration==null -> "기준점 B를 기록해 두 지점의 정합을 완료하세요."
-                coordinator.mode!="Replay" && !confirmed -> "위의 기준점·촬영 동선 현장 확인 항목을 체크하세요."
+                coordinator.mode=="Live" && !state.referenceA -> "기준점 A를 먼저 기록하세요."
+                coordinator.mode=="Live" && state.calibration==null -> "기준점 B를 기록해 두 지점의 정합을 완료하세요."
+                coordinator.mode=="Live" && !confirmed -> "위의 기준점·촬영 동선 현장 확인 항목을 체크하세요."
+                coordinator.isPoc -> pocStartReadiness(state.spatial,requireSemantics=!coordinator.isHackathon)
                 else -> null
             }
             startReason?.let{Text(it,style=MaterialTheme.typography.bodyMedium)}
@@ -122,25 +133,27 @@ fun JeonjuDemoScreen(activity: Activity,coordinator: JeonjuCoordinator) {
     }
 }
 
+@Composable private fun PocStartGuide(activity: Activity) {
+    val bitmap=remember(activity){activity.assets.open("poc_start_reference.jpg").use{BitmapFactory.decodeStream(it)}}
+    DisposableEffect(bitmap){onDispose{bitmap?.recycle()}}
+    Text("출발점에서 남쪽 보행로를 향하세요",style=MaterialTheme.typography.titleMedium)
+    bitmap?.let{Image(it.asImageBitmap(),"기존 촬영의 출발 구간 참고 모습",Modifier.fillMaxWidth().height(150.dp),contentScale=ContentScale.Fit)}
+    Text("사진은 출발 구간 참고용입니다. 지도에 표시한 시작점에서 보행로를 따라 남쪽을 향한 뒤 시작하세요.",style=MaterialTheme.typography.bodySmall)
+    OutlinedButton(onClick={
+        val uri=android.net.Uri.parse("geo:35.8463514,127.1319861?q=35.8463514,127.1319861(NaVi)")
+        runCatching{activity.startActivity(Intent(Intent.ACTION_VIEW,uri))}
+            .onFailure{android.widget.Toast.makeText(activity,"출발점: 35.8463514, 127.1319861",android.widget.Toast.LENGTH_LONG).show()}
+    }){Text("지도에서 출발점 보기")}
+}
+
 @Composable private fun LiveDetections(state: JeonjuState) {
     val capture=state.spatial?.capture ?: return
-    val transform=capture.imageToView ?: return
-    Canvas(Modifier.fillMaxSize()) {
-        // Convert upright inference boxes back to CPU pixels, then use ARCore's
-        // actual viewport crop/rotation transform. Never stretch boxes to the preview.
-        state.detections.forEach { detection ->
-            val b=detection.bounds
-            val corners=listOf(b.left to b.top,b.right to b.top,b.right to b.bottom,b.left to b.bottom).map { (u,v) ->
-                val cpu=when(capture.rotationDegrees){90->v to 1-u;180->1-u to 1-v;270->1-v to u;else->u to v}
-                val view=transform.uv(cpu.first*capture.intrinsics.width.toDouble(),cpu.second*capture.intrinsics.height.toDouble())
-                Offset((view.first*size.width).toFloat(),(view.second*size.height).toFloat())
-            }
-            (corners+corners.first()).zipWithNext().forEach{(a,b)->drawLine(Color.Yellow,a,b,2.dp.toPx())}
-        }
-    }
+    DetectionOverlay(state.detections,capture)
 }
 
 private fun decisionText(reason: String)=when(reason){
+    "preset_waiting_for_cone"->"지정 장애물 지점에서 콘 확인 대기"
+    "preset_detour_active"->"지정 우회 경로 안내 중"
     "persistence_pending"->"객체의 지속성을 확인 중입니다."
     "moving_object"->"움직이는 객체 · 경로를 유지합니다."
     "outside_sidewalk_or_mask_uncertain"->"보도 밖 또는 영역 불확실 · 조치를 보류합니다."
@@ -160,9 +173,8 @@ private fun decisionText(reason: String)=when(reason){
     Box(Modifier.fillMaxWidth().aspectRatio(bitmap.width.toFloat()/bitmap.height)) {
         Image(bitmap.asImageBitmap(),"실제 촬영 프레임 재생",contentScale=ContentScale.Fit,modifier=Modifier.fillMaxSize())
         Canvas(Modifier.fillMaxSize()) {
-            state.detections.forEach{d->val b=d.bounds;drawRect(Color.Yellow,Offset(b.left*size.width,b.top*size.height),androidx.compose.ui.geometry.Size((b.right-b.left)*size.width,(b.bottom-b.top)*size.height),style=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))}
             val s=state.spatial;val c=s?.capture;val pose=s?.localPose;val calibration=c?.calibration;val ground=c?.groundHeightMeters
-            if(state.guidanceValid && state.remainingMeters!=null && pose!=null && calibration!=null && ground!=null && (s.accuracy?.horizontalMeters ?: 99.0)<=1.5) {
+            if(state.guidanceValid && state.remainingMeters!=null && pose!=null && calibration!=null && ground!=null && (s.navigationBudgetMeters() ?: 99.0)<=1.5) {
                 val k=c.intrinsics
                 val points=state.snapshot?.geometry.orEmpty().map{geo->pose.inverseTransform(calibration.world(geo,ground+0.02))}
                 fun project(camera: Vec3): Offset {
@@ -185,5 +197,6 @@ private fun decisionText(reason: String)=when(reason){
                 }
             }
         }
+        DetectionOverlay(state.detections)
     }
 }
